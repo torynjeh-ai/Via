@@ -1,0 +1,38 @@
+.container { max-width: 700px; }
+.title { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 24px; }
+
+/* Summary */
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.summaryCard { background: var(--bg-card); border-radius: 14px; padding: 20px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow); }
+.summaryIcon { font-size: 28px; }
+.summaryLabel { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+.summaryAmount { font-size: 18px; font-weight: 700; color: var(--primary); }
+
+/* Filters */
+.filters { display: flex; gap: 8px; margin-bottom: 20px; }
+.filterBtn { padding: 8px 18px; border: 1.5px solid var(--border); border-radius: 20px; background: var(--bg-card); color: var(--text-sub); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.filterBtn:hover { border-color: var(--primary); color: var(--primary); }
+.filterActive { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* Empty */
+.empty { background: var(--bg-card); border-radius: 16px; padding: 60px 40px; text-align: center; color: var(--text-sub); box-shadow: var(--shadow); }
+.emptyIcon { font-size: 48px; margin-bottom: 12px; }
+.empty p { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.empty small { font-size: 13px; }
+
+/* List */
+.list { display: flex; flex-direction: column; gap: 10px; }
+.item { background: var(--bg-card); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow); cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent; }
+.item:hover { border-color: var(--primary); transform: translateY(-1px); }
+.itemIcon { font-size: 28px; flex-shrink: 0; }
+.itemInfo { flex: 1; min-width: 0; }
+.itemTitle { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.itemMeta { font-size: 12px; color: var(--text-muted); font-family: monospace; }
+.itemRight { text-align: right; flex-shrink: 0; }
+.itemAmount { font-size: 16px; font-weight: 700; color: var(--danger); margin-bottom: 4px; }
+.payout { color: var(--success); }
+.viewBtn { font-size: 12px; color: var(--primary); font-weight: 600; }
+
+@media (max-width: 600px) {
+  .summary { grid-template-columns: 1fr; }
+}

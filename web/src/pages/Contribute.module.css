@@ -1,0 +1,20 @@
+.container { max-width: 500px; }
+.back { background: none; border: none; color: var(--primary); font-size: 15px; font-weight: 600; margin-bottom: 20px; padding: 0; }
+.container h1 { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+.amountCard { background: linear-gradient(135deg, var(--primary), var(--bg-sidebar)); color: #fff; border-radius: 16px; padding: 28px; text-align: center; margin-bottom: 24px; }
+.amountCard p { opacity: 0.8; margin-bottom: 8px; }
+.amountCard h2 { font-size: 40px; font-weight: 700; }
+.error { background: var(--error-bg); color: var(--danger); padding: 12px; border-radius: 8px; margin-bottom: 16px; }
+[data-theme="dark"] .error { background: var(--error-bg); }
+.success { background: var(--success-bg); color: var(--success); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-weight: 500; }
+[data-theme="dark"] .success { background: var(--success-bg); color: var(--success); }
+.form { background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+.form h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+.methods { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.method { display: flex; align-items: center; gap: 12px; padding: 16px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; background: var(--bg-card); }
+.dot { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; }
+.method span { flex: 1; font-size: 15px; font-weight: 500; color: var(--text); }
+.check { color: var(--success); font-weight: 700; font-size: 18px; }
+.btn { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; }
+.btn:hover { background: var(--primary-dark); }
+.btn:disabled { opacity: 0.7; cursor: not-allowed; }

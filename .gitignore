@@ -1,0 +1,38 @@
+# Environment
+.env
+.env.local
+.env.production
+backend/.env
+
+# Dependencies
+node_modules/
+web/node_modules/
+mobile/node_modules/
+
+# Python virtual environment
+face-service/venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Build outputs
+web/dist/
+mobile/.expo/
+mobile/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+*.pem
+scripts/

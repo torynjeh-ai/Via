@@ -1,0 +1,84 @@
+.welcome { margin-bottom: 24px; }
+.welcome h1 { font-size: 26px; font-weight: 700; color: var(--text); }
+.welcome p { color: var(--text-sub); margin-top: 4px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.stat { background: var(--bg-card); border-radius: 14px; padding: 20px; text-align: center; box-shadow: var(--shadow); }
+.statNum { font-size: 28px; font-weight: 700; color: var(--primary); text-transform: capitalize; }
+.statLabel { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
+.section { background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+.sectionHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.sectionHeader h2 { font-size: 18px; font-weight: 600; color: var(--text); }
+.createBtn { background: var(--primary); color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+.createBtn:hover { background: var(--primary-dark); }
+.empty { text-align: center; padding: 40px; color: var(--text-sub); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.card { background: var(--bg-subtle); border-radius: 12px; padding: 20px; border: 1.5px solid var(--border); transition: all 0.2s; }
+.card:hover { border-color: var(--primary); transform: translateY(-2px); }
+.cardHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.cardHeader h3 { font-size: 16px; font-weight: 600; color: var(--text); }
+.badge { color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.amount { font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+.meta { font-size: 13px; color: var(--text-sub); text-transform: capitalize; }
+
+.verifyBanner { display: flex; align-items: center; gap: 16px; background: var(--verify-banner-bg); border: 1.5px solid var(--warning); border-radius: 14px; padding: 16px 20px; margin-bottom: 24px; }
+.verifyBanner span { font-size: 28px; flex-shrink: 0; }
+.verifyBanner strong { display: block; font-size: 15px; color: var(--text); margin-bottom: 2px; }
+.verifyBanner p { font-size: 13px; color: var(--text-sub); margin: 0; }
+.verifyBtn { margin-left: auto; flex-shrink: 0; background: var(--warning); color: #fff; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.verifyBtn:hover { opacity: 0.9; }
+
+/* TC Balance card */
+.tcCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--border);
+  margin-bottom: 28px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.tcCard:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.tcCardLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tcCardIcon { font-size: 32px; }
+
+.tcCardLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.tcCardBalance {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.tcCardXaf {
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+.tcCardArrow {
+  font-size: 20px;
+  color: var(--primary);
+  font-weight: 700;
+}

@@ -1,0 +1,68 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--border);
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.codeRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.code {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary);
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  flex: 1;
+}
+
+.copyBtn {
+  background: var(--bg-subtle, rgba(0,0,0,0.05));
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.copyBtn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.copyBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.copied {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: #4CAF50;
+  color: #4CAF50;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-sub);
+  margin: 0;
+}

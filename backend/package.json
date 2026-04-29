@@ -1,0 +1,32 @@
+{
+  "name": "njangipay-backend",
+  "version": "1.0.0",
+  "description": "NjangiPay Backend API",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest --runInBand",
+    "db:migrate": "node -e \"require('dotenv').config(); const {pool} = require('./src/config/database'); require('fs').readFile('schema.sql','utf8',(e,sql)=>pool.query(sql).then(()=>{console.log('Schema applied');pool.end()}).catch(console.error))\""
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "express-validator": "^7.0.1",
+    "firebase-admin": "^11.9.0",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "pg": "^8.11.0",
+    "twilio": "^4.11.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.9.0"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3"
+  }
+}

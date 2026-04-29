@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Via",
+    "slug": "via",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "njangipay",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#6C63FF"
+    },
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.njangipay.app" },
+    "android": { "adaptiveIcon": { "backgroundColor": "#6C63FF" }, "package": "com.njangipay.app" },
+    "plugins": ["expo-secure-store"]
+  }
+}

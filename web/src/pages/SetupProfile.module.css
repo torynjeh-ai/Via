@@ -1,0 +1,101 @@
+.page { min-height: 100vh; background: var(--bg); display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; }
+.container { width: 100%; max-width: 540px; display: flex; flex-direction: column; gap: 24px; }
+
+.backLink { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--primary); font-weight: 500; }
+.backLink:hover { text-decoration: underline; }
+
+.header { text-align: center; }
+.icon { font-size: 48px; margin-bottom: 8px; }
+.header h1 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.header p { color: var(--text-sub); font-size: 14px; }
+
+.steps { display: flex; align-items: center; justify-content: center; gap: 0; }
+.stepItem { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.dot { width: 34px; height: 34px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--text-muted); }
+.dotActive { background: var(--primary); color: #fff; }
+.dotDone { background: var(--success); color: #fff; }
+.stepLabel { font-size: 12px; color: var(--text-muted); }
+.stepLabelActive { color: var(--primary); font-weight: 600; }
+.stepLine { width: 60px; height: 2px; background: var(--border); margin: 0 8px 20px; }
+.stepLineDone { background: var(--success); }
+
+.error { background: var(--error-bg); color: var(--danger); padding: 12px 16px; border-radius: 10px; font-size: 14px; }
+[data-theme="dark"] .error { background: var(--error-bg); }
+
+.card { background: var(--bg-card); border-radius: 16px; padding: 28px; box-shadow: var(--shadow-md); }
+.card h2 { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.hint { font-size: 13px; color: var(--text-sub); margin-bottom: 20px; line-height: 1.5; }
+
+.docChoice { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.docOption { background: var(--bg-subtle); border: 2px solid var(--border); border-radius: 12px; padding: 18px 12px; cursor: pointer; text-align: center; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.docOption span { font-size: 32px; }
+.docOption strong { font-size: 14px; color: var(--text); display: block; }
+.docOption small { font-size: 12px; color: var(--text-muted); display: block; }
+.docOption:hover { border-color: var(--primary); }
+.docOptionActive { border-color: var(--primary); background: var(--bg-hover); }
+
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+.fieldHint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.field input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; outline: none; box-sizing: border-box; letter-spacing: 1px; background: var(--bg-input); color: var(--text); }
+.field input:focus { border-color: var(--primary); }
+
+.uploadBox { border: 2px dashed var(--border); border-radius: 12px; padding: 32px 16px; text-align: center; cursor: pointer; transition: border-color 0.2s; }
+.uploadBox:hover { border-color: var(--primary); background: var(--bg-hover); }
+.uploadBox span { font-size: 36px; display: block; margin-bottom: 8px; }
+.uploadBox p { font-size: 14px; color: var(--text); margin-bottom: 4px; }
+.uploadBox small { color: var(--text-muted); font-size: 12px; }
+
+.preview { text-align: center; margin-bottom: 4px; }
+.preview img { max-width: 100%; max-height: 200px; border-radius: 10px; object-fit: cover; border: 2px solid var(--border); }
+.retake { display: block; margin: 10px auto 0; background: none; border: 1.5px solid var(--primary); color: var(--primary); padding: 6px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+.retake:hover { background: var(--bg-hover); }
+
+.cameraBox { position: relative; text-align: center; margin-bottom: 16px; }
+.video { width: 100%; max-height: 300px; border-radius: 12px; object-fit: cover; background: var(--bg-sidebar); display: block; }
+.faceGuide { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -58%); width: 150px; height: 190px; border: 3px solid var(--primary); border-radius: 50%; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.35); opacity: 0.8; }
+.cameraHint { font-size: 12px; color: var(--text-sub); margin: 8px 0 12px; }
+.captureBtn { background: var(--primary); color: #fff; border: none; padding: 13px 36px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.captureBtn:hover { background: var(--primary-dark); }
+
+.facePreviewWrap { text-align: center; margin-bottom: 16px; }
+.facePreview { width: 180px; height: 180px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary); display: block; margin: 0 auto 10px; }
+.matchBadge { display: inline-block; background: var(--status-success-bg); color: var(--success); font-size: 13px; font-weight: 600; padding: 4px 14px; border-radius: 20px; margin-bottom: 8px; }
+
+.btn { width: 100%; padding: 13px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+.btn:hover:not(:disabled) { background: var(--primary-dark); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnOutline { flex: 1; padding: 13px; background: transparent; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.btnOutline:hover { background: var(--bg-hover); }
+.btnRow { display: flex; gap: 12px; margin-top: 8px; }
+.btnRow .btn { flex: 1; margin-top: 0; }
+
+.analyzeWrap { text-align: center; }
+.analyzeImages { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 24px; }
+.analyzeImgBox { text-align: center; }
+.analyzeImgBox small { display: block; font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+.analyzeImg { width: 110px; height: 80px; object-fit: cover; border-radius: 10px; border: 2px solid var(--border); }
+.analyzeImgFace { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); }
+.analyzeScan { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--primary); font-size: 22px; }
+.scanLine { width: 2px; height: 40px; background: linear-gradient(to bottom, transparent, var(--primary), transparent); animation: scanPulse 1s ease-in-out infinite; }
+@keyframes scanPulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+.analyzeTitle { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 20px; }
+.stageList { text-align: left; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.stage { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-muted); }
+.stageActive { color: var(--primary); font-weight: 500; }
+.stageDone { color: var(--success); }
+.stageIcon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+
+.spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.progressBar { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progressFill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); border-radius: 99px; transition: width 0.5s ease; }
+
+.doneWrap { text-align: center; padding: 8px 0; }
+.doneIcon { font-size: 56px; margin-bottom: 12px; }
+.doneWrap h2 { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.doneWrap p { font-size: 14px; color: var(--text-sub); margin-bottom: 20px; line-height: 1.6; }
+.doneDetail { display: inline-flex; align-items: center; gap: 10px; background: var(--bg-subtle); padding: 10px 20px; border-radius: 10px; margin-bottom: 24px; font-size: 14px; color: var(--text-sub); }
+.doneDetail strong { color: var(--text); letter-spacing: 1px; }

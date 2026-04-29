@@ -1,0 +1,17 @@
+.page { min-height: 100vh; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.card { background: var(--bg-card); border-radius: 20px; padding: 40px 32px; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow-md); }
+.icon { font-size: 52px; margin-bottom: 16px; }
+.card h1 { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.card p { font-size: 15px; color: var(--text-sub); margin-bottom: 24px; line-height: 1.5; }
+.btn { width: 100%; padding: 13px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.btn:hover { background: var(--primary-dark); }
+.btnOutline { width: 100%; padding: 13px; background: transparent; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 12px; }
+.loading { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--text-sub); }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.success { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.successIcon { font-size: 44px; margin-bottom: 4px; }
+.success h2 { font-size: 20px; font-weight: 700; color: var(--text); }
+.success p { font-size: 14px; color: var(--text-sub); margin-bottom: 16px; }
+.error { background: var(--error-bg); color: var(--danger); padding: 14px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
+[data-theme="dark"] .error { background: var(--error-bg); }

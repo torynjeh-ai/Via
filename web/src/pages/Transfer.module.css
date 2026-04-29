@@ -1,0 +1,124 @@
+.container { max-width: 520px; }
+
+.header { margin-bottom: 28px; }
+
+.back {
+  font-size: 13px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.back:hover { text-decoration: underline; }
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+/* Banners */
+.successBanner,
+.errorBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.successBanner {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1.5px solid #4CAF50;
+  color: var(--text);
+}
+
+.successBanner strong { display: block; margin-bottom: 4px; }
+.successBanner p { margin: 0; color: var(--text-sub); }
+
+.errorBanner {
+  background: rgba(244, 67, 54, 0.08);
+  border: 1.5px solid var(--danger, #f44336);
+  color: var(--danger, #f44336);
+}
+
+.errorBanner p { margin: 0; }
+
+/* Form */
+.form {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.input {
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.preview {
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 600;
+  margin: 0;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+/* Submit */
+.submitBtn {
+  padding: 14px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 4px;
+}
+
+.submitBtn:hover:not(:disabled) { opacity: 0.9; }
+.submitBtn:disabled { opacity: 0.6; cursor: not-allowed; }

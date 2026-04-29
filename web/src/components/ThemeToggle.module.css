@@ -1,0 +1,62 @@
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 4px 4px 4px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
+  margin-bottom: 14px;
+}
+
+.light {
+  background: #e8e8f5;
+  box-shadow:
+    inset 2px 2px 6px rgba(0,0,0,0.12),
+    inset -1px -1px 4px rgba(255,255,255,0.8);
+}
+
+.dark {
+  background: #1e1e35;
+  box-shadow:
+    inset 2px 2px 6px rgba(0,0,0,0.5),
+    inset -1px -1px 4px rgba(255,255,255,0.04);
+}
+
+.knob {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.light .knob {
+  background: #1e1e35;
+  color: #fff;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.4);
+}
+
+.dark .knob {
+  background: #fff;
+  color: #1e1e35;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  flex: 1;
+  text-align: center;
+  padding-right: 6px;
+  transition: color 0.3s;
+}
+
+.light .label { color: #1e1e35; }
+.dark .label  { color: rgba(255,255,255,0.75); }

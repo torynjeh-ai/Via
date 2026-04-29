@@ -1,0 +1,77 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Light theme (default) ── */
+:root, [data-theme="light"] {
+  --bg:           #F5F5F5;
+  --bg-card:      #ffffff;
+  --bg-sidebar:   #1A1A2E;
+  --bg-input:     #ffffff;
+  --bg-hover:     rgba(108,99,255,0.06);
+  --bg-subtle:    #F9FAFB;
+  --border:       #E5E7EB;
+  --text:         #1A1A2E;
+  --text-sub:     #6B7280;
+  --text-muted:   #9CA3AF;
+  --text-sidebar: rgba(255,255,255,0.7);
+  --primary:      #6C63FF;
+  --primary-dark: #5a52d5;
+  --success:      #16A34A;
+  --warning:      #F97316;
+  --danger:       #DC2626;
+  --shadow:       0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:    0 2px 12px rgba(0,0,0,0.07);
+  /* Status badge backgrounds */
+  --status-success-bg:  #DCFCE7;
+  --status-pending-bg:  #FEF9C3;
+  --status-warning-bg:  #FFF7ED;
+  --receipt-success-bg: #DCFCE7;
+  --receipt-pending-bg: #FEF9C3;
+  --verify-banner-bg:   #FFF7ED;
+  --error-bg:           #FEE2E2;
+  --error-text:         #DC2626;
+  --success-bg:         #DCFCE7;
+  --success-text:       #16A34A;
+}
+
+/* ── Dark theme ── */
+[data-theme="dark"] {
+  --bg:           #0F0F1A;
+  --bg-card:      #1A1A2E;
+  --bg-sidebar:   #111120;
+  --bg-input:     #252540;
+  --bg-hover:     rgba(108,99,255,0.12);
+  --bg-subtle:    #1E1E32;
+  --border:       #2E2E4A;
+  --text:         #E8E8F0;
+  --text-sub:     #9CA3AF;
+  --text-muted:   #6B7280;
+  --text-sidebar: rgba(255,255,255,0.65);
+  --primary:      #7C74FF;
+  --primary-dark: #6C63FF;
+  --success:      #4ADE80;
+  --warning:      #FB923C;
+  --danger:       #F87171;
+  --shadow:       0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md:    0 2px 12px rgba(0,0,0,0.4);
+  /* Status badge backgrounds */
+  --status-success-bg:  #0D2E1A;
+  --status-pending-bg:  #2A2000;
+  --status-warning-bg:  #2A1F0E;
+  --receipt-success-bg: #0D2E1A;
+  --receipt-pending-bg: #2E2200;
+  --verify-banner-bg:   #2A1F0E;
+  --error-bg:           #3B1515;
+  --error-text:         #F87171;
+  --success-bg:         #0D2E1A;
+  --success-text:       #4ADE80;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.2s, color 0.2s;
+}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: inherit; }
+input, textarea, select { font-family: inherit; }

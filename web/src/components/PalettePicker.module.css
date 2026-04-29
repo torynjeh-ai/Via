@@ -1,0 +1,67 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 40px;
+  margin-bottom: 12px;
+}
+
+.divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+
+.swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: border-color 0.2s, transform 0.15s;
+  background: #111;
+}
+
+.swatch:hover { transform: scale(1.1); }
+
+.active {
+  border-color: #fff;
+  transform: scale(1.08);
+}
+
+/* Top-left half */
+.tl {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* Bottom-right half */
+.br {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+/* Checkmark */
+.check {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  z-index: 2;
+}

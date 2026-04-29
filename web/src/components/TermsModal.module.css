@@ -1,0 +1,38 @@
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 16px; }
+.modal { background: var(--bg-card); border-radius: 20px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.3); }
+
+/* Header */
+.header { background: linear-gradient(135deg, var(--primary), var(--bg-sidebar)); padding: 24px 28px; border-radius: 20px 20px 0 0; text-align: center; }
+.icon { font-size: 40px; display: block; margin-bottom: 10px; }
+.title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.memberName { font-size: 14px; color: rgba(255,255,255,0.8); }
+
+/* Body */
+.body { padding: 20px 28px 0; }
+.intro { font-size: 14px; color: var(--text); margin-bottom: 10px; line-height: 1.6; }
+.points { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.point { display: flex; gap: 10px; font-size: 14px; color: var(--text); line-height: 1.5; }
+.bullet { color: var(--primary); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.warning { display: flex; gap: 8px; align-items: flex-start; background: var(--status-warning-bg); border-left: 3px solid var(--warning); padding: 12px 14px; border-radius: 0 8px 8px 0; font-size: 13px; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+
+/* Frequency */
+.frequencySection { padding: 16px 28px; border-top: 1px solid var(--border); }
+.frequencyLabel { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+.frequencyOptions { display: flex; flex-direction: column; gap: 8px; }
+.freqOption { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.15s; }
+.freqOption input { margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; }
+.freqActive { border-color: var(--primary); background: var(--bg-hover); }
+.freqLabel { font-size: 14px; font-weight: 600; color: var(--text); }
+.freqDesc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* Checkbox */
+.checkRow { display: flex; align-items: flex-start; gap: 10px; padding: 16px 28px; font-size: 14px; color: var(--text); cursor: pointer; border-top: 1px solid var(--border); line-height: 1.5; }
+.checkRow input { margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; }
+
+/* Actions */
+.actions { display: flex; gap: 12px; padding: 16px 28px 24px; }
+.cancelBtn { flex: 1; padding: 12px; background: transparent; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
+.cancelBtn:hover { background: var(--bg-hover); }
+.acceptBtn { flex: 2; padding: 12px; background: var(--primary); border: none; border-radius: 10px; font-size: 15px; font-weight: 600; color: #fff; cursor: pointer; }
+.acceptBtn:hover { background: var(--primary-dark); }
+.acceptBtn:disabled { opacity: 0.5; cursor: not-allowed; }
