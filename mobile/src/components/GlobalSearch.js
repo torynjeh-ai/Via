@@ -15,11 +15,17 @@ import { getNotifications } from '../api/users';
 import { colors, spacing, fontSize } from '../theme';
 
 const NAV_PAGES = [
-  { label: 'Dashboard', screen: 'Home', icon: 'home', keywords: ['dashboard', 'home'] },
-  { label: 'Groups', screen: 'Groups', icon: 'people', keywords: ['groups', 'njangi'] },
-  { label: 'Notifications', screen: 'Notifications', icon: 'notifications', keywords: ['notifications', 'alerts'] },
-  { label: 'Receipts', screen: 'Receipts', icon: 'receipt', keywords: ['receipts', 'history', 'payments'] },
-  { label: 'Profile', screen: 'Profile', icon: 'person', keywords: ['profile', 'account'] },
+  { label: 'Dashboard', screen: 'Home', icon: 'home', keywords: ['dashboard', 'home', 'overview'] },
+  { label: 'Groups', screen: 'Groups', icon: 'people', keywords: ['groups', 'njangi', 'tontine', 'groupes'] },
+  { label: 'Create Group', screen: 'CreateGroup', icon: 'add-circle', keywords: ['create group', 'new group', 'add group'] },
+  { label: 'Wallet', screen: 'Wallet', icon: 'wallet', keywords: ['wallet', 'balance', 'trust coin', 'tc', 'portefeuille', 'money'] },
+  { label: 'Top Up', screen: 'TopUp', icon: 'arrow-up-circle', keywords: ['top up', 'topup', 'deposit', 'recharge', 'add money', 'fund'] },
+  { label: 'Withdraw', screen: 'Withdraw', icon: 'arrow-down-circle', keywords: ['withdraw', 'withdrawal', 'cash out', 'retrait'] },
+  { label: 'Transfer', screen: 'Transfer', icon: 'send', keywords: ['transfer', 'send', 'send money', 'pay', 'transfert'] },
+  { label: 'Transaction History', screen: 'TransactionHistory', icon: 'list', keywords: ['transactions', 'history', 'historique', 'activity', 'statement'] },
+  { label: 'Notifications', screen: 'Notifications', icon: 'notifications', keywords: ['notifications', 'alerts', 'alertes'] },
+  { label: 'Receipts', screen: 'Receipts', icon: 'receipt', keywords: ['receipts', 'reçus', 'invoices', 'proof', 'payment proof'] },
+  { label: 'Profile', screen: 'Profile', icon: 'person', keywords: ['profile', 'account', 'profil', 'compte'] },
 ];
 
 export default function GlobalSearch({ visible, onClose, navigation }) {

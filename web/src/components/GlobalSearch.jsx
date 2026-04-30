@@ -6,11 +6,18 @@ import { useLanguage } from '../context/LanguageContext';
 import styles from './GlobalSearch.module.css';
 
 const NAV_PAGES = [
-  { label: 'Dashboard', path: '/', icon: '🏠', keywords: ['dashboard', 'home', 'tableau'] },
-  { label: 'Groups', path: '/groups', icon: '👥', keywords: ['groups', 'groupes', 'njangi'] },
-  { label: 'Notifications', path: '/notifications', icon: '🔔', keywords: ['notifications', 'alerts', 'alertes'] },
-  { label: 'Profile', path: '/profile', icon: '👤', keywords: ['profile', 'profil', 'account', 'compte'] },
-  { label: 'Settings', path: '/settings', icon: '⚙️', keywords: ['settings', 'paramètres', 'preferences'] },
+  { label: 'Dashboard', path: '/', icon: '🏠', keywords: ['dashboard', 'home', 'tableau', 'overview'] },
+  { label: 'Groups', path: '/groups', icon: '👥', keywords: ['groups', 'groupes', 'njangi', 'tontine'] },
+  { label: 'Create Group', path: '/groups/create', icon: '➕', keywords: ['create group', 'new group', 'nouveau groupe', 'add group'] },
+  { label: 'Wallet', path: '/wallet', icon: '👛', keywords: ['wallet', 'portefeuille', 'balance', 'solde', 'money', 'argent', 'trust coin', 'tc'] },
+  { label: 'Top Up', path: '/wallet/topup', icon: '💳', keywords: ['top up', 'topup', 'deposit', 'recharge', 'add money', 'fund', 'recharger'] },
+  { label: 'Withdraw', path: '/wallet/withdraw', icon: '🏧', keywords: ['withdraw', 'withdrawal', 'retrait', 'cash out', 'payout'] },
+  { label: 'Transfer', path: '/wallet/transfer', icon: '💸', keywords: ['transfer', 'send money', 'transfert', 'envoyer', 'send', 'pay'] },
+  { label: 'Transaction History', path: '/wallet/transactions', icon: '📋', keywords: ['transactions', 'history', 'historique', 'activity', 'activité', 'statement'] },
+  { label: 'Receipts', path: '/receipts', icon: '🧾', keywords: ['receipts', 'reçus', 'invoices', 'factures', 'proof', 'payment proof'] },
+  { label: 'Notifications', path: '/notifications', icon: '🔔', keywords: ['notifications', 'alerts', 'alertes', 'messages'] },
+  { label: 'Profile', path: '/profile', icon: '👤', keywords: ['profile', 'profil', 'account', 'compte', 'my info', 'personal'] },
+  { label: 'Settings', path: '/settings', icon: '⚙️', keywords: ['settings', 'paramètres', 'preferences', 'configuration', 'config'] },
 ];
 
 export default function GlobalSearch() {
