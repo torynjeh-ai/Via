@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
@@ -12,11 +12,11 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Use older cmake that is compatible with dlib 19.24.2
-RUN pip install --no-cache-dir "cmake==3.25.0"
+# Pass CMake policy flag so dlib's bundled pybind11 builds with modern CMake
+ENV CMAKE_POLICY_VERSION_MINIMUM=3.5
 
-# Install dlib (compiles from source — takes ~10 min)
-RUN pip install --no-cache-dir dlib==19.24.2
+# Install dlib 19.24.6 which has the pybind11 CMake fix
+RUN pip install --no-cache-dir dlib==19.24.6
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
