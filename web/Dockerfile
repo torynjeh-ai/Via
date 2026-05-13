@@ -19,4 +19,4 @@ RUN npm install -g serve
 
 EXPOSE 3000
 
-CMD ["serve", "dist", "-p", "3000", "--single"]
+CMD ["sh", "-c", "serve dist -p ${PORT:-3000} --single"]
