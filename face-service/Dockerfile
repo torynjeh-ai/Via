@@ -1,6 +1,6 @@
-FROM python:3.11-slim
+FROM python:3.9-slim
 
-# System dependencies for dlib and face_recognition
+# System dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -8,13 +8,14 @@ RUN apt-get update && apt-get install -y \
     liblapack-dev \
     libx11-dev \
     libgtk-3-dev \
-    libboost-python-dev \
-    libboost-thread-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install dlib first (slow compile step — cached separately)
+# Use older cmake that is compatible with dlib 19.24.2
+RUN pip install --no-cache-dir "cmake==3.25.0"
+
+# Install dlib (compiles from source — takes ~10 min)
 RUN pip install --no-cache-dir dlib==19.24.2
 
 COPY requirements.txt .
