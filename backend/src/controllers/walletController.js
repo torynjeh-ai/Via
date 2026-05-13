@@ -1,8 +1,9 @@
 const { body, query: queryValidator, validationResult } = require('express-validator');
 const { validate } = require('../middleware/validate');
 const walletService = require('../services/walletService');
+const { recalculateTrustScore } = require('../services/trustScoreService');
 
-const VALID_PAYMENT_METHODS = ['mtn_momo', 'orange_money', 'bank_transfer', 'card'];
+const VALID_PAYMENT_METHODS = ['mtn_momo', 'orange_money', 'bank_transfer', 'card', 'apple_pay', 'paypal'];
 const VALID_TX_TYPES = ['top_up', 'withdrawal', 'contribution', 'payout', 'transfer_in', 'transfer_out'];
 
 /**
@@ -48,6 +49,8 @@ const topUp = [
         return res.status(400).json(result);
       }
 
+      // Recalculate trust score — wallet balance affects score
+      recalculateTrustScore(req.user.id).catch(() => {});
       res.json(result);
     } catch (error) {
       next(error);

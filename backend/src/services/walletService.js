@@ -777,6 +777,34 @@ const resolveRecipient = async (identifier) => {
   return result.rows[0] || null;
 };
 
+/**
+ * Credit a member's wallet with their share of a penalty pool distribution.
+ */
+const creditPenaltyShare = async ({ userId, groupId, xafAmount }) => {
+  const tcAmount = xafAmount / TC_TO_XAF;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query(
+      'UPDATE users SET tc_balance = tc_balance + $1 WHERE id = $2',
+      [tcAmount, userId]
+    );
+    await client.query(
+      `INSERT INTO wallet_transactions
+       (user_id, type, tc_amount, xaf_amount, fee_tc, payment_method, group_id, status)
+       VALUES ($1, 'payout', $2, $3, 0, 'tc_wallet', $4, 'completed')`,
+      [userId, tcAmount, xafAmount, groupId]
+    );
+    await client.query('COMMIT');
+    return { success: true };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
 module.exports = {
   initWallet,
   getWallet,
@@ -786,6 +814,7 @@ module.exports = {
   withdraw,
   payContribution,
   creditPayout,
+  creditPenaltyShare,
   getTransferPreview,
   transfer,
   getTransactions,

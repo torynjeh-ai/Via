@@ -44,9 +44,10 @@ CREATE TABLE IF NOT EXISTS members (
   group_id UUID REFERENCES groups(id) ON DELETE CASCADE,
   user_id UUID REFERENCES users(id),
   role VARCHAR(20) DEFAULT 'member' CHECK (role IN ('admin', 'member')),
-  status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'left')),
+  status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'left', 'pending_reconfirm', 'forfeited')),
   invited_by UUID REFERENCES users(id),
   joined_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(group_id, user_id)
 );
 

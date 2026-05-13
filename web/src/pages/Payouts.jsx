@@ -5,19 +5,25 @@ import { getPayoutReceipt } from '../api/receipts';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import ReceiptModal from '../components/ReceiptModal';
+import { formatDate, formatDateTime } from '../utils/dateFormat';
 import styles from './Payouts.module.css';
 
-const statusColor = { upcoming: '#6B7280', current: 'var(--primary)', completed: '#16A34A', skipped: '#DC2626' };
+const statusColor = {
+  upcoming:  '#6B7280',
+  current:   'var(--primary)',
+  completed: '#16A34A',
+  skipped:   '#DC2626',
+};
 
 export default function Payouts() {
   const { id } = useParams();
   const { user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [payouts, setPayouts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [receipt, setReceipt] = useState(null);
-  const [receiptLoading, setReceiptLoading] = useState(null); // holds payout id being loaded
+  const [payouts, setPayouts]               = useState([]);
+  const [loading, setLoading]               = useState(true);
+  const [receipt, setReceipt]               = useState(null);
+  const [receiptLoading, setReceiptLoading] = useState(null);
 
   useEffect(() => {
     getPayouts(id).then(r => setPayouts(r.data)).catch(() => {}).finally(() => setLoading(false));
@@ -48,26 +54,36 @@ export default function Payouts() {
           {payouts.map(p => (
             <div
               key={p.id}
-              className={`${styles.item} ${p.user_id === user?.id ? styles.mine : ''} ${p.status === 'current' ? styles.current : ''} ${p.status === 'completed' && p.user_id === user?.id ? styles.clickable : ''}`}
-              onClick={() => p.status === 'completed' && p.user_id === user?.id && handleViewReceipt(p)}
-              title={p.status === 'completed' && p.user_id === user?.id ? 'Click to view receipt' : ''}
+              className={`${styles.item} ${p.user_id === user?.id ? styles.mine : ''} ${p.status === 'current' ? styles.current : ''}`}
             >
-              <div className={styles.position} style={{ background: statusColor[p.status] }}>#{p.position}</div>
+              <div className={styles.position} style={{ background: statusColor[p.status] }}>
+                #{p.position}
+              </div>
               <div className={styles.info}>
                 <div className={styles.name}>
                   {p.name} {p.user_id === user?.id ? <span className={styles.you}>{t('you')}</span> : ''}
                 </div>
                 <div className={styles.meta}>
                   {Number(p.amount).toLocaleString()} XAF
-                  {p.payout_date && ` · ${new Date(p.payout_date).toLocaleDateString()}`}
+                  {p.payout_date && ` · ${formatDate(p.payout_date)}`}
                 </div>
               </div>
               <div className={styles.right}>
-                <span className={styles.badge} style={{ background: statusColor[p.status] + '20', color: statusColor[p.status] }}>
+                <span
+                  className={styles.badge}
+                  style={{ background: statusColor[p.status] + '20', color: statusColor[p.status] }}
+                >
                   {p.status}
                 </span>
+                {p.status === 'current' && (
+                  <span className={styles.currentHint}>⏳ Awaiting contributions</span>
+                )}
                 {p.status === 'completed' && p.user_id === user?.id && (
-                  <span className={styles.receiptHint}>
+                  <span
+                    className={styles.receiptHint}
+                    onClick={() => handleViewReceipt(p)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     {receiptLoading === p.id ? '⏳' : '🧾 Receipt'}
                   </span>
                 )}

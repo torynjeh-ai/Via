@@ -2,35 +2,106 @@ import React, { useState, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { setupProfile } from '../api/users';
 import { useAuth } from '../context/AuthContext';
+import { scanDocument } from '../utils/docScanner';
 import styles from './SetupProfile.module.css';
 
-const STEPS = ['Document', 'Face Scan', 'Analyzing', 'Done'];
+// Doc number format rules
+const DOC_PATTERNS = {
+  passport: { regex: /^[A-Z0-9]{6,20}$/, hint: '6–20 alphanumeric characters (e.g. A12345678)' },
+  id:       { regex: /^[A-Z0-9\-]{5,20}$/, hint: '5–20 alphanumeric characters or hyphens' },
+};
+
+const analyzeStages = [
+  'Scanning document...',
+  'Detecting face in selfie...',
+  'Detecting face in document...',
+  'Comparing facial features...',
+  'Finalizing verification...',
+];
 
 export default function SetupProfile() {
   const { setUser } = useAuth();
-  const navigate = useNavigate();
+  const navigate    = useNavigate();
 
-  // Step: 1=doc choice+details, 2=face capture, 3=analyzing (mock), 4=done
-  const [step, setStep] = useState(1);
-  const [docType, setDocType] = useState(''); // 'passport' | 'id'
-  const [docNumber, setDocNumber] = useState('');
-  const [docImage, setDocImage] = useState(null);
-  const [faceImage, setFaceImage] = useState(null);
-  const [cameraActive, setCameraActive] = useState(false);
-  const [analyzeStage, setAnalyzeStage] = useState(0); // progress through analysis steps
-  const [error, setError] = useState('');
+  // step: 1=doc type, 2=doc images + scan, 3=face capture, 4=analyzing, 5=done
+  const [step, setStep]                   = useState(1);
+  const [docType, setDocType]             = useState('');
+  const [docNumber, setDocNumber]         = useState('');
+  const [docNumberError, setDocNumberError] = useState('');
+  const [docNumberSource, setDocNumberSource] = useState(''); // 'scanned' | 'manual' | ''
+  const [docFront, setDocFront]           = useState(null);
+  const [docBack, setDocBack]             = useState(null);
+  const [faceImage, setFaceImage]         = useState(null);
+  const [cameraActive, setCameraActive]   = useState(false);
+  const [scanning, setScanning]           = useState(false);
+  const [scanProgress, setScanProgress]   = useState(0);
+  const [analyzeStage, setAnalyzeStage]   = useState(0);
+  const [error, setError]                 = useState('');
 
-  const videoRef = useRef(null);
+  const videoRef  = useRef(null);
   const streamRef = useRef(null);
-  const docInputRef = useRef(null);
+  const frontRef  = useRef(null);
+  const backRef   = useRef(null);
 
-  // ── Document image upload ──────────────────────────────────────────────────
-  const handleDocFile = (e) => {
+  const docLabel       = docType === 'passport' ? 'Passport' : 'National ID';
+  const docPlaceholder = docType === 'passport' ? 'e.g. A12345678' : 'e.g. 123456789';
+
+  // ── Validation ─────────────────────────────────────────────────────────────
+  const validateDocNumber = (value, type) => {
+    if (!type || !value.trim()) return '';
+    const { regex, hint } = DOC_PATTERNS[type];
+    return regex.test(value.trim().toUpperCase()) ? '' : hint;
+  };
+
+  const handleDocNumberChange = (e) => {
+    const val = e.target.value.toUpperCase().replace(/\s+/g, '');
+    setDocNumber(val);
+    setDocNumberError(validateDocNumber(val, docType));
+    setDocNumberSource('manual');
+  };
+
+  // ── Image upload + auto-scan ───────────────────────────────────────────────
+  const readFile = (file) => new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+
+  const handleFrontFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setDocImage(reader.result);
-    reader.readAsDataURL(file);
+    const dataUrl = await readFile(file);
+    setDocFront(dataUrl);
+    // Auto-scan the front image for the document number
+    await runScan(dataUrl);
+  };
+
+  const runScan = async (dataUrl) => {
+    setScanning(true);
+    setScanProgress(0);
+    setError('');
+    try {
+      const result = await scanDocument(dataUrl, docType, (p) => setScanProgress(p));
+      if (result.docNumber) {
+        setDocNumber(result.docNumber);
+        setDocNumberError(validateDocNumber(result.docNumber, docType));
+        setDocNumberSource('scanned');
+      } else {
+        // Scan ran but found nothing — let user type manually
+        setDocNumberSource('manual');
+      }
+    } catch {
+      // Silent fail — user can type manually
+      setDocNumberSource('manual');
+    } finally {
+      setScanning(false);
+      setScanProgress(0);
+    }
+  };
+
+  const handleBackFile = async (e) => {
+    const file = e.target.files[0];
+    if (file) setDocBack(await readFile(file));
   };
 
   // ── Camera ─────────────────────────────────────────────────────────────────
@@ -39,7 +110,6 @@ export default function SetupProfile() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
       streamRef.current = stream;
-      // slight delay so the video element is mounted
       setTimeout(() => { if (videoRef.current) videoRef.current.srcObject = stream; }, 100);
       setCameraActive(true);
     } catch {
@@ -54,53 +124,47 @@ export default function SetupProfile() {
   }, []);
 
   const captureFace = useCallback(() => {
-    const video = videoRef.current;
+    const video  = videoRef.current;
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
+    canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     setFaceImage(canvas.toDataURL('image/jpeg', 0.85));
     stopCamera();
   }, [stopCamera]);
 
-  // ── Mock face analysis then submit ─────────────────────────────────────────
-  const analyzeStages = [
-    'Detecting face in selfie...',
-    'Detecting face in document...',
-    'Comparing facial features...',
-    'Verifying document authenticity...',
-    'Finalizing verification...',
-  ];
-
+  // ── Submit ─────────────────────────────────────────────────────────────────
   const runAnalysisAndSubmit = async () => {
-    setStep(3);
+    setStep(4);
     setAnalyzeStage(0);
     setError('');
 
-    // Animate through stages
+    const apiPromise = setupProfile({
+      doc_type:        docType,
+      doc_number:      docNumber.trim().toUpperCase(),
+      doc_image_front: docFront,
+      doc_image_back:  docBack,
+      face_image:      faceImage,
+    });
+
     for (let i = 0; i < analyzeStages.length; i++) {
       await new Promise(r => setTimeout(r, 520));
       setAnalyzeStage(i + 1);
     }
 
-    // Now actually call the backend
     try {
-      const res = await setupProfile({
-        doc_type: docType,
-        doc_number: docNumber,
-        doc_image: docImage,
-        face_image: faceImage,
-      });
+      const res = await apiPromise;
       setUser(res.data);
-      setStep(4);
+      setStep(5);
     } catch (err) {
       setError(err.message || 'Verification failed. Please try again.');
-      setStep(2); // go back to face step so they can retry
+      setStep(3);
     }
   };
 
-  const docLabel = docType === 'passport' ? 'Passport' : 'National ID';
-  const docPlaceholder = docType === 'passport' ? 'e.g. A12345678' : 'e.g. 123456789';
+  const canProceedFromStep2 = docFront && docBack && docNumber.trim() && !docNumberError && !scanning;
+
+  const STEP_LABELS = ['Document', 'Photos', 'Face Scan'];
 
   return (
     <div className={styles.page}>
@@ -108,17 +172,16 @@ export default function SetupProfile() {
 
         <Link to="/" className={styles.backLink}>← Back to Dashboard</Link>
 
-        {/* Header */}
         <div className={styles.header}>
           <div className={styles.icon}>🛡️</div>
           <h1>Identity Verification</h1>
           <p>Required before creating groups, joining, or contributing</p>
         </div>
 
-        {/* Step indicators — hide on analyzing/done */}
-        {step < 3 && (
+        {/* Step indicators */}
+        {step < 4 && (
           <div className={styles.steps}>
-            {STEPS.slice(0, 2).map((s, i) => (
+            {STEP_LABELS.map((s, i) => (
               <React.Fragment key={s}>
                 <div className={styles.stepItem}>
                   <div className={`${styles.dot} ${step > i + 1 ? styles.dotDone : ''} ${step === i + 1 ? styles.dotActive : ''}`}>
@@ -126,7 +189,9 @@ export default function SetupProfile() {
                   </div>
                   <span className={`${styles.stepLabel} ${step === i + 1 ? styles.stepLabelActive : ''}`}>{s}</span>
                 </div>
-                {i < 1 && <div className={`${styles.stepLine} ${step > i + 1 ? styles.stepLineDone : ''}`} />}
+                {i < STEP_LABELS.length - 1 && (
+                  <div className={`${styles.stepLine} ${step > i + 1 ? styles.stepLineDone : ''}`} />
+                )}
               </React.Fragment>
             ))}
           </div>
@@ -134,7 +199,7 @@ export default function SetupProfile() {
 
         {error && <div className={styles.error}>{error}</div>}
 
-        {/* ── STEP 1: Document ── */}
+        {/* ── STEP 1: Choose doc type ── */}
         {step === 1 && (
           <div className={styles.card}>
             <h2>Choose Document Type</h2>
@@ -143,7 +208,7 @@ export default function SetupProfile() {
             <div className={styles.docChoice}>
               <button
                 className={`${styles.docOption} ${docType === 'passport' ? styles.docOptionActive : ''}`}
-                onClick={() => { setDocType('passport'); setDocNumber(''); setDocImage(null); }}
+                onClick={() => { setDocType('passport'); setDocNumber(''); setDocNumberError(''); setDocNumberSource(''); setDocFront(null); setDocBack(null); }}
               >
                 <span>🛂</span>
                 <strong>Passport</strong>
@@ -151,7 +216,7 @@ export default function SetupProfile() {
               </button>
               <button
                 className={`${styles.docOption} ${docType === 'id' ? styles.docOptionActive : ''}`}
-                onClick={() => { setDocType('id'); setDocNumber(''); setDocImage(null); }}
+                onClick={() => { setDocType('id'); setDocNumber(''); setDocNumberError(''); setDocNumberSource(''); setDocFront(null); setDocBack(null); }}
               >
                 <span>🪪</span>
                 <strong>National ID</strong>
@@ -160,55 +225,154 @@ export default function SetupProfile() {
             </div>
 
             {docType && (
-              <>
-                <div className={styles.field}>
-                  <label>{docLabel} Number</label>
-                  <input
-                    value={docNumber}
-                    onChange={e => setDocNumber(e.target.value.toUpperCase())}
-                    placeholder={docPlaceholder}
-                    maxLength={20}
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label>{docLabel} Photo</label>
-                  <p className={styles.fieldHint}>Upload a clear, well-lit photo of your {docLabel.toLowerCase()}. All details must be readable.</p>
-                  {docImage ? (
-                    <div className={styles.preview}>
-                      <img src={docImage} alt={docLabel} />
-                      <button className={styles.retake} onClick={() => { setDocImage(null); if (docInputRef.current) docInputRef.current.value = ''; }}>
-                        Change photo
-                      </button>
-                    </div>
-                  ) : (
-                    <div className={styles.uploadBox} onClick={() => docInputRef.current.click()}>
-                      <span>{docType === 'passport' ? '📄' : '🪪'}</span>
-                      <p>Click to upload {docLabel.toLowerCase()} photo</p>
-                      <small>JPG or PNG</small>
-                    </div>
-                  )}
-                  <input ref={docInputRef} type="file" accept="image/*" onChange={handleDocFile} style={{ display: 'none' }} />
-                </div>
-
-                <button
-                  className={styles.btn}
-                  disabled={!docNumber.trim() || !docImage}
-                  onClick={() => { setStep(2); startCamera(); }}
-                >
-                  Continue to Face Scan →
-                </button>
-              </>
+              <button className={styles.btn} onClick={() => setStep(2)}>
+                Continue →
+              </button>
             )}
           </div>
         )}
 
-        {/* ── STEP 2: Face capture ── */}
+        {/* ── STEP 2: Upload front + back, auto-scan doc number ── */}
         {step === 2 && (
+          <div className={styles.card}>
+            <h2>{docLabel} Photos</h2>
+            <p className={styles.hint}>
+              Upload both sides of your {docLabel.toLowerCase()}. We'll automatically scan the document number from the front image.
+            </p>
+
+            {/* Front image */}
+            <div className={styles.field}>
+              <label>
+                Front Side
+                {docFront && !scanning && docNumberSource === 'scanned' && (
+                  <span className={styles.scannedBadge}>🔍 Scanned</span>
+                )}
+              </label>
+              <p className={styles.fieldHint}>
+                {docType === 'passport'
+                  ? 'The photo/data page — must show your face and document number clearly'
+                  : 'The front side showing your photo, name, and ID number'}
+              </p>
+              {docFront ? (
+                <div className={styles.preview}>
+                  <img src={docFront} alt="Front" />
+                  {scanning && (
+                    <div className={styles.scanOverlay}>
+                      <div className={styles.scanBeam} />
+                      <p className={styles.scanText}>Scanning document... {scanProgress}%</p>
+                      <div className={styles.scanBar}>
+                        <div className={styles.scanBarFill} style={{ width: `${scanProgress}%` }} />
+                      </div>
+                    </div>
+                  )}
+                  <button className={styles.retake} onClick={() => {
+                    setDocFront(null);
+                    setDocNumber('');
+                    setDocNumberSource('');
+                    setDocNumberError('');
+                    if (frontRef.current) frontRef.current.value = '';
+                  }}>
+                    Change photo
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.uploadBox} onClick={() => frontRef.current.click()}>
+                  <span>📄</span>
+                  <p>Click to upload front side</p>
+                  <small>JPG or PNG — document number will be scanned automatically</small>
+                </div>
+              )}
+              <input ref={frontRef} type="file" accept="image/*" onChange={handleFrontFile} style={{ display: 'none' }} />
+            </div>
+
+            {/* Scanned / manual doc number field */}
+            {docFront && (
+              <div className={styles.field}>
+                <label>
+                  {docLabel} Number
+                  {docNumberSource === 'scanned' && !docNumberError && (
+                    <span className={styles.scannedBadge}>✓ Auto-filled</span>
+                  )}
+                  {docNumberSource === 'manual' && (
+                    <span className={styles.manualBadge}>✏ Manual</span>
+                  )}
+                </label>
+                {scanning ? (
+                  <div className={styles.scanningField}>
+                    <span className={styles.spinner} /> Scanning document number...
+                  </div>
+                ) : (
+                  <>
+                    <p className={styles.fieldHint}>
+                      {docNumberSource === 'scanned'
+                        ? 'Scanned from your document — please verify this is correct.'
+                        : `Could not auto-scan. Enter the number exactly as it appears on your ${docLabel.toLowerCase()}.`}
+                    </p>
+                    <input
+                      value={docNumber}
+                      onChange={handleDocNumberChange}
+                      placeholder={docPlaceholder}
+                      maxLength={20}
+                      className={docNumberError ? styles.inputError : docNumber && !docNumberError ? styles.inputOk : ''}
+                    />
+                    {docNumberError && <p className={styles.fieldError}>⚠ {docNumberError}</p>}
+                    {docNumber && !docNumberError && (
+                      <p className={styles.fieldOk}>✓ {docNumberSource === 'scanned' ? 'Verified format' : 'Format looks good'}</p>
+                    )}
+                    {docNumberSource === 'scanned' && (
+                      <button className={styles.rescanBtn} onClick={() => runScan(docFront)}>
+                        🔄 Re-scan
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Back image */}
+            <div className={styles.field}>
+              <label>Back Side</label>
+              <p className={styles.fieldHint}>
+                {docType === 'passport'
+                  ? 'The page with the machine-readable zone (two lines of text at the bottom)'
+                  : 'The back side showing the barcode or additional details'}
+              </p>
+              {docBack ? (
+                <div className={styles.preview}>
+                  <img src={docBack} alt="Back" />
+                  <button className={styles.retake} onClick={() => { setDocBack(null); if (backRef.current) backRef.current.value = ''; }}>
+                    Change photo
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.uploadBox} onClick={() => backRef.current.click()}>
+                  <span>🔄</span>
+                  <p>Click to upload back side</p>
+                  <small>JPG or PNG</small>
+                </div>
+              )}
+              <input ref={backRef} type="file" accept="image/*" onChange={handleBackFile} style={{ display: 'none' }} />
+            </div>
+
+            <div className={styles.btnRow}>
+              <button className={styles.btnOutline} onClick={() => setStep(1)}>← Back</button>
+              <button
+                className={styles.btn}
+                disabled={!canProceedFromStep2}
+                onClick={() => { setStep(3); startCamera(); }}
+              >
+                Continue to Face Scan →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── STEP 3: Face capture ── */}
+        {step === 3 && (
           <div className={styles.card}>
             <h2>Face Verification</h2>
             <p className={styles.hint}>
-              Take a selfie. We'll compare it against your {docLabel.toLowerCase()} photo to confirm your identity.
+              Take a selfie. We'll compare it against the photo on your {docLabel.toLowerCase()} to confirm your identity.
             </p>
 
             {faceImage ? (
@@ -233,7 +397,7 @@ export default function SetupProfile() {
             )}
 
             <div className={styles.btnRow}>
-              <button className={styles.btnOutline} onClick={() => { stopCamera(); setFaceImage(null); setStep(1); }}>← Back</button>
+              <button className={styles.btnOutline} onClick={() => { stopCamera(); setFaceImage(null); setStep(2); }}>← Back</button>
               <button className={styles.btn} disabled={!faceImage} onClick={runAnalysisAndSubmit}>
                 Verify Identity →
               </button>
@@ -241,13 +405,13 @@ export default function SetupProfile() {
           </div>
         )}
 
-        {/* ── STEP 3: Analyzing (mock) ── */}
-        {step === 3 && (
+        {/* ── STEP 4: Analyzing ── */}
+        {step === 4 && (
           <div className={styles.card}>
             <div className={styles.analyzeWrap}>
               <div className={styles.analyzeImages}>
                 <div className={styles.analyzeImgBox}>
-                  <img src={docImage} alt="Document" className={styles.analyzeImg} />
+                  <img src={docFront} alt="Document front" className={styles.analyzeImg} />
                   <small>{docLabel}</small>
                 </div>
                 <div className={styles.analyzeScan}>
@@ -280,8 +444,8 @@ export default function SetupProfile() {
           </div>
         )}
 
-        {/* ── STEP 4: Done ── */}
-        {step === 4 && (
+        {/* ── STEP 5: Done ── */}
+        {step === 5 && (
           <div className={styles.card}>
             <div className={styles.doneWrap}>
               <div className={styles.doneIcon}>✅</div>

@@ -1,43 +1,91 @@
 .container { max-width: 600px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── Hero card ── */
 .heroCard { background: linear-gradient(135deg, var(--primary), var(--bg-sidebar)); color: #fff; border-radius: 16px; padding: 28px; display: flex; align-items: center; gap: 20px; }
-.avatarContainer { position: relative; cursor: pointer; }
-.avatar { 
-  width: 72px; 
-  height: 72px; 
-  border-radius: 50%; 
-  background: rgba(255,255,255,0.2); 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  font-size: 32px; 
-  font-weight: 700; 
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
+.avatarContainer { position: relative; cursor: pointer; flex-shrink: 0; }
+.avatar { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; transition: opacity 0.2s; }
 .avatar:hover { opacity: 0.8; }
-.profileImage {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
+.profileImage { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; transition: opacity 0.2s; display: block; }
 .profileImage:hover { opacity: 0.8; }
-.heroCard h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-.heroCard p { opacity: 0.8; margin-bottom: 6px; }
+.avatarEdit { position: absolute; bottom: 0; right: 0; background: rgba(0,0,0,0.55); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; pointer-events: none; }
+.avatarSpinner { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.heroInfo { flex: 1; min-width: 0; }
+.heroInfo h2 { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+.heroInfo p  { opacity: 0.8; font-size: 14px; margin-bottom: 10px; }
+.heroBadges { display: flex; flex-wrap: wrap; gap: 6px; }
+.removePicBtn { margin-top: 10px; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.35); padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; }
+.removePicBtn:hover:not(:disabled) { background: rgba(255,255,255,0.25); }
+.removePicBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.badgeGreen  { font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.15); color: #fff; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); }
+.badgeOrange { font-size: 12px; font-weight: 600; background: rgba(251,191,36,0.25); color: #fef3c7; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(251,191,36,0.4); }
+.badgeRed    { font-size: 12px; font-weight: 600; background: rgba(239,68,68,0.25); color: #fee2e2; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(239,68,68,0.4); }
+
+/* ── Verify prompt ── */
+.verifyPrompt { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; }
+[data-theme="dark"] .verifyPrompt { background: #2d2500; border-color: #92400e; }
+.verifyPromptIcon { font-size: 28px; flex-shrink: 0; }
+.verifyPromptBody { flex: 1; }
+.verifyPromptBody strong { font-size: 14px; font-weight: 600; color: var(--text); display: block; margin-bottom: 2px; }
+.verifyPromptBody p { font-size: 13px; color: var(--text-sub); margin: 0; }
+.verifyPromptBtn { flex-shrink: 0; background: #f59e0b; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.verifyPromptBtn:hover { background: #d97706; }
+
+/* ── Cards ── */
 .card { background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
 .card h3 { font-size: 17px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
 .msg { background: var(--bg-hover); color: var(--primary); padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 14px; }
+
+/* ── Edit form ── */
 .field { margin-bottom: 16px; }
 .field label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
-.field input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; outline: none; background: var(--bg-input); color: var(--text); }
+.field input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; outline: none; background: var(--bg-input); color: var(--text); box-sizing: border-box; }
 .field input:focus { border-color: var(--primary); }
-.btn { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; }
+.btn { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
 .btn:disabled { opacity: 0.7; }
-.info { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-sub); }
+
+/* ── Account info rows ── */
+.info { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-sub); gap: 12px; }
 .info:last-child { border-bottom: none; }
-.val { font-weight: 600; color: var(--text); text-transform: capitalize; }
-.signOut { width: 100%; padding: 12px; background: transparent; color: var(--danger); border: 1.5px solid var(--danger); border-radius: 10px; font-size: 15px; font-weight: 600; }
+.val       { font-weight: 600; color: var(--text); text-transform: capitalize; text-align: right; }
+.valGreen  { font-weight: 600; color: var(--success); text-align: right; }
+.valRed    { font-weight: 600; color: var(--danger); text-align: right; }
+
+/* ── Group memberships ── */
+.loadingText { font-size: 14px; color: var(--text-muted); }
+.emptyGroups { text-align: center; padding: 12px 0; }
+.emptyGroups p { font-size: 14px; color: var(--text-sub); margin-bottom: 8px; }
+.browseLink { font-size: 14px; color: var(--primary); font-weight: 600; }
+
+.groupSection { margin-bottom: 16px; }
+.groupSection:last-child { margin-bottom: 0; }
+.groupSectionLabel { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px; }
+
+.groupRow { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 10px; background: var(--bg-subtle); margin-bottom: 6px; gap: 12px; transition: background 0.15s; }
+.groupRow:hover { background: var(--bg-hover); }
+.groupRowLeft  { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.groupRowRight { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.groupName { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.groupMeta { font-size: 12px; color: var(--text-muted); }
+
+/* Member status badges */
+.roleAdmin      { font-size: 12px; font-weight: 600; color: #f59e0b; }
+.statusApproved { font-size: 12px; font-weight: 500; color: var(--success); }
+.statusPending  { font-size: 12px; font-weight: 500; color: #f59e0b; }
+.statusForfeited{ font-size: 12px; font-weight: 500; color: var(--danger); }
+
+/* Group status pill */
+.groupStatus { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; text-transform: capitalize; }
+.gs_forming   { background: #fff7ed; color: #c2410c; }
+.gs_active    { background: #f0fdf4; color: #15803d; }
+.gs_completed { background: var(--bg-subtle); color: var(--text-muted); }
+.gs_cancelled { background: #fef2f2; color: var(--danger); }
+.gs_re-forming { background: #eff6ff; color: #1d4ed8; }
+[data-theme="dark"] .gs_forming    { background: #431407; color: #fb923c; }
+[data-theme="dark"] .gs_active     { background: #052e16; color: #4ade80; }
+[data-theme="dark"] .gs_re-forming { background: #1e3a5f; color: #93c5fd; }
+
+/* ── Sign out ── */
+.signOut { width: 100%; padding: 12px; background: transparent; color: var(--danger); border: 1.5px solid var(--danger); border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
 .signOut:hover { background: rgba(220,38,38,0.08); }

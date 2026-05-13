@@ -4,10 +4,12 @@ import { topUp } from '../api/wallet';
 import styles from './TopUp.module.css';
 
 const PAYMENT_METHODS = [
-  { value: 'mtn_momo', label: '📱 MTN Mobile Money' },
+  { value: 'mtn_momo',     label: '📱 MTN Mobile Money' },
   { value: 'orange_money', label: '🟠 Orange Money' },
-  { value: 'bank_transfer', label: '🏦 Bank Transfer' },
-  { value: 'card', label: '💳 Card' },
+  { value: 'bank_transfer',label: '🏦 Bank Transfer' },
+  { value: 'card',         label: '💳 Card' },
+  { value: 'apple_pay',    label: '🍎 Apple Pay' },
+  { value: 'paypal',       label: '🅿️ PayPal' },
 ];
 
 export default function TopUp() {
@@ -31,7 +33,7 @@ export default function TopUp() {
 
     const amount = Number(xafAmount);
     if (!amount || amount < 100) {
-      setError('Minimum top-up amount is 100 XAF');
+      setError('Minimum deposit amount is 100 XAF');
       return;
     }
 
@@ -46,7 +48,7 @@ export default function TopUp() {
       setXafAmount('');
       setPhone('');
     } catch (err) {
-      setError(err.message || 'Top-up failed. Please try again.');
+      setError(err.message || 'Deposit failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -56,7 +58,7 @@ export default function TopUp() {
     <div className={styles.container}>
       <div className={styles.header}>
         <Link to="/wallet" className={styles.back}>← Back to Wallet</Link>
-        <h1 className={styles.title}>Top Up Wallet</h1>
+        <h1 className={styles.title}>Deposit to Wallet</h1>
         <p className={styles.subtitle}>Add funds to your TC wallet using a payment method below</p>
       </div>
 
@@ -64,7 +66,7 @@ export default function TopUp() {
         <div className={styles.successBanner}>
           <span>✅</span>
           <div>
-            <strong>Top-up successful!</strong>
+            <strong>Deposit successful!</strong>
             <p>
               Your wallet has been credited with{' '}
               <strong>{Number(success.tc_amount || success.tc_credited).toFixed(4)} TC</strong>.
@@ -136,7 +138,7 @@ export default function TopUp() {
           className={styles.submitBtn}
           disabled={loading}
         >
-          {loading ? 'Processing...' : `Top Up ${xafAmount ? `${Number(xafAmount).toLocaleString()} XAF` : ''}`}
+          {loading ? 'Processing...' : `Deposit ${xafAmount ? `${Number(xafAmount).toLocaleString()} XAF` : ''}`}
         </button>
       </form>
     </div>

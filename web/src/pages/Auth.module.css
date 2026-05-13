@@ -1,7 +1,7 @@
 .container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary) 0%, var(--bg-sidebar) 100%); padding: 24px; }
 .card { background: var(--bg-card); border-radius: 20px; padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
 .cardTop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-.logo { font-size: 24px; font-weight: 700; color: var(--text); }
+.logo { display: flex; align-items: center; line-height: 1; }
 .title { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
 .subtitle { color: var(--text-sub); margin-bottom: 28px; font-size: 15px; }
 .error { background: var(--error-bg); color: var(--danger); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }

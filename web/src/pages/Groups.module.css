@@ -15,3 +15,24 @@
 .amount { font-size: 18px; font-weight: 700; color: var(--primary); }
 .members { font-size: 13px; color: var(--text-sub); }
 .empty { color: var(--text-sub); text-align: center; padding: 40px; grid-column: 1/-1; }
+
+/* Type pill badges on group cards */
+.typePill { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.typePill[data-type="circle"]     { background: var(--bg-hover); color: var(--primary); }
+.typePill[data-type="fundraiser"] { background: rgba(22,163,74,0.1); color: var(--success); }
+
+/* Create group type selection modal */
+.modalOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+.typeModal { background: var(--bg-card); border-radius: 20px; padding: 32px 28px; max-width: 560px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+.typeModalTitle { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.typeModalSub { font-size: 14px; color: var(--text-sub); margin-bottom: 24px; }
+.typeCards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+@media (max-width: 480px) { .typeCards { grid-template-columns: 1fr; } }
+.typeCard { background: var(--bg-subtle); border: 2px solid var(--border); border-radius: 14px; padding: 20px; text-align: left; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px; }
+.typeCard:hover { border-color: var(--primary); background: var(--bg-hover); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(108,99,255,0.12); }
+.typeCardIcon { font-size: 32px; }
+.typeCardName { font-size: 17px; font-weight: 700; color: var(--text); }
+.typeCardDesc { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
+.typeCardTag { font-size: 11px; font-weight: 600; color: var(--primary); background: var(--bg-hover); padding: 3px 10px; border-radius: 20px; align-self: flex-start; margin-top: 4px; }
+.typeModalCancel { width: 100%; padding: 12px; background: transparent; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
+.typeModalCancel:hover { background: var(--bg-hover); }

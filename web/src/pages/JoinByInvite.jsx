@@ -15,7 +15,8 @@ export default function JoinByInvite() {
   const [showTerms, setShowTerms] = useState(false);
 
   useEffect(() => {
-    if (!user) { navigate(`/login?redirect=/join/${token}`); }
+    if (!user) { navigate(`/login?redirect=/join/${token}`); return; }
+    if (!user.profile_complete) { navigate('/setup-profile'); }
   }, [user]);
 
   const doJoin = async () => {

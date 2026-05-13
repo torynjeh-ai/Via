@@ -1,0 +1,95 @@
+.page { max-width: 900px; }
+.back { background: none; border: none; color: var(--primary); font-size: 15px; font-weight: 600; margin-bottom: 20px; padding: 0; cursor: pointer; }
+
+/* Hero */
+.hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.typeBadge { display: inline-block; background: var(--bg-hover); color: var(--primary); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
+.hero h1 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.desc { font-size: 14px; color: var(--text-sub); margin-bottom: 10px; }
+.meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--text-sub); }
+.statusBadge { color: #fff; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; text-transform: capitalize; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* Buttons */
+.btn { padding: 10px 18px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn:hover { background: var(--primary-dark); }
+.btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.outlineBtn { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+.outlineBtn:hover { background: var(--bg-hover); }
+.dangerBtn { background: var(--danger); }
+.dangerBtn:hover { opacity: 0.9; }
+.primaryBtn { padding: 10px 18px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.primaryBtn:hover { background: var(--primary-dark); }
+.primaryBtn:disabled { opacity: 0.7; }
+
+/* Messages */
+.msg { background: var(--bg-hover); color: var(--primary); padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
+.error { background: var(--error-bg); color: var(--danger); padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
+.successMsg { background: var(--status-success-bg); color: var(--success); padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
+.hint { font-size: 13px; color: var(--text-sub); margin-bottom: 12px; }
+
+/* Pool card */
+.poolCard { background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; border: 1.5px solid var(--border); }
+.poolHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.poolLabel { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+.poolAmount { font-size: 28px; font-weight: 700; color: var(--primary); }
+.poolMeta { font-size: 13px; color: var(--text-sub); }
+
+/* Goal progress */
+.goalSection { margin-top: 12px; }
+.goalLabel { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-sub); margin-bottom: 6px; }
+.goalPct { font-weight: 700; color: var(--primary); }
+.progressBar { height: 10px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+.progressFill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); border-radius: 99px; transition: width 0.5s ease; }
+.goalSub { font-size: 12px; color: var(--text-muted); }
+
+/* Breakdown */
+.breakdown { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+.breakdown h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+
+/* Disbursement panel */
+.disbursementPanel { background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; border: 1.5px solid var(--border); }
+.disbursementPanel h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+.infoBanner { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #92400e; margin-bottom: 16px; }
+[data-theme="dark"] .infoBanner { background: #2d2500; border-color: #92400e; color: #fcd34d; }
+.disbForm { display: flex; flex-direction: column; gap: 12px; }
+.disbHistory { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px; }
+.disbHistory h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+
+/* Sections */
+.section { background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; border: 1.5px solid var(--border); }
+.section h2 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+
+/* Table */
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th { text-align: left; padding: 8px 12px; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+.table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+.table tr:last-child td { border-bottom: none; }
+
+/* Badges */
+.badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.approved { background: var(--status-success-bg); color: var(--success); }
+.pending  { background: var(--status-pending-bg);  color: var(--warning); }
+.role { font-size: 12px; color: var(--text-muted); text-transform: capitalize; }
+.you  { font-size: 12px; color: var(--primary); }
+
+/* Member action buttons */
+.approveBtn { padding: 4px 12px; background: var(--success); color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.rejectBtn  { padding: 4px 12px; background: transparent; color: var(--danger); border: 1.5px solid var(--danger); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.editBtn    { padding: 3px 10px; background: transparent; color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+/* Invite */
+.inviteBox { display: flex; align-items: center; gap: 10px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.inviteUrl { flex: 1; font-size: 13px; color: var(--text-sub); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.copyBtn { padding: 6px 14px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+/* Modal */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+.modal { background: var(--bg-card); border-radius: 16px; padding: 28px; max-width: 440px; width: 100%; max-height: 90vh; overflow-y: auto; }
+.modal h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+.modalField { margin-bottom: 14px; }
+.modalField label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+.modalField input, .modalField textarea, .modalField select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-input); color: var(--text); box-sizing: border-box; }
+.modalField input:focus, .modalField textarea:focus, .modalField select:focus { border-color: var(--primary); }
+.modalBtns { display: flex; gap: 10px; margin-top: 16px; }
+.modalBtns button:first-child { flex: 1; padding: 10px; background: transparent; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer; }

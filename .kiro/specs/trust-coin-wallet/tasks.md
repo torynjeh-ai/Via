@@ -244,7 +244,7 @@ Implement the Trust Coin (TC) in-app currency system end-to-end: database migrat
     - Replace `trust_score` display with `tc_balance`
     - _Requirements: 1.6, 8.1_
 
-- [ ] 11. Mobile frontend — API client and shared components
+- [x] 11. Mobile frontend — API client and shared components
   - [x] 11.1 Create `mobile/src/api/wallet.js`
     - Implement `getWallet()`, `topUp(data)`, `withdraw(data)`, `transfer(data)`, `getTransferPreview(params)`, `getTransactions(params)` using the existing `client` from `mobile/src/api/client.js`
     - _Requirements: 2.1, 3.1, 6.1, 7.1, 9.1_
@@ -253,44 +253,44 @@ Implement the Trust Coin (TC) in-app currency system end-to-end: database migrat
     - Accept `tcBalance` and `rates` props; display TC amount and XAF equivalent; include a touchable to cycle through other currencies; show staleness indicator when `rates.stale === true`
     - _Requirements: 8.1, 8.2, 8.4, 8.5_
 
-  - [-] 11.3 Create `mobile/src/components/WalletCode.js`
+  - [x] 11.3 Create `mobile/src/components/WalletCode.js`
     - Accept `walletCode` prop; display in a styled `Text`; include a copy button using `expo-clipboard` (`Clipboard.setStringAsync`)
     - _Requirements: 1.3, 1.5_
 
-  - [ ] 11.4 Create `mobile/src/components/TransferConfirm.js`
+  - [x] 11.4 Create `mobile/src/components/TransferConfirm.js`
     - A bottom-sheet or modal component accepting `preview`, `onConfirm`, `onCancel`; display full fee breakdown; show loading and error states
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 12. Mobile frontend — Wallet screens
-  - [ ] 12.1 Create `mobile/src/screens/WalletScreen.js`
+- [x] 12. Mobile frontend — Wallet screens
+  - [x] 12.1 Create `mobile/src/screens/WalletScreen.js`
     - On mount call `getWallet()` and `getTransactions({ limit: 5 })`
     - Render `TCBalance`, `WalletCode`, quick-action buttons (Top Up, Withdraw, Transfer, History), and a 5-item transaction preview list
     - _Requirements: 1.5, 8.1, 9.1_
 
-  - [ ] 12.2 Create `mobile/src/screens/TopUpScreen.js`
+  - [x] 12.2 Create `mobile/src/screens/TopUpScreen.js`
     - Form with XAF amount `TextInput` and payment method picker; submit calls `topUp()`; show success/error feedback
     - _Requirements: 2.1, 2.2, 2.3, 2.5_
 
-  - [ ] 12.3 Create `mobile/src/screens/WithdrawScreen.js`
+  - [x] 12.3 Create `mobile/src/screens/WithdrawScreen.js`
     - Form with TC amount input and destination method picker with conditional sub-fields; submit calls `withdraw()`; show limit errors with reset time
     - _Requirements: 3.1, 3.2, 3.3, 3.7, 11.3, 11.5, 11.8_
 
-  - [ ] 12.4 Create `mobile/src/screens/TransferScreen.js`
+  - [x] 12.4 Create `mobile/src/screens/TransferScreen.js`
     - Step 1: recipient identifier and TC amount inputs; "Preview" button calls `getTransferPreview()` and opens `TransferConfirm` sheet
     - Step 2: user confirms; calls `transfer()`; shows success or error
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 7.1, 7.2, 7.3_
 
-  - [ ] 12.5 Create `mobile/src/screens/TransactionHistoryScreen.js`
+  - [x] 12.5 Create `mobile/src/screens/TransactionHistoryScreen.js`
     - FlatList with `onEndReached` pagination; type filter via a horizontal scroll of filter chips; each item shows type, counterparty, TC amount, XAF equivalent, status, and timestamp
     - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-  - [ ] 12.6 Update `mobile/src/navigation/AppNavigator.js`
+  - [x] 12.6 Update `mobile/src/navigation/AppNavigator.js`
     - Add a `Wallet` tab to `MainTabs` with a wallet icon
     - Add stack screens `WalletScreen`, `TopUpScreen`, `WithdrawScreen`, `TransferScreen`, `TransactionHistoryScreen` to `AppStack`
     - Import all new screen components
     - _Requirements: 1.5_
 
-  - [ ] 12.7 Update `mobile/src/screens/DashboardScreen.js`
+  - [x] 12.7 Update `mobile/src/screens/DashboardScreen.js`
     - Replace `trust_score` display with `tc_balance`
     - Add a TC balance card that fetches wallet data on mount and navigates to `WalletScreen` on press
     - _Requirements: 1.6, 8.1_

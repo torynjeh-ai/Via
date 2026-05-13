@@ -1,0 +1,77 @@
+.card { background: #0d1117; border-radius: 16px; padding: 16px 18px; color: #fff; display: flex; flex-direction: column; gap: 10px; }
+.loading { color: rgba(255,255,255,0.5); font-size: 13px; }
+
+/* Header */
+.header { display: flex; align-items: center; justify-content: space-between; }
+.groupName { font-size: 14px; font-weight: 600; color: #fff; }
+.autopayRow { display: flex; align-items: center; gap: 8px; }
+.autopayLabel { font-size: 11px; color: rgba(255,255,255,0.6); }
+
+/* Toggle switch */
+.toggle { width: 40px; height: 22px; border-radius: 11px; background: rgba(255,255,255,0.15); border: none; cursor: pointer; position: relative; transition: background 0.2s; padding: 0; }
+.toggleOn { background: #00d4aa; }
+.toggleThumb { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; display: block; }
+.toggleOn .toggleThumb { transform: translateX(18px); }
+
+/* Early payout banner */
+.earlyBanner { background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.4); border-radius: 10px; padding: 10px 12px; }
+.earlyBanner p { font-size: 12px; color: rgba(255,255,255,0.85); margin-bottom: 8px; line-height: 1.5; }
+.earlyBtns { display: flex; gap: 8px; flex-wrap: wrap; }
+.earlyAccept  { background: #6C63FF; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.earlyDecline { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; }
+
+/* Personal amounts — smaller than before */
+.amounts { display: flex; justify-content: space-between; align-items: baseline; }
+.paid   { font-size: 15px; font-weight: 700; color: #00d4ff; }
+.target { font-size: 13px; font-weight: 600; color: #00d4aa; }
+
+/* Progress bar */
+.barWrap { height: 8px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+.bar { height: 100%; background: linear-gradient(90deg, #00d4ff, #6C63FF); border-radius: 99px; transition: width 0.5s ease; min-width: 4px; }
+.barComplete { background: linear-gradient(90deg, #00d4aa, #16A34A); }
+
+/* Percentage centered below bar */
+.pctCenter { text-align: center; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); margin-top: -2px; }
+
+/* Personal footer */
+.personalFooter { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.congrats  { font-size: 12px; color: #00d4aa; font-weight: 500; }
+.encourage { font-size: 11px; color: rgba(255,255,255,0.5); }
+
+/* Deadline */
+.deadline { font-size: 11px; color: rgba(255,255,255,0.4); white-space: nowrap; flex-shrink: 0; }
+
+/* Messages */
+.msg { font-size: 12px; color: #00d4aa; }
+
+/* Pool section (group only mode) */
+.poolSection { display: flex; flex-direction: column; gap: 6px; }
+.poolLabel { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.4); }
+.poolAmounts { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.6); }
+.poolBarWrap { height: 6px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
+.poolBar { height: 100%; background: linear-gradient(90deg, #6C63FF, #00d4aa); border-radius: 99px; transition: width 0.5s ease; }
+.poolFooter { display: flex; justify-content: space-between; align-items: center; }
+.poolPct { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+/* Member payment status */
+.memberStatus { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.memberStatusLabel { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.4); margin-bottom: 2px; }
+.memberRow { display: flex; align-items: center; gap: 8px; }
+.memberAvatar { width: 24px; height: 24px; border-radius: 50%; background: rgba(108,99,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden; }
+.memberAvatar img { width: 100%; height: 100%; object-fit: cover; }
+.memberName { flex: 1; font-size: 13px; color: rgba(255,255,255,0.8); }
+.memberBadge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; }
+.badgePaid    { background: rgba(0,212,170,0.15); color: #00d4aa; }
+.badgePartial { background: rgba(255,193,7,0.15);  color: #ffc107; }
+.badgeUnpaid  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
+
+/* Pay section */
+.paySection { margin-top: 2px; }
+.contributeBtn { width: 100%; padding: 9px; background: rgba(108,99,255,0.2); color: #6C63FF; border: 1.5px solid rgba(108,99,255,0.4); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.contributeBtn:hover { background: rgba(108,99,255,0.3); }
+.payForm { display: flex; gap: 8px; align-items: center; }
+.payInput { flex: 1; padding: 8px 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 13px; outline: none; }
+.payInput:focus { border-color: #6C63FF; }
+.payBtn { padding: 8px 14px; background: #6C63FF; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.payBtn:disabled { opacity: 0.6; }
+.cancelBtn { padding: 8px 10px; background: none; color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; font-size: 12px; cursor: pointer; }

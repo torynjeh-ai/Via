@@ -4,10 +4,12 @@ import { withdraw } from '../api/wallet';
 import styles from './Withdraw.module.css';
 
 const METHODS = [
-  { value: 'mtn_momo', label: '📱 MTN Mobile Money' },
+  { value: 'mtn_momo',     label: '📱 MTN Mobile Money' },
   { value: 'orange_money', label: '🟠 Orange Money' },
-  { value: 'bank_transfer', label: '🏦 Bank Transfer' },
-  { value: 'card', label: '💳 Card' },
+  { value: 'bank_transfer',label: '🏦 Bank Transfer' },
+  { value: 'card',         label: '💳 Card' },
+  { value: 'apple_pay',    label: '🍎 Apple Pay' },
+  { value: 'paypal',       label: '🅿️ PayPal' },
 ];
 
 export default function Withdraw() {
@@ -16,6 +18,7 @@ export default function Withdraw() {
   const [phone, setPhone] = useState('');
   const [accountDetails, setAccountDetails] = useState('');
   const [cardDetails, setCardDetails] = useState('');
+  const [paypalEmail, setPaypalEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState('');
@@ -33,7 +36,10 @@ export default function Withdraw() {
       dest.account_details = accountDetails;
     } else if (method === 'card') {
       dest.card_details = cardDetails;
+    } else if (method === 'paypal') {
+      dest.paypal_email = paypalEmail;
     }
+    // apple_pay needs no extra details
     return dest;
   };
 
@@ -60,6 +66,7 @@ export default function Withdraw() {
       setPhone('');
       setAccountDetails('');
       setCardDetails('');
+      setPaypalEmail('');
     } catch (err) {
       if (err.code === 'LIMIT_EXCEEDED') {
         setLimitError(err);
@@ -194,6 +201,27 @@ export default function Withdraw() {
               placeholder="Card number or reference"
               required
             />
+          </div>
+        )}
+
+        {method === 'paypal' && (
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="paypalEmail">PayPal Email</label>
+            <input
+              id="paypalEmail"
+              type="email"
+              className={styles.input}
+              value={paypalEmail}
+              onChange={(e) => setPaypalEmail(e.target.value)}
+              placeholder="your@paypal.com"
+              required
+            />
+          </div>
+        )}
+
+        {method === 'apple_pay' && (
+          <div className={styles.field}>
+            <p className={styles.hint}>Apple Pay will be triggered on your device to complete the withdrawal.</p>
           </div>
         )}
 

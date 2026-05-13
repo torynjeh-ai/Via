@@ -1,13 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { getReceiptHistory, getContributionReceipt, getPayoutReceipt } from '../api/receipts';
+import { getReceiptHistory, getContributionReceipt, getPayoutReceipt, getTransactionReceipt, getSavingsReceipt, getSavingsWithdrawalReceipt } from '../api/receipts';
+import { formatDate } from '../utils/dateFormat';
 import ReceiptModal from '../components/ReceiptModal';
 import styles from './Receipts.module.css';
 
+const TYPE_CONFIG = {
+  contribution:       { icon: '💳', label: 'Contribution',         color: 'var(--danger)',  sign: '-' },
+  payout:             { icon: '💰', label: 'Payout',               color: 'var(--success)', sign: '+' },
+  top_up:             { icon: '⬆️', label: 'Deposit',              color: 'var(--success)', sign: '+' },
+  withdrawal:         { icon: '⬇️', label: 'Withdrawal',           color: 'var(--danger)',  sign: '-' },
+  transfer_out:       { icon: '📤', label: 'Transfer Sent',        color: 'var(--danger)',  sign: '-' },
+  transfer_in:        { icon: '📥', label: 'Transfer Received',    color: 'var(--success)', sign: '+' },
+  savings_deposit:    { icon: '🏦', label: 'Savings Deposit',      color: 'var(--danger)',  sign: '-' },
+  savings_withdrawal: { icon: '🏧', label: 'Savings Withdrawal',   color: 'var(--success)', sign: '+' },
+};
+
+const FILTERS = [
+  { key: 'all',               label: 'All' },
+  { key: 'contribution',      label: '💳 Contributions' },
+  { key: 'payout',            label: '💰 Payouts' },
+  { key: 'top_up',            label: '⬆️ Deposits' },
+  { key: 'withdrawal',        label: '⬇️ Withdrawals' },
+  { key: 'transfer_out',      label: '📤 Transfers' },
+  { key: 'savings_deposit',   label: '🏦 Savings' },
+];
+
 export default function Receipts() {
-  const [history, setHistory]   = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [filter, setFilter]     = useState('all'); // all | contribution | payout
-  const [receipt, setReceipt]   = useState(null);
+  const [history, setHistory]     = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [filter, setFilter]       = useState('all');
+  const [receipt, setReceipt]     = useState(null);
   const [loadingId, setLoadingId] = useState(null);
 
   useEffect(() => {
@@ -20,18 +42,31 @@ export default function Receipts() {
   const handleView = async (item) => {
     setLoadingId(item.id);
     try {
-      const res = item.type === 'contribution'
-        ? await getContributionReceipt(item.id)
-        : await getPayoutReceipt(item.id);
+      let res;
+      if (item.type === 'contribution') {
+        res = await getContributionReceipt(item.id);
+      } else if (item.type === 'payout') {
+        res = await getPayoutReceipt(item.id);
+      } else if (item.type === 'savings_deposit') {
+        res = await getSavingsReceipt(item.id);
+      } else if (item.type === 'savings_withdrawal') {
+        res = await getSavingsWithdrawalReceipt(item.id);
+      } else {
+        res = await getTransactionReceipt(item.id);
+      }
       setReceipt(res.data);
     } catch { /* receipt may not exist yet */ }
     finally { setLoadingId(null); }
   };
 
-  const filtered = filter === 'all' ? history : history.filter(h => h.type === filter);
+  const filtered = filter === 'all'
+    ? history
+    : filter === 'transfer_out'
+      ? history.filter(h => h.type === 'transfer_out' || h.type === 'transfer_in')
+      : history.filter(h => h.type === filter);
 
-  const totalContributions = history.filter(h => h.type === 'contribution').reduce((s, h) => s + h.amount, 0);
-  const totalPayouts       = history.filter(h => h.type === 'payout').reduce((s, h) => s + h.amount, 0);
+  const totalIn  = history.filter(h => ['payout', 'top_up', 'transfer_in', 'savings_withdrawal'].includes(h.type)).reduce((s, h) => s + h.amount, 0);
+  const totalOut = history.filter(h => ['contribution', 'withdrawal', 'transfer_out', 'savings_deposit'].includes(h.type)).reduce((s, h) => s + h.amount, 0);
 
   return (
     <div className={styles.container}>
@@ -40,17 +75,17 @@ export default function Receipts() {
       {/* Summary cards */}
       <div className={styles.summary}>
         <div className={styles.summaryCard}>
-          <div className={styles.summaryIcon}>💳</div>
+          <div className={styles.summaryIcon}>📥</div>
           <div>
-            <div className={styles.summaryLabel}>Total Contributed</div>
-            <div className={styles.summaryAmount}>{totalContributions.toLocaleString()} XAF</div>
+            <div className={styles.summaryLabel}>Total In</div>
+            <div className={styles.summaryAmount} style={{ color: 'var(--success)' }}>+{totalIn.toLocaleString()} XAF</div>
           </div>
         </div>
         <div className={styles.summaryCard}>
-          <div className={styles.summaryIcon}>💰</div>
+          <div className={styles.summaryIcon}>📤</div>
           <div>
-            <div className={styles.summaryLabel}>Total Received</div>
-            <div className={styles.summaryAmount}>{totalPayouts.toLocaleString()} XAF</div>
+            <div className={styles.summaryLabel}>Total Out</div>
+            <div className={styles.summaryAmount} style={{ color: 'var(--danger)' }}>-{totalOut.toLocaleString()} XAF</div>
           </div>
         </div>
         <div className={styles.summaryCard}>
@@ -64,13 +99,13 @@ export default function Receipts() {
 
       {/* Filter tabs */}
       <div className={styles.filters}>
-        {['all', 'contribution', 'payout'].map(f => (
+        {FILTERS.map(f => (
           <button
-            key={f}
-            className={`${styles.filterBtn} ${filter === f ? styles.filterActive : ''}`}
-            onClick={() => setFilter(f)}
+            key={f.key}
+            className={`${styles.filterBtn} ${filter === f.key ? styles.filterActive : ''}`}
+            onClick={() => setFilter(f.key)}
           >
-            {f === 'all' ? 'All' : f === 'contribution' ? '💳 Contributions' : '💰 Payouts'}
+            {f.label}
           </button>
         ))}
       </div>
@@ -82,36 +117,40 @@ export default function Receipts() {
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>🧾</div>
           <p>No receipts yet</p>
-          <small>Your contribution and payout receipts will appear here</small>
+          <small>All your transaction receipts will appear here</small>
         </div>
       ) : (
         <div className={styles.list}>
-          {filtered.map(item => (
-            <div key={item.id} className={styles.item} onClick={() => handleView(item)}>
-              <div className={styles.itemIcon}>
-                {item.type === 'contribution' ? '💳' : '💰'}
+          {filtered.map(item => {
+            const cfg = TYPE_CONFIG[item.type] || { icon: '💱', label: item.label || item.type, color: 'var(--text)', sign: '' };
+            return (
+              <div key={item.id} className={styles.item} onClick={() => handleView(item)}>
+                <div className={styles.itemIcon}>{cfg.icon}</div>
+                <div className={styles.itemInfo}>
+                  <div className={styles.itemTitle}>
+                    {cfg.label}
+                    {item.group_name && ` — ${item.group_name}`}
+                    {item.goal_name && ` — ${item.goal_name}`}
+                    {item.counterparty_name && ` — ${item.counterparty_name}`}
+                  </div>
+                  <div className={styles.itemMeta}>
+                    {item.receipt_number}
+                    {item.cycle_number && ` · Cycle #${item.cycle_number}`}
+                    {item.position && ` · Position #${item.position}`}
+                    {' · '}{formatDate(item.date)}
+                  </div>
+                </div>
+                <div className={styles.itemRight}>
+                  <div className={styles.itemAmount} style={{ color: cfg.color }}>
+                    {cfg.sign}{item.amount.toLocaleString()} XAF
+                  </div>
+                  <div className={styles.viewBtn}>
+                    {loadingId === item.id ? '⏳' : '🧾 View'}
+                  </div>
+                </div>
               </div>
-              <div className={styles.itemInfo}>
-                <div className={styles.itemTitle}>
-                  {item.type === 'contribution' ? 'Contribution' : 'Payout'} — {item.group_name}
-                </div>
-                <div className={styles.itemMeta}>
-                  {item.receipt_number}
-                  {item.type === 'contribution' && ` · Cycle #${item.cycle_number}`}
-                  {item.type === 'payout' && ` · Position #${item.position}`}
-                  {' · '}{new Date(item.date).toLocaleDateString()}
-                </div>
-              </div>
-              <div className={styles.itemRight}>
-                <div className={`${styles.itemAmount} ${item.type === 'payout' ? styles.payout : ''}`}>
-                  {item.type === 'payout' ? '+' : '-'}{item.amount.toLocaleString()} XAF
-                </div>
-                <div className={styles.viewBtn}>
-                  {loadingId === item.id ? '⏳' : '🧾 View'}
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

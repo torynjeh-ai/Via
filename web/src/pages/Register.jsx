@@ -4,6 +4,7 @@ import { register } from '../api/auth';
 import { useLanguage } from '../context/LanguageContext';
 import PhoneInput from '../components/PhoneInput';
 import LanguagePicker from '../components/LanguagePicker';
+import ViaLogo from '../components/ViaLogo';
 import styles from './Auth.module.css';
 
 export default function Register() {
@@ -28,7 +29,7 @@ export default function Register() {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.cardTop}>
-          <div className={styles.logo}>Via</div>
+          <div className={styles.logo}><ViaLogo size={72} /></div>
           <LanguagePicker compact />
         </div>
         <h1 className={styles.title}>{t('createAccount')}</h1>
@@ -41,8 +42,8 @@ export default function Register() {
           </div>
           <PhoneInput label={t('phoneNumber')} value={phone} onChange={setPhone} required />
           <div className={styles.field}>
-            <label>{t('passwordOptional')}</label>
-            <input type="password" placeholder={t('passwordHint')} value={password} onChange={e => setPassword(e.target.value)} />
+            <label>{t('password')}</label>
+            <input type="password" placeholder={t('passwordHint')} value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
           <button className={styles.btn} disabled={loading}>
             {loading ? t('registering') : t('register')}

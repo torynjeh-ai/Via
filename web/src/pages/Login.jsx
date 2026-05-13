@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import PhoneInput from '../components/PhoneInput';
 import LanguagePicker from '../components/LanguagePicker';
+import ViaLogo from '../components/ViaLogo';
 import styles from './Auth.module.css';
 
 export default function Login() {
@@ -30,7 +31,7 @@ export default function Login() {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.cardTop}>
-          <div className={styles.logo}>Via</div>
+          <div className={styles.logo}><ViaLogo size={72} /></div>
           <LanguagePicker compact />
         </div>
         <h1 className={styles.title}>{t('welcomeBack')}</h1>

@@ -15,3 +15,8 @@
 .receiptHint { font-size: 12px; color: var(--primary); font-weight: 600; cursor: pointer; }
 .clickable { cursor: pointer; }
 .clickable:hover { border-color: var(--primary) !important; transform: translateY(-1px); }
+.processBtn { background: var(--primary); color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.processBtn:hover:not(:disabled) { background: var(--primary-dark); }
+.processBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+.msg { background: var(--bg-hover); color: var(--primary); padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
+.currentHint { font-size: 12px; color: var(--primary); font-weight: 500; }

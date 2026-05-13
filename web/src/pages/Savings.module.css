@@ -1,0 +1,79 @@
+.page { max-width: 900px; }
+.pageHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.pageHeader h1 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.pageHeader p  { font-size: 14px; color: var(--text-sub); }
+.newBtn { background: var(--primary); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.newBtn:hover { background: var(--primary-dark); }
+
+.msg { background: var(--bg-hover); color: var(--primary); padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; display: flex; align-items: center; gap: 12px; }
+.receiptLink { margin-left: auto; font-size: 13px; font-weight: 600; color: var(--primary); text-decoration: underline; white-space: nowrap; }
+.loading { color: var(--text-muted); padding: 20px 0; }
+
+/* Summary */
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+.summaryCard { background: var(--bg-card); border-radius: 12px; padding: 16px; text-align: center; box-shadow: var(--shadow); }
+.summaryNum { font-size: 24px; font-weight: 700; color: var(--primary); }
+.summaryLabel { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* Sections */
+.section { margin-bottom: 28px; }
+.section h2 { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+/* Empty state */
+.empty { text-align: center; padding: 60px 20px; color: var(--text-sub); }
+.emptyIcon { font-size: 48px; margin-bottom: 12px; }
+.empty p { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+.empty small { font-size: 13px; color: var(--text-muted); }
+
+/* Goal card */
+.goalCard { background: var(--bg-card); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); border: 1.5px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+.goalComplete  { border-color: var(--success); }
+.goalWithdrawn { opacity: 0.6; }
+
+.goalHeader { display: flex; align-items: flex-start; gap: 10px; }
+.goalIcon { font-size: 28px; flex-shrink: 0; }
+.goalInfo { flex: 1; min-width: 0; }
+.goalName { font-size: 15px; font-weight: 600; color: var(--text); }
+.goalCategory { font-size: 12px; color: var(--text-muted); }
+.goalStatus { flex-shrink: 0; }
+.badgeComplete  { background: var(--status-success-bg); color: var(--success); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.badgeWithdrawn { background: var(--bg-subtle); color: var(--text-muted); font-size: 12px; padding: 3px 10px; border-radius: 20px; }
+.daysLeft { font-size: 12px; color: var(--primary); font-weight: 600; }
+.overdue  { font-size: 12px; color: var(--danger); font-weight: 600; }
+
+/* Progress */
+.amounts { display: flex; justify-content: space-between; }
+.saved  { font-size: 14px; font-weight: 700; color: var(--primary); }
+.target { font-size: 13px; color: var(--text-sub); }
+.barWrap { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); border-radius: 99px; transition: width 0.5s ease; }
+.barDone { background: linear-gradient(90deg, var(--success), #00d4aa); }
+.barFooter { display: flex; justify-content: space-between; }
+.pct { font-size: 12px; font-weight: 600; color: var(--text-sub); }
+.deadline { font-size: 11px; color: var(--text-muted); }
+.remaining { font-size: 12px; color: var(--text-sub); }
+.bonus { font-size: 12px; color: var(--success); font-weight: 500; }
+
+/* Goal actions */
+.goalActions { display: flex; gap: 8px; }
+.depositBtn  { flex: 1; padding: 8px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.depositBtn:hover { background: var(--primary-dark); }
+.withdrawBtn { flex: 1; padding: 8px; background: transparent; color: var(--danger); border: 1.5px solid var(--danger); border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.withdrawBtn:hover { background: rgba(220,38,38,0.06); }
+.deleteBtn { width: 100%; padding: 6px; background: none; color: var(--text-muted); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; cursor: pointer; }
+
+/* Deposit modal */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+.modal { background: var(--bg-card); border-radius: 16px; padding: 28px; max-width: 400px; width: 100%; }
+.modal h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.modalHint { font-size: 13px; color: var(--text-sub); margin-bottom: 16px; }
+.error { background: var(--error-bg); color: var(--danger); padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
+.modalField { margin-bottom: 14px; }
+.modalField label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+.modalField input, .modalField select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-input); color: var(--text); box-sizing: border-box; }
+.modalField input:focus, .modalField select:focus { border-color: var(--primary); }
+.modalBtns { display: flex; gap: 10px; margin-top: 16px; }
+.cancelBtn  { flex: 1; padding: 10px; background: transparent; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
+.confirmBtn { flex: 2; padding: 10px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.confirmBtn:disabled { opacity: 0.7; }

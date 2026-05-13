@@ -18,3 +18,12 @@
 .btn { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; }
 .btn:hover { background: var(--primary-dark); }
 .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+/* Late penalty styles */
+.amountCardLate { background: linear-gradient(135deg, #dc2626, #991b1b); }
+.penaltyBreakdown { margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; text-align: left; }
+.penaltyRow { display: flex; justify-content: space-between; font-size: 14px; opacity: 0.9; margin-bottom: 6px; }
+.penaltyLine { color: #fca5a5; }
+.penaltyTotal { font-weight: 700; font-size: 15px; opacity: 1; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; margin-top: 4px; }
+.lateWarning { background: #fef2f2; border: 1.5px solid #fca5a5; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #991b1b; margin-bottom: 16px; line-height: 1.5; }
+[data-theme="dark"] .lateWarning { background: #2d0000; border-color: #991b1b; color: #fca5a5; }

@@ -46,7 +46,7 @@ const requireAdmin = async (req, res, next) => {
 
 const requireGroupAdmin = async (req, res, next) => {
   try {
-    const groupId = req.params.groupId || req.body.groupId;
+    const groupId = req.params.groupId || req.params.id || req.body.groupId;
     const result = await query(
       'SELECT role FROM members WHERE user_id = $1 AND group_id = $2 AND status = $3',
       [req.user.id, groupId, 'approved']

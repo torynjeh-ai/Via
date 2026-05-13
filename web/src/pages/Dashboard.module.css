@@ -82,3 +82,23 @@
   color: var(--primary);
   font-weight: 700;
 }
+
+/* Group pool cards */
+.poolWrap { margin-bottom: 12px; }
+
+/* Savings section */
+.savingsEmpty { display: flex; align-items: center; gap: 12px; padding: 12px 0; color: var(--text-sub); font-size: 14px; }
+.savingsGrid { display: flex; flex-direction: column; gap: 10px; }
+.savingsCard { background: var(--bg-subtle); border-radius: 12px; padding: 14px 16px; border: 1.5px solid var(--border); display: flex; flex-direction: column; gap: 8px; transition: border-color 0.15s; }
+.savingsCard:hover { border-color: var(--primary); }
+.savingsCardHeader { display: flex; align-items: center; gap: 10px; }
+.savingsIcon { font-size: 22px; flex-shrink: 0; }
+.savingsInfo { flex: 1; min-width: 0; }
+.savingsName { font-size: 14px; font-weight: 600; color: var(--text); }
+.savingsMeta { font-size: 12px; color: var(--text-muted); }
+.savingsPct { font-size: 14px; font-weight: 700; color: var(--primary); flex-shrink: 0; }
+.savingsBarWrap { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.savingsBar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); border-radius: 99px; transition: width 0.5s ease; }
+.savingsAmounts { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
+.viewAllGoals { text-align: center; padding: 10px; font-size: 13px; color: var(--primary); font-weight: 600; border: 1.5px dashed var(--border); border-radius: 10px; }
+.viewAllGoals:hover { border-color: var(--primary); background: var(--bg-hover); }

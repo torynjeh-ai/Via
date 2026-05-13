@@ -18,9 +18,14 @@
 .table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text); }
 .role { text-transform: capitalize; font-weight: 500; }
 .badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.pendingBadge { padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; background: var(--status-pending-bg); color: var(--warning); }
 .approved { background: var(--status-success-bg); color: var(--success); }
 .pending { background: var(--status-pending-bg); color: var(--warning); }
-.approveBtn { background: var(--primary); color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+.approveBtn { background: var(--primary); color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.approveBtn:hover { background: var(--primary-dark); }
+.rejectBtn  { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); padding: 5px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.rejectBtn:hover { background: rgba(220,38,38,0.08); }
+.actionBtns { display: flex; gap: 6px; align-items: center; }
 
 .inviteHint { font-size: 13px; color: var(--text-sub); margin-bottom: 14px; }
 .inviteBtn { background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }

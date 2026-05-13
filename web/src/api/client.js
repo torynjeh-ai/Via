@@ -14,7 +14,15 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (res) => res.data,
-  (err) => Promise.reject(err.response?.data || { message: 'Network error' })
+  (err) => {
+    const data = err.response?.data;
+    // Redirect to identity verification if the backend blocks an unverified user
+    if (data?.code === 'PROFILE_INCOMPLETE') {
+      window.location.href = '/setup-profile';
+      return Promise.reject(data);
+    }
+    return Promise.reject(data || { message: 'Network error' });
+  }
 );
 
 export default api;

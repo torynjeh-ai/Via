@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getWallet, getTransactions } from '../api/wallet';
+import { formatDate } from '../utils/dateFormat';
 import TCBalance from '../components/TCBalance';
 import WalletCode from '../components/WalletCode';
 import styles from './Wallet.module.css';
@@ -15,7 +16,7 @@ const TX_ICONS = {
 };
 
 const TX_LABELS = {
-  top_up: 'Top Up',
+  top_up: 'Deposit',
   withdrawal: 'Withdrawal',
   contribution: 'Contribution',
   payout: 'Payout',
@@ -66,7 +67,7 @@ export default function Wallet() {
       <div className={styles.actions}>
         <Link to="/wallet/topup" className={styles.actionBtn}>
           <span className={styles.actionIcon}>⬆️</span>
-          <span>Top Up</span>
+          <span>Deposit</span>
         </Link>
         <Link to="/wallet/withdraw" className={styles.actionBtn}>
           <span className={styles.actionIcon}>⬇️</span>
@@ -101,7 +102,7 @@ export default function Wallet() {
                   <div className={styles.txType}>{TX_LABELS[tx.type] || tx.type}</div>
                   <div className={styles.txMeta}>
                     {tx.counterparty_name && <span>{tx.counterparty_name} · </span>}
-                    {new Date(tx.created_at).toLocaleDateString()}
+                    {formatDate(tx.created_at)}
                   </div>
                 </div>
                 <div className={styles.txRight}>

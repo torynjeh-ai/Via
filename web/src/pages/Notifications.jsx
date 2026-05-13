@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getNotifications, markRead } from '../api/users';
+import { formatDateTime } from '../utils/dateFormat';
 import { useLanguage } from '../context/LanguageContext';
 import styles from './Notifications.module.css';
 
@@ -35,7 +36,7 @@ export default function Notifications() {
               <div className={styles.content}>
                 <div className={styles.title}>{n.title}</div>
                 <div className={styles.message}>{n.message}</div>
-                <div className={styles.time}>{new Date(n.created_at).toLocaleString()}</div>
+                <div className={styles.time}>{formatDateTime(n.created_at)}</div>
               </div>
               {!n.is_read && <button className={styles.readBtn} onClick={(e) => { e.stopPropagation(); handleRead(n.id); }}>{t('markRead')}</button>}
             </div>

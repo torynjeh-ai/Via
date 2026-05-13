@@ -6,7 +6,7 @@ Implement the admin request and voting workflow across database, backend, and we
 
 ## Tasks
 
-- [ ] 1. Create database migration for admin request tables
+- [x] 1. Create database migration for admin request tables
   - Create `backend/migrations/add_admin_requests.sql` with `admin_requests` and `admin_request_votes` table definitions, indexes, and UNIQUE constraints matching the design schema
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
 
@@ -16,7 +16,7 @@ Implement the admin request and voting workflow across database, backend, and we
     - Verify all three indexes are present
     - _Requirements: 11.1–11.5_
 
-- [ ] 2. Implement `adminRequestController.js` — submit and cap logic
+- [x] 2. Implement `adminRequestController.js` — submit and cap logic
   - Create `backend/src/controllers/adminRequestController.js`
   - Implement `submitAdminRequest`: verify caller is approved member, compute admin cap, check duplicate, INSERT into `admin_requests`, INSERT one vote row per admin, notify all admins
   - Export `computeAdminCap(approvedMemberCount)` as a named export for testability
@@ -52,7 +52,7 @@ Implement the admin request and voting workflow across database, backend, and we
     - Use `fc.integer({ min: 1, max: 10 })` for admin count; assert exactly N `admin_request_new` notification rows persisted
     - **Validates: Requirements 2.5, 7.1**
 
-- [ ] 3. Implement `adminRequestController.js` — vote logic
+- [x] 3. Implement `adminRequestController.js` — vote logic
   - Implement `voteOnAdminRequest`: verify caller is admin, verify request is pending, verify caller has NULL vote row, record vote; on rejection set status rejected and notify requester + peer admins; on unanimous approval promote member and set status approved in a single transaction, notify requester
   - _Requirements: 4.2, 4.3, 5.1, 5.2, 5.3, 5.4, 6.1, 6.2, 7.2, 7.3, 7.4, 7.5_
 
@@ -76,25 +76,25 @@ Implement the admin request and voting workflow across database, backend, and we
     - Generate optional rejection reason string; assert requester gets exactly one `admin_request_rejected` notification and N-1 peers each get one `admin_request_rejected_peer` notification
     - **Validates: Requirements 5.2, 5.3, 7.3, 7.4**
 
-- [ ] 4. Implement `adminRequestController.js` — read endpoints
+- [x] 4. Implement `adminRequestController.js` — read endpoints
   - Implement `getAdminRequests`: admin-only, return all requests for group with requester name and per-admin vote summary (JOIN with users)
   - Implement `getMyAdminRequest`: member endpoint, return caller's own request or null
   - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 5. Checkpoint — Ensure all tests pass
+- [x] 5. Checkpoint — Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Add routes to `backend/src/routes/groups.js`
+- [x] 6. Add routes to `backend/src/routes/groups.js`
   - Import `submitAdminRequest`, `voteOnAdminRequest`, `getAdminRequests`, `getMyAdminRequest` from `adminRequestController`
   - Append four routes: `POST /:id/admin-requests`, `POST /:id/admin-requests/:requestId/vote`, `GET /:id/admin-requests`, `GET /:id/admin-requests/my`
   - Apply `requireProfileComplete` middleware to the two POST routes; read routes use `authenticate` only (already applied via `router.use`)
   - _Requirements: 2.1, 4.3, 8.1, 8.2, 8.3_
 
-- [ ] 7. Add API functions to `web/src/api/groups.js`
+- [x] 7. Add API functions to `web/src/api/groups.js`
   - Append `submitAdminRequest`, `voteOnAdminRequest`, `getAdminRequests`, `getMyAdminRequest` exports matching the design interface
   - _Requirements: 9.1, 9.4, 10.2, 10.4_
 
-- [ ] 8. Update `web/src/pages/GroupDetail.jsx` — member request button
+- [x] 8. Update `web/src/pages/GroupDetail.jsx` — member request button
   - Import `submitAdminRequest` and `getMyAdminRequest` from the API module
   - On page load, if `myMember?.role === 'member'`, fetch `getMyAdminRequest(id)` and store in state
   - Compute `capReached` from group data (admin count vs cap formula)
@@ -107,7 +107,7 @@ Implement the admin request and voting workflow across database, backend, and we
     - Generate all combinations of `{ isAdmin, capReached, hasPending }` booleans; assert correct element is rendered using React Testing Library
     - **Validates: Requirements 9.1, 9.2, 9.3**
 
-- [ ] 9. Update `web/src/pages/GroupDetail.jsx` — admin requests section
+- [x] 9. Update `web/src/pages/GroupDetail.jsx` — admin requests section
   - Import `getAdminRequests` and `voteOnAdminRequest` from the API module
   - On page load, if `isAdmin`, fetch `getAdminRequests(id)` and store in state
   - Render "Admin Requests" section listing pending requests with requester name and date
@@ -116,7 +116,7 @@ Implement the admin request and voting workflow across database, backend, and we
   - Remove resolved requests from the pending list after vote
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 10. Final checkpoint — Ensure all tests pass
+- [x] 10. Final checkpoint — Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

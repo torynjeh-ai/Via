@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getTransactions } from '../api/wallet';
+import { formatDateTime } from '../utils/dateFormat';
 import styles from './TransactionHistory.module.css';
 
 const PAGE_SIZE = 50;
@@ -15,7 +16,7 @@ const TX_ICONS = {
 };
 
 const TX_LABELS = {
-  top_up: 'Top Up',
+  top_up: 'Deposit',
   withdrawal: 'Withdrawal',
   contribution: 'Contribution',
   payout: 'Payout',
@@ -34,7 +35,7 @@ const CREDIT_TYPES = new Set(['top_up', 'payout', 'transfer_in']);
 
 const FILTER_OPTIONS = [
   { value: 'all', label: 'All' },
-  { value: 'top_up', label: '⬆️ Top Up' },
+  { value: 'top_up', label: '⬆️ Deposit' },
   { value: 'withdrawal', label: '⬇️ Withdrawal' },
   { value: 'contribution', label: '💳 Contribution' },
   { value: 'payout', label: '💰 Payout' },
@@ -129,7 +130,7 @@ export default function TransactionHistory() {
                 <div className={styles.itemMeta}>
                   {tx.counterparty_name && <span>{tx.counterparty_name} · </span>}
                   {tx.group_id && <span>Group · </span>}
-                  {new Date(tx.created_at).toLocaleString()}
+                  {formatDateTime(tx.created_at)}
                 </div>
               </div>
               <div className={styles.itemRight}>

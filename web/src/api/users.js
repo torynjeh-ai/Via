@@ -3,6 +3,8 @@ export const getMe = () => api.get('/users/me');
 export const updateMe = (data) => api.patch('/users/me', data);
 export const setupProfile = (data) => api.post('/users/me/setup-profile', data);
 export const updateProfilePicture = (data) => api.post('/users/me/profile-picture', data);
+export const removeProfilePicture = () => api.delete('/users/me/profile-picture');
+export const updateLocation = (data) => api.post('/users/me/location', data);
 export const getMyGroups = () => api.get('/users/me/groups');
 export const getNotifications = () => api.get('/users/me/notifications');
 export const markRead = (id) => api.patch(`/users/me/notifications/${id}/read`);

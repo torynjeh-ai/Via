@@ -2,11 +2,12 @@ const { body } = require('express-validator');
 const { query } = require('../config/database');
 const { validate } = require('../middleware/validate');
 const { compareFaces } = require('../services/faceMatchService');
+const { recalculateTrustScore } = require('../services/trustScoreService');
 
 const getMe = async (req, res, next) => {
   try {
     const result = await query(
-      `SELECT id, name, phone, role, tc_balance, wallet_code, preferred_currency, is_verified, profile_complete, doc_type, doc_number, profile_picture_url, created_at FROM users WHERE id = $1`,
+      `SELECT id, name, phone, role, tc_balance, wallet_code, preferred_currency, is_verified, profile_complete, doc_type, doc_number, profile_picture_url, trust_score, created_at FROM users WHERE id = $1`,
       [req.user.id]
     );
     res.json({ success: true, data: result.rows[0] });
@@ -74,11 +75,29 @@ const markRead = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
+// Doc number format validators
+const PASSPORT_REGEX = /^[A-Z0-9]{6,20}$/;
+const ID_REGEX       = /^[A-Z0-9\-]{5,20}$/;
+
 // POST /users/me/setup-profile
 const setupProfile = [
   body('doc_type').isIn(['passport', 'id']).withMessage('Document type must be passport or id'),
-  body('doc_number').trim().notEmpty().withMessage('Document number is required'),
-  body('doc_image').notEmpty().withMessage('Document image is required'),
+  body('doc_number')
+    .trim().notEmpty().withMessage('Document number is required')
+    .customSanitizer(v => v.toUpperCase().replace(/\s+/g, ''))
+    .custom((value, { req }) => {
+      const pattern = req.body.doc_type === 'passport' ? PASSPORT_REGEX : ID_REGEX;
+      if (!pattern.test(value)) {
+        throw new Error(
+          req.body.doc_type === 'passport'
+            ? 'Passport number must be 6–20 alphanumeric characters (e.g. A12345678)'
+            : 'ID number must be 5–20 alphanumeric characters or hyphens'
+        );
+      }
+      return true;
+    }),
+  body('doc_image_front').notEmpty().withMessage('Front document image is required'),
+  body('doc_image_back').notEmpty().withMessage('Back document image is required'),
   body('face_image').notEmpty().withMessage('Face image is required'),
   validate,
   async (req, res, next) => {
@@ -88,7 +107,7 @@ const setupProfile = [
         return res.status(403).json({ success: false, message: 'Profile verification already completed' });
       }
 
-      const { doc_type, doc_number, doc_image, face_image } = req.body;
+      const { doc_type, doc_number, doc_image_front, doc_image_back, face_image } = req.body;
 
       // Check doc number not already used by another user
       const existing = await query(
@@ -99,26 +118,32 @@ const setupProfile = [
         return res.status(409).json({ success: false, message: 'Document number already registered to another account' });
       }
 
-      // Face match against document photo
-      const faceResult = await compareFaces(doc_image, face_image);
+      // Face match against the front document photo (contains the portrait)
+      const faceResult = await compareFaces(doc_image_front, face_image);
       if (!faceResult.match) {
-        return res.status(400).json({ success: false, message: 'Face does not match the document photo. Please try again.' });
+        return res.status(400).json({
+          success: false,
+          message: faceResult.reason || 'Face does not match the document photo. Please try again.',
+        });
       }
 
       const result = await query(
         `UPDATE users SET
-          doc_type = $1,
-          doc_number = $2,
+          doc_type           = $1,
+          doc_number         = $2,
           passport_image_url = $3,
-          face_image_url = $4,
-          profile_complete = TRUE,
-          updated_at = NOW()
-         WHERE id = $5
+          doc_image_back_url = $4,
+          face_image_url     = $5,
+          profile_complete   = TRUE,
+          updated_at         = NOW()
+         WHERE id = $6
          RETURNING id, name, phone, role, tc_balance, is_verified, profile_complete, doc_type, doc_number`,
-        [doc_type, doc_number, doc_image, face_image, req.user.id]
+        [doc_type, doc_number, doc_image_front, doc_image_back, face_image, req.user.id]
       );
 
       res.json({ success: true, message: 'Identity verified successfully', data: result.rows[0] });
+      // Recalculate trust score after identity verification
+      recalculateTrustScore(req.user.id).catch(() => {});
     } catch (error) { next(error); }
   },
 ];
@@ -150,4 +175,42 @@ const updateProfilePicture = [
   },
 ];
 
-module.exports = { getMe, updateMe, getMyGroups, getNotifications, markRead, setupProfile, updateProfilePicture };
+// DELETE /users/me/profile-picture
+const removeProfilePicture = async (req, res, next) => {
+  try {
+    const result = await query(
+      `UPDATE users SET profile_picture_url = NULL, updated_at = NOW()
+       WHERE id = $1
+       RETURNING id, name, phone, role, tc_balance, profile_picture_url`,
+      [req.user.id]
+    );
+    res.json({ success: true, message: 'Profile picture removed', data: result.rows[0] });
+  } catch (error) { next(error); }
+};
+
+// POST /users/me/location — update user's location
+const updateLocation = async (req, res, next) => {
+  try {
+    const { latitude, longitude, city, country } = req.body;
+    if (!latitude || !longitude) {
+      return res.status(400).json({ success: false, message: 'latitude and longitude are required' });
+    }
+    await query(
+      `UPDATE users SET
+        latitude         = $1,
+        longitude        = $2,
+        city             = $3,
+        country          = $4,
+        location_enabled = TRUE,
+        last_location_at = NOW(),
+        updated_at       = NOW()
+       WHERE id = $5`,
+      [latitude, longitude, city || null, country || null, req.user.id]
+    );
+    res.json({ success: true, message: 'Location updated' });
+    // Recalculate trust score after location enabled
+    recalculateTrustScore(req.user.id).catch(() => {});
+  } catch (error) { next(error); }
+};
+
+module.exports = { getMe, updateMe, getMyGroups, getNotifications, markRead, setupProfile, updateProfilePicture, removeProfilePicture, updateLocation };

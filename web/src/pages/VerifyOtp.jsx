@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { verifyOtp } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import ViaLogo from '../components/ViaLogo';
 import styles from './Auth.module.css';
 
 export default function VerifyOtp() {
@@ -28,7 +29,7 @@ export default function VerifyOtp() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.logo}>Via</div>
+        <div className={styles.logo}><ViaLogo size={72} /></div>
         <h1 className={styles.title}>{t('verifyPhone')}</h1>
         <p className={styles.subtitle}>{t('otpSentTo')} {phone}</p>
         {error && <div className={styles.error}>{error}</div>}

@@ -10,7 +10,7 @@ const NAV_PAGES = [
   { label: 'Groups', path: '/groups', icon: '👥', keywords: ['groups', 'groupes', 'njangi', 'tontine'] },
   { label: 'Create Group', path: '/groups/create', icon: '➕', keywords: ['create group', 'new group', 'nouveau groupe', 'add group'] },
   { label: 'Wallet', path: '/wallet', icon: '👛', keywords: ['wallet', 'portefeuille', 'balance', 'solde', 'money', 'argent', 'trust coin', 'tc'] },
-  { label: 'Top Up', path: '/wallet/topup', icon: '💳', keywords: ['top up', 'topup', 'deposit', 'recharge', 'add money', 'fund', 'recharger'] },
+  { label: 'Deposit', path: '/wallet/topup', icon: '💳', keywords: ['top up', 'topup', 'deposit', 'recharge', 'add money', 'fund', 'recharger'] },
   { label: 'Withdraw', path: '/wallet/withdraw', icon: '🏧', keywords: ['withdraw', 'withdrawal', 'retrait', 'cash out', 'payout'] },
   { label: 'Transfer', path: '/wallet/transfer', icon: '💸', keywords: ['transfer', 'send money', 'transfert', 'envoyer', 'send', 'pay'] },
   { label: 'Transaction History', path: '/wallet/transactions', icon: '📋', keywords: ['transactions', 'history', 'historique', 'activity', 'activité', 'statement'] },

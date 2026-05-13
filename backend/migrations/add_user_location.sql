@@ -1,0 +1,11 @@
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS latitude          DECIMAL(10, 7),
+  ADD COLUMN IF NOT EXISTS longitude         DECIMAL(10, 7),
+  ADD COLUMN IF NOT EXISTS city              VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS country           VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS location_enabled  BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS last_location_at  TIMESTAMP;
+
+ALTER TABLE groups
+  ADD COLUMN IF NOT EXISTS location_country  VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS location_city     VARCHAR(100);
