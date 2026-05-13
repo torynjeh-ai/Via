@@ -32,22 +32,32 @@ const sendOTP = async (phone) => {
         .create({ to: phone, channel: 'sms' });
 
       logger.info(`[OTP] Verification sent via Twilio Verify to ${phone}`);
-      return { success: true, message: 'OTP sent successfully' };
-    } catch (err) {
+      return { success: true, message: 'OTP sent to your phone.' };
+    } catch (err) {COntinue
       logger.warn(`[OTP] Twilio Verify failed (${err.message}) — falling back to dev OTP`);
-      // Fall through to dev fallback below
     }
   }
 
-  // ── Dev fallback: store in DB and log to console ───────────────────────
+  // ── Fallback: store in DB ──────────────────────────────────────────────
   const code      = generateOTP();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   await query('UPDATE otps SET is_used = TRUE WHERE phone = $1 AND is_used = FALSE', [phone]);
   await query('INSERT INTO otps (phone, code, expires_at) VALUES ($1, $2, $3)', [phone, code, expiresAt]);
 
-  logger.info(`[DEV] OTP for ${phone}: ${code}`);
-  return { success: true, message: 'OTP sent successfully' };
+  logger.info(`[OTP] Fallback OTP for ${phone}: ${code}`);
+
+  // In production without working Twilio, return the code directly so users can still register
+  // TODO: Replace with a working SMS provider for production
+  const isDev = process.env.NODE_ENV !== 'production';
+  return {
+    success: true,
+    message: isDev
+      ? `Dev mode — your OTP is: ${code}`
+      : `SMS unavailable. Your verification code is: ${code}`,
+    ...(process.env.NODE_ENV !== 'production' && { dev_code: code }),
+    fallback_code: code, // always include so frontend can show it
+  };
 };
 
 /**

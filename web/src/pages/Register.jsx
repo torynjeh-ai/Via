@@ -19,8 +19,9 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setError(''); setLoading(true);
     try {
-      await register({ name, phone, password });
-      navigate('/verify-otp', { state: { phone } });
+      const res = await register({ name, phone, password });
+      // If Twilio failed, backend returns the code directly — pass it to verify screen
+      navigate('/verify-otp', { state: { phone, fallback_code: res.data?.fallback_code } });
     } catch (err) { setError(err.message || 'Registration failed'); }
     finally { setLoading(false); }
   };

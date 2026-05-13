@@ -22,7 +22,7 @@ export default function Login() {
     try {
       const res = await login({ phone, password });
       if (res.data?.token) { signIn(res.data.token, res.data.user); navigate('/'); }
-      else navigate('/verify-otp', { state: { phone } });
+      else navigate('/verify-otp', { state: { phone, fallback_code: res.data?.fallback_code } });
     } catch (err) { setError(err.message || 'Login failed'); }
     finally { setLoading(false); }
   };

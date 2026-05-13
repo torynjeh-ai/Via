@@ -43,12 +43,16 @@ const register = [
       );
 
       // Send OTP — user record is NOT created yet
-      await sendOTP(phone);
+      const otpResult = await sendOTP(phone);
 
       res.status(200).json({
         success: true,
-        message: 'OTP sent to your phone. Please verify to complete registration.',
-        data: { phone },
+        message: otpResult.message || 'OTP sent to your phone. Please verify to complete registration.',
+        data: {
+          phone,
+          // Include fallback_code if Twilio failed — frontend will display it
+          ...(otpResult.fallback_code && { fallback_code: otpResult.fallback_code }),
+        },
       });
     } catch (error) { next(error); }
   },
@@ -143,8 +147,14 @@ const login = [
         const valid = await bcrypt.compare(password, user.password_hash);
         if (!valid) return res.status(401).json({ success: false, message: 'Invalid credentials' });
       } else {
-        await sendOTP(phone);
-        return res.json({ success: true, message: 'OTP sent to your phone.' });
+        const otpResult = await sendOTP(phone);
+        return res.json({
+          success: true,
+          message: otpResult.message || 'OTP sent to your phone.',
+          data: {
+            ...(otpResult.fallback_code && { fallback_code: otpResult.fallback_code }),
+          },
+        });
       }
       const token = generateToken(user.id);
       const { password_hash, ...safeUser } = user;
