@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-// In development, requests go to /api which is proxied to localhost:3000 by Vite
-const baseURL = import.meta.env.VITE_API_URL
-  || (import.meta.env.DEV ? '/api' : 'https://via-backend.up.railway.app');
+// Requests go to /api — proxied to backend by nginx in production, by Vite in dev
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({ baseURL, timeout: 15000 });
 
