@@ -138,6 +138,21 @@ const start = async () => {
     if (process.env.NODE_ENV === 'production') {
       await pool.query('SELECT 1');
       logger.info('Database connected');
+
+      // Run pending migrations on startup
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const migrationsDir = path.join(__dirname, '..', 'migrations');
+        const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+        for (const file of files) {
+          const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+          await pool.query(sql);
+          logger.info(`[Migration] Applied: ${file}`);
+        }
+      } catch (migErr) {
+        logger.warn(`[Migration] ${migErr.message}`);
+      }
     } else {
       pool.query('SELECT 1')
         .then(() => logger.info('Database connected'))
