@@ -93,6 +93,7 @@ const verifyOTP = async (phone, code) => {
      ORDER BY created_at DESC LIMIT 1`,
     [phone, code]
   );
+  logger.info(`[OTP] DB check for ${phone} code=${code}: found=${!!result.rows[0]}`);
   if (!result.rows[0]) return { valid: false, message: 'Invalid or expired OTP' };
   await query('UPDATE otps SET is_used = TRUE WHERE id = $1', [result.rows[0].id]);
   return { valid: true };
