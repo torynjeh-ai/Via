@@ -33,7 +33,7 @@ const sendOTP = async (phone) => {
 
       logger.info(`[OTP] Verification sent via Twilio Verify to ${phone}`);
       return { success: true, message: 'OTP sent to your phone.' };
-    } catch (err) {COntinue
+    } catch (err) {
       logger.warn(`[OTP] Twilio Verify failed (${err.message}) — falling back to dev OTP`);
     }
   }

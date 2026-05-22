@@ -19,8 +19,9 @@ export default function RegisterScreen({ navigation }) {
     if (!name || !phone) return Alert.alert('Error', t('fullName') + ' and ' + t('phoneNumber') + ' are required');
     setLoading(true);
     try {
-      await register({ name, phone, password });
-      navigation.navigate('VerifyOtp', { phone });
+      const res = await register({ name, phone, password });
+      const fallbackCode = res?.data?.fallback_code;
+      navigation.navigate('VerifyOtp', { phone, fallbackCode });
     } catch (e) {
       Alert.alert('Error', e.message || 'Registration failed');
     } finally {

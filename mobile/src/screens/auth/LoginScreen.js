@@ -24,7 +24,8 @@ export default function LoginScreen({ navigation }) {
       if (res.data?.token) {
         await signIn(res.data.token, res.data.user);
       } else {
-        navigation.navigate('VerifyOtp', { phone });
+        const fallbackCode = res?.data?.fallback_code;
+        navigation.navigate('VerifyOtp', { phone, fallbackCode });
       }
     } catch (e) {
       Alert.alert('Error', e.message || 'Login failed');
