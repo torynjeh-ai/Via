@@ -17,15 +17,18 @@ const app = express();
 
 app.use(helmet());
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-  : [
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://localhost:4173',
-      // Allow all Railway preview/production domains by default
-      /^https:\/\/.*\.up\.railway\.app$/,
-    ];
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:4173',
+  'https://via-savings.up.railway.app',
+  // Any extra origins from env var (comma-separated)
+  ...(process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    : []),
+  // All Railway domains as fallback
+  /^https:\/\/.*\.up\.railway\.app$/,
+];
 
 app.use(cors({
   origin: (origin, callback) => {
