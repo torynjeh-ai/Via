@@ -1,22 +1,19 @@
-FROM node:22-alpine
+FROM node:22-alpine AS builder
 
 WORKDIR /app
-
-# Copy package files first for better layer caching
 COPY package*.json ./
-
-# Install all dependencies (including devDependencies needed for build)
 RUN npm install
-
-# Copy the rest of the source
 COPY . .
-
-# Build the Vite app
 RUN npm run build
 
-# Install serve globally to serve the built files
-RUN npm install -g serve
+FROM nginx:alpine
 
-EXPOSE 3000
+# Copy built files
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-CMD ["sh", "-c", "serve dist -p ${PORT:-3000} --single"]
+# Copy nginx config
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+
+EXPOSE 8080
+
+CMD ["sh", "-c", "PORT=${PORT:-8080} envsubst '$PORT' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
