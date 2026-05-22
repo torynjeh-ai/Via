@@ -5,8 +5,8 @@ const logger = require('../utils/logger');
 
 // ── Twilio Verify client ───────────────────────────────────────────────────
 const getVerifyClient = () => {
-  const sid   = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
+  const sid       = process.env.TWILIO_ACCOUNT_SID;
+  const token     = process.env.TWILIO_AUTH_TOKEN;
   const verifySid = process.env.TWILIO_VERIFY_SID;
 
   if (sid && sid.startsWith('AC') && token && verifySid && verifySid.startsWith('VA')) {
@@ -18,8 +18,8 @@ const getVerifyClient = () => {
 /**
  * Send an OTP to the given phone number.
  *
- * If TWILIO_VERIFY_SID is configured, uses Twilio Verify (no phone number needed).
- * Otherwise falls back to dev mode — logs the OTP to the console.
+ * Uses Twilio Verify if configured, otherwise falls back to DB-stored OTP
+ * and returns the code directly in the response so the frontend can display it.
  */
 const sendOTP = async (phone) => {
   const verify = getVerifyClient();
@@ -34,11 +34,16 @@ const sendOTP = async (phone) => {
       logger.info(`[OTP] Verification sent via Twilio Verify to ${phone}`);
       return { success: true, message: 'OTP sent to your phone.' };
     } catch (err) {
-      logger.warn(`[OTP] Twilio Verify failed (${err.message}) — falling back to dev OTP`);
+      // Log the full Twilio error so we can diagnose it
+      logger.error(`[OTP] Twilio Verify FAILED for ${phone}: [${err.code}] ${err.message}`);
+      logger.warn(`[OTP] Falling back to DB OTP for ${phone}`);
+      // Fall through to DB fallback below
     }
+  } else {
+    logger.warn('[OTP] Twilio not configured — using DB fallback');
   }
 
-  // ── Fallback: store in DB ──────────────────────────────────────────────
+  // ── Fallback: store OTP in DB and return it directly ──────────────────
   const code      = generateOTP();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -47,24 +52,17 @@ const sendOTP = async (phone) => {
 
   logger.info(`[OTP] Fallback OTP for ${phone}: ${code}`);
 
-  // In production without working Twilio, return the code directly so users can still register
-  // TODO: Replace with a working SMS provider for production
-  const isDev = process.env.NODE_ENV !== 'production';
   return {
     success: true,
-    message: isDev
-      ? `Dev mode — your OTP is: ${code}`
-      : `SMS unavailable. Your verification code is: ${code}`,
-    ...(process.env.NODE_ENV !== 'production' && { dev_code: code }),
-    fallback_code: code, // always include so frontend can show it
+    message: `SMS unavailable. Your verification code is: ${code}`,
+    fallback_code: code,
   };
 };
 
 /**
  * Verify an OTP code for the given phone number.
  *
- * If TWILIO_VERIFY_SID is configured, delegates to Twilio Verify.
- * Otherwise checks the local otps table (dev mode).
+ * Delegates to Twilio Verify if configured, then falls back to local DB check.
  */
 const verifyOTP = async (phone, code) => {
   const verify = getVerifyClient();
@@ -76,17 +74,19 @@ const verifyOTP = async (phone, code) => {
         .verificationChecks
         .create({ to: phone, code });
 
+      logger.info(`[OTP] Twilio Verify check for ${phone}: status=${check.status}`);
+
       if (check.status === 'approved') {
         return { valid: true };
       }
-      // Twilio said invalid — but also check local DB in case we fell back to dev mode
+      // Twilio returned non-approved — also check local DB in case we fell back
     } catch (err) {
-      logger.warn(`[OTP] Twilio Verify check failed (${err.message}) — falling back to dev check`);
-      // Fall through to dev fallback below
+      logger.error(`[OTP] Twilio Verify check FAILED for ${phone}: [${err.code}] ${err.message}`);
+      // Fall through to DB check
     }
   }
 
-  // ── Dev fallback: check local DB ──────────────────────────────────────
+  // ── DB fallback check ─────────────────────────────────────────────────
   const result = await query(
     `SELECT id FROM otps
      WHERE phone = $1 AND code = $2 AND is_used = FALSE AND expires_at > NOW()
