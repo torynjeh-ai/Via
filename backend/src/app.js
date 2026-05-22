@@ -19,13 +19,23 @@ app.use(helmet());
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:4173'];
+  : [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:4173',
+      // Allow all Railway preview/production domains by default
+      /^https:\/\/.*\.up\.railway\.app$/,
+    ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
+    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    const allowed = allowedOrigins.some(o =>
+      o instanceof RegExp ? o.test(origin) : o === origin
+    );
+    if (allowed) return callback(null, true);
+    logger.warn(`CORS blocked origin: ${origin}`);
     callback(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true,
