@@ -74,7 +74,9 @@ const topUp = [
         data: { transId, xaf_amount, tc_amount: xaf_amount / TC_TO_XAF },
       });
     } catch (error) {
-      next(error);
+      logger.error(`[TopUp] Error: ${error.message}`);
+      // Return the actual error message so frontend can display it
+      return res.status(400).json({ success: false, message: error.message || 'Payment initiation failed' });
     }
   },
 ];
