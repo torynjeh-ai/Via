@@ -7,7 +7,7 @@ const { recalculateTrustScore } = require('../services/trustScoreService');
 const getMe = async (req, res, next) => {
   try {
     const result = await query(
-      `SELECT id, name, phone, role, tc_balance, wallet_code, preferred_currency, is_verified, profile_complete, doc_type, doc_number, profile_picture_url, trust_score, created_at FROM users WHERE id = $1`,
+      `SELECT id, name, phone, role, tc_balance, wallet_code, preferred_currency, is_verified, profile_complete, doc_type, doc_number, profile_picture_url, created_at FROM users WHERE id = $1`,
       [req.user.id]
     );
     res.json({ success: true, data: result.rows[0] });

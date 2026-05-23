@@ -3,17 +3,17 @@ const walletService = require('./walletService');
 
 const generatePayoutQueue = async (groupId) => {
   const membersResult = await query(
-    `SELECT m.id, m.user_id, m.invited_by, u.name, u.tc_balance, u.trust_score
+    `SELECT m.id, m.user_id, m.invited_by, u.name, u.tc_balance
      FROM members m JOIN users u ON m.user_id = u.id
      WHERE m.group_id = $1 AND m.status = 'approved'
-     ORDER BY u.trust_score DESC`,
+     ORDER BY u.tc_balance DESC`,
     [groupId]
   );
   const members = membersResult.rows;
   if (members.length === 0) return [];
 
-  // Weight by trust score (0–100) + randomness so it's not fully deterministic
-  const weighted = members.map(m => ({ ...m, weight: (m.trust_score || 0) + Math.random() * 20 }));
+  // Weight by tc_balance + randomness so it's not fully deterministic
+  const weighted = members.map(m => ({ ...m, weight: (parseFloat(m.tc_balance) || 0) + Math.random() * 20 }));
   weighted.sort((a, b) => b.weight - a.weight);
   const queue = applyInviteSpacing(weighted);
 

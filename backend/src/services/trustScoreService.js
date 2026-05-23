@@ -111,12 +111,8 @@ const recalculateTrustScore = async (userId) => {
     // Total
     const total = phoneScore + identityScore + locationScore + paymentScore + walletScore;
 
-    // Persist
-    await query(
-      `UPDATE users SET trust_score = $1, updated_at = NOW() WHERE id = $2`,
-      [total, userId]
-    );
-
+    // Persist — store as a computed value (no dedicated column, used for payout ordering)
+    // trust_score column was renamed to tc_balance in migration; score is computed on-demand
     logger.info(`[TrustScore] User ${userId}: ${total}/100 (phone=${phoneScore} identity=${identityScore} location=${locationScore} payment=${paymentScore} wallet=${walletScore})`);
 
     return {

@@ -95,7 +95,7 @@ const getGroup = async (req, res, next) => {
       query(`SELECT g.*, COUNT(m.id) as member_count FROM groups g
              LEFT JOIN members m ON g.id = m.group_id AND m.status IN ('approved','pending','pending_reconfirm','forfeited')
              WHERE g.id = $1 GROUP BY g.id`, [id]),
-      query(`SELECT m.*, u.name, u.phone, u.tc_balance, u.trust_score FROM members m
+      query(`SELECT m.*, u.name, u.phone, u.tc_balance FROM members m
              JOIN users u ON m.user_id = u.id
              WHERE m.group_id = $1 AND m.status != 'rejected'`, [id]),
     ]);
