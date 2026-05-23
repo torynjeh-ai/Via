@@ -17,7 +17,7 @@ const compareFaces = async (documentImageBase64, selfieBase64) => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ doc_image: documentImageBase64, face_image: selfieBase64 }),
-    signal: AbortSignal.timeout(30000),
+    signal: AbortSignal.timeout(60000), // 60s — model inference can be slow
   });
 
   if (!response.ok) {

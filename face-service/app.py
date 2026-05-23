@@ -8,17 +8,26 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 def decode_image(data: str):
-    """Decode a base64 or data-URL string into a numpy RGB array."""
     if ',' in data:
         data = data.split(',', 1)[1]
     raw = base64.b64decode(data)
     img = Image.open(io.BytesIO(raw)).convert('RGB')
     return np.array(img)
 
-def save_temp(arr: np.array, name: str) -> str:
+def save_temp(arr: np.ndarray, name: str) -> str:
     path = f'/tmp/{name}.jpg'
-    Image.fromarray(arr).save(path)
+    Image.fromarray(arr).save(path, quality=85)
     return path
+
+# Pre-load DeepFace model at startup to avoid cold-start timeout
+print('[startup] Pre-loading DeepFace Facenet model...')
+try:
+    from deepface import DeepFace
+    # Warm up by building the model
+    DeepFace.build_model('Facenet')
+    print('[startup] DeepFace model loaded.')
+except Exception as e:
+    print(f'[startup] Warning: could not pre-load model: {e}')
 
 @app.route('/health', methods=['GET'])
 def health():
@@ -55,11 +64,9 @@ def compare():
         distance   = float(result.get('distance', 1.0))
         confidence = round(max(0.0, (1 - distance) * 100), 1)
 
-        return jsonify({
-            'match':      match,
-            'distance':   round(distance, 4),
-            'confidence': confidence,
-        })
+        app.logger.info(f'match={match} distance={distance:.4f} confidence={confidence}%')
+        return jsonify({'match': match, 'distance': round(distance, 4), 'confidence': confidence})
+
     except Exception as e:
         app.logger.error(f'DeepFace error: {e}')
         return jsonify({'error': str(e)}), 500
