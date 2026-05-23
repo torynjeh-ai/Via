@@ -76,4 +76,21 @@
 .modalBtns { display: flex; gap: 10px; margin-top: 16px; }
 .cancelBtn  { flex: 1; padding: 10px; background: transparent; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
 .confirmBtn { flex: 2; padding: 10px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
-.confirmBtn:disabled { opacity: 0.7; }
+/* ── Mobile responsive ─────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .page { padding: 0 4px; }
+  .pageHeader { flex-direction: column; gap: 12px; align-items: stretch; }
+  .pageHeader h1 { font-size: 20px; }
+  .newBtn { text-align: center; }
+  .summary { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .summaryCard { padding: 10px 6px; }
+  .summaryNum { font-size: 18px; }
+  .summaryLabel { font-size: 10px; }
+  .grid { grid-template-columns: 1fr; }
+  .goalCard { padding: 14px; }
+  .goalActions { flex-direction: column; }
+  .depositBtn, .withdrawBtn { flex: none; width: 100%; }
+  .modal { padding: 20px 16px; max-width: 100%; margin: 0 8px; }
+  .modalBtns { flex-direction: column; }
+  .cancelBtn, .confirmBtn { flex: none; width: 100%; }
+}

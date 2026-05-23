@@ -27,6 +27,7 @@ export default function Contribute() {
 
   // Fapshi pending state
   const [pendingData, setPendingData] = useState(null); // { contributionId, transId }
+  const [paymentLink, setPaymentLink] = useState(null); // Fapshi iframe link
   const [pollStatus, setPollStatus]   = useState('');
   const pollRef = useRef(null);
 
@@ -57,6 +58,7 @@ export default function Contribute() {
         if (res.success && (!status || status === 'completed')) {
           clearInterval(pollRef.current);
           setPendingData(null);
+          setPaymentLink(null);
           setPollStatus('');
           setLoading(false);
           // Fetch receipt
@@ -69,6 +71,7 @@ export default function Contribute() {
         } else if (status === 'FAILED' || status === 'EXPIRED') {
           clearInterval(pollRef.current);
           setPendingData(null);
+          setPaymentLink(null);
           setPollStatus('');
           setError(status === 'FAILED' ? 'Payment was declined.' : 'Payment request expired.');
           setLoading(false);
@@ -88,6 +91,7 @@ export default function Contribute() {
       if (attempts >= MAX) {
         clearInterval(pollRef.current);
         setPendingData(null);
+        setPaymentLink(null);
         setPollStatus('');
         setError('Payment timed out. Please check your phone and try again.');
         setLoading(false);
@@ -105,10 +109,8 @@ export default function Contribute() {
       const res = await contribute(id, { payment_method: method });
 
       if (res.data?.pending && res.data?.transId) {
-        // Fapshi — open payment link in new tab, then poll
-        if (res.data.link) {
-          window.open(res.data.link, '_blank', 'noopener,noreferrer');
-        }
+        // Fapshi — show payment iframe
+        if (res.data.link) setPaymentLink(res.data.link);
         setPendingData({ contributionId: res.data.contributionId, transId: res.data.transId });
         setPollStatus('Waiting for payment…');
       } else {
@@ -188,6 +190,25 @@ export default function Contribute() {
       </form>
 
       {receipt && <ReceiptModal receipt={receipt} onClose={handleReceiptClose} />}
+
+      {/* Fapshi payment iframe modal */}
+      {paymentLink && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:1000, display:'flex', alignItems:'flex-end', justifyContent:'center' }}>
+          <div style={{ background:'var(--bg-card)', borderRadius:'16px 16px 0 0', width:'100%', maxWidth:480, height:'85vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 16px', borderBottom:'1px solid var(--border)', fontWeight:600, fontSize:15 }}>
+              <span>Complete Payment</span>
+              <button onClick={() => setPaymentLink(null)} style={{ background:'none', border:'none', fontSize:18, cursor:'pointer', color:'var(--text-sub)', padding:'4px 8px' }}>✕</button>
+            </div>
+            {pendingData && (
+              <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 16px', background:'#eff6ff', fontSize:13, color:'#1d4ed8' }}>
+                <div style={{ width:14, height:14, border:'2px solid #bfdbfe', borderTopColor:'#3b82f6', borderRadius:'50%', animation:'spin 0.8s linear infinite', flexShrink:0 }} />
+                <span>{pollStatus || 'Waiting for payment…'}</span>
+              </div>
+            )}
+            <iframe src={paymentLink} title="Fapshi Payment" style={{ flex:1, width:'100%', border:'none' }} allow="payment" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
