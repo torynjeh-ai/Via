@@ -1,6 +1,6 @@
 flask==3.0.3
-deepface==0.0.93
-tf-keras==2.16.0
 numpy==1.26.4
 Pillow==10.3.0
 opencv-python-headless==4.9.0.80
+scikit-image==0.22.0
+scipy==1.13.0
