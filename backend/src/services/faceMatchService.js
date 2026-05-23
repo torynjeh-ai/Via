@@ -13,15 +13,18 @@ const compareFaces = async (documentImageBase64, selfieBase64) => {
     return { match: true, confidence: 98.7 };
   }
 
+  logger.info(`[FaceMatch] Calling face service at ${FACE_SERVICE_URL}/compare`);
+
   const response = await fetch(`${FACE_SERVICE_URL}/compare`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ doc_image: documentImageBase64, face_image: selfieBase64 }),
-    signal: AbortSignal.timeout(60000), // 60s — model inference can be slow
+    signal: AbortSignal.timeout(120000), // 120s — TF inference is slow on first run
   });
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
+    logger.error(`[FaceMatch] Service returned ${response.status}: ${JSON.stringify(err)}`);
     throw new Error(err.error || `Face service returned ${response.status}`);
   }
 
