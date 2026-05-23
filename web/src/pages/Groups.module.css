@@ -36,3 +36,13 @@
 .typeCardTag { font-size: 11px; font-weight: 600; color: var(--primary); background: var(--bg-hover); padding: 3px 10px; border-radius: 20px; align-self: flex-start; margin-top: 4px; }
 .typeModalCancel { width: 100%; padding: 12px; background: transparent; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
 .typeModalCancel:hover { background: var(--bg-hover); }
+
+/* ── Mobile responsive ────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .header { flex-direction: column; gap: 10px; align-items: stretch; }
+  .header h1 { font-size: 20px; }
+  .createBtn { text-align: center; }
+  .grid { grid-template-columns: 1fr; }
+  .typeCards { grid-template-columns: 1fr; }
+  .typeModal { padding: 20px 14px; }
+}

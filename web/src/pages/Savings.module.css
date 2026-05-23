@@ -76,6 +76,8 @@
 .modalBtns { display: flex; gap: 10px; margin-top: 16px; }
 .cancelBtn  { flex: 1; padding: 10px; background: transparent; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer; }
 .confirmBtn { flex: 2; padding: 10px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.confirmBtn:disabled { opacity: 0.7; cursor: not-allowed; }
+.confirmBtn:hover:not(:disabled) { background: var(--primary-dark); }
 /* ── Mobile responsive ─────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .page { padding: 0 4px; }

@@ -319,7 +319,8 @@ const getInviteLink = async (req, res, next) => {
       token = generateInviteToken();
       await query('UPDATE groups SET invite_token = $1 WHERE id = $2', [token, id]);
     }
-    res.json({ success: true, data: { token, invite_url: `${process.env.APP_URL || 'http://localhost:5174'}/join/${token}` } });
+    const appUrl = process.env.APP_URL || process.env.FRONTEND_URL || 'https://via-savings.up.railway.app';
+    res.json({ success: true, data: { token, invite_url: `${appUrl}/join/${token}` } });
   } catch (error) { next(error); }
 };
 

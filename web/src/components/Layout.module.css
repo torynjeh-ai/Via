@@ -37,7 +37,7 @@
 .menuBtn { background: none; border: none; font-size: 22px; color: var(--text); }
 .headerTitle { font-weight: 700; font-size: 18px; color: var(--text); flex: 1; }
 .headerThemeBtn { background: none; border: none; font-size: 20px; padding: 4px; }
-.content { padding: 24px; flex: 1; }
+.content { padding: 24px; flex: 1; overflow-x: hidden; }
 
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
@@ -45,6 +45,7 @@
   .main { margin-left: 0; }
   .topBar { display: none; }
   .header { display: flex; }
+  .content { padding: 16px 12px; }
 }
 
 /* Location warning banner */

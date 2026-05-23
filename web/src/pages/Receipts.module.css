@@ -36,3 +36,17 @@
 @media (max-width: 600px) {
   .summary { grid-template-columns: 1fr; }
 }
+
+/* ── Mobile responsive ────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .container { max-width: 100%; }
+  .title { font-size: 20px; }
+  .summary { grid-template-columns: 1fr; gap: 10px; }
+  .filters { flex-wrap: wrap; gap: 6px; }
+  .filterBtn { padding: 6px 12px; font-size: 13px; }
+  .item { padding: 12px 14px; gap: 10px; }
+  .itemIcon { font-size: 22px; }
+  .itemTitle { font-size: 13px; }
+  .itemMeta { font-size: 11px; }
+  .itemAmount { font-size: 14px; }
+}

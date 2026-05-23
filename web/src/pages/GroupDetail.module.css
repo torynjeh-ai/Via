@@ -74,3 +74,34 @@
 [data-theme="dark"] .pendingReconfirm { background: #2A2000; color: #FACC15; }
 .forfeited { background: #FEE2E2; color: var(--danger); }
 [data-theme="dark"] .forfeited { background: #3B1515; }
+
+/* ── Admin request cards ──────────────────────────────────────────────── */
+.adminRequestCard { background: var(--bg-subtle); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.adminRequestInfo { font-size: 14px; color: var(--text); }
+.adminRequestActions { display: flex; gap: 8px; }
+.rejectForm { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.rejectInput { padding: 7px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--bg-input); color: var(--text); flex: 1; min-width: 160px; }
+
+/* Visibility badges */
+.vis_public  { background: rgba(34,197,94,0.15)  !important; color: #16a34a !important; }
+.vis_private { background: rgba(239,68,68,0.15)  !important; color: #dc2626 !important; }
+.vis_region  { background: rgba(59,130,246,0.15) !important; color: #2563eb !important; }
+
+/* ── Mobile responsive ────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .hero { padding: 18px 16px; flex-direction: column; }
+  .hero h1 { font-size: 18px; }
+  .actions { flex-direction: row; flex-wrap: wrap; }
+  .btn { padding: 8px 14px; font-size: 13px; }
+  .section { padding: 16px 12px; }
+  .table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table th, .table td { padding: 8px 10px; font-size: 13px; white-space: nowrap; }
+  .inviteBox { flex-direction: column; align-items: stretch; }
+  .inviteUrl { white-space: normal; word-break: break-all; }
+  .reformingBanner { flex-direction: column; padding: 16px; }
+  .reformingActions { flex-wrap: wrap; }
+  .modal { padding: 20px 14px; }
+  .modalActions { flex-direction: column; }
+  .modalCancel, .modalSave { flex: none; width: 100%; }
+  .adminRequestCard { flex-direction: column; align-items: flex-start; }
+}
