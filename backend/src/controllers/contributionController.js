@@ -1,7 +1,7 @@
 const { body } = require('express-validator');
-const { query } = require('../config/database');
+const { query, pool } = require('../config/database');
 const { validate } = require('../middleware/validate');
-const { processPayment } = require('../services/paymentService');
+const { initiateDirectPay, getPaymentStatus: fapshiGetStatus } = require('../services/paymentService');
 const { sendNotificationToUser } = require('../services/notificationService');
 const { processPayout, checkAndAutoCompleteCircle } = require('../services/payoutQueueService');
 const { isLateContribution, calculatePenalty, distributePenaltyPool } = require('../services/contributionReminderService');
@@ -175,69 +175,32 @@ const contribute = [
         });
       }
 
-      // ── Mobile money / card branch ─────────────────────────────────────────
-      const payment = await processPayment({
-        method: payment_method,
-        phone:  req.user.phone,
-        amount: totalDue,   // charge the full amount including penalty
-        reference: contribId,
-        description: late
+      // ── Mobile money branch — initiate Fapshi Direct Pay ─────────────────
+      const { transId } = await initiateDirectPay({
+        amount:     totalDue,
+        phone:      req.user.phone,
+        externalId: contribId.replace(/-/g, '').substring(0, 100),
+        message:    late
           ? `Via contribution + late penalty - ${group.name}`
           : `Via contribution - ${group.name}`,
+        userId: req.user.id,
+        name:   req.user.name,
       });
 
-      if (payment.success) {
-        await query(
-          `UPDATE contributions SET status = 'completed', transaction_id = $1, paid_at = NOW() WHERE id = $2`,
-          [payment.transactionId, contribId]
-        );
-
-        // Notify admin
-        const adminRes = await query(`SELECT user_id FROM members WHERE group_id = $1 AND role = 'admin'`, [groupId]);
-        if (adminRes.rows[0]) {
-          await sendNotificationToUser({
-            userId: adminRes.rows[0].user_id,
-            title: late ? '⚠️ Late Contribution Received' : 'New Contribution',
-            message: late
-              ? `${req.user.name} paid ${totalDue.toLocaleString()} XAF (includes ${penaltyAmount.toLocaleString()} XAF late penalty)`
-              : `${req.user.name} has contributed ${group.contribution_amount} XAF`,
-            type: 'contribution',
-            groupId,
-          });
-        }
-
-        // Notify the late payer and distribute penalty
-        if (late) {
-          await sendNotificationToUser({
-            userId: req.user.id,
-            title:  '⚠️ Late Contribution Penalty Applied',
-            message: `Your contribution of ${totalDue.toLocaleString()} XAF included a ${penaltyAmount.toLocaleString()} XAF late penalty. The penalty has been distributed to other group members.`,
-            type:   'contribution',
-            groupId,
-          });
-          await distributePenaltyPool(groupId, cycleNumber, penaltyAmount, req.user.id);
-        }
-
-        await checkAndAutoDisburse(groupId, cycleNumber);
-        recalculateTrustScore(req.user.id).catch(() => {});
-
-        return res.json({
-          success: true,
-          message: late
-            ? `Late contribution of ${totalDue.toLocaleString()} XAF processed (includes ${penaltyAmount.toLocaleString()} XAF penalty)`
-            : 'Contribution successful',
-          data: {
-            transactionId: payment.transactionId,
-            contributionId: contribId,
-            is_late: late,
-            penalty_amount: penaltyAmount,
-            total_paid: totalDue,
-          },
-        });
-      }
-
-      await query(`UPDATE contributions SET status = 'failed' WHERE id = $1`, [contribId]);
-      res.status(400).json({ success: false, message: payment.message });
+      // Return transId so frontend can poll for confirmation
+      return res.json({
+        success: true,
+        message: 'Payment request sent to your phone. Please approve it.',
+        data: {
+          contributionId: contribId,
+          transId,
+          payment_method,
+          is_late:        late,
+          penalty_amount: penaltyAmount,
+          total_due:      totalDue,
+          pending:        true,
+        },
+      });
     } catch (error) { next(error); }
   },
 ];
@@ -298,4 +261,94 @@ const getContributionInfo = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { contribute, getContributions, getContributionInfo };
+module.exports = { contribute, getContributions, getContributionInfo, confirmContribution };
+
+/**
+ * POST /groups/:id/contribute/confirm
+ * Called by frontend after user approves Fapshi payment on their phone.
+ * Checks Fapshi status and marks contribution as completed.
+ */
+async function confirmContribution(req, res, next) {
+  try {
+    const { id: groupId } = req.params;
+    const { contributionId, transId } = req.body;
+
+    if (!contributionId || !transId) {
+      return res.status(400).json({ success: false, message: 'contributionId and transId are required' });
+    }
+
+    // Verify contribution belongs to this user and group
+    const contribRes = await query(
+      `SELECT * FROM contributions WHERE id = $1 AND group_id = $2 AND user_id = $3`,
+      [contributionId, groupId, req.user.id]
+    );
+    const contrib = contribRes.rows[0];
+    if (!contrib) return res.status(404).json({ success: false, message: 'Contribution not found' });
+    if (contrib.status === 'completed') {
+      return res.json({ success: true, message: 'Already confirmed', data: { contributionId } });
+    }
+
+    // Check Fapshi status
+    const fapshiStatus = await fapshiGetStatus(transId);
+    const { status } = fapshiStatus;
+
+    if (status === 'SUCCESSFUL') {
+      await query(
+        `UPDATE contributions SET status = 'completed', transaction_id = $1, paid_at = NOW() WHERE id = $2`,
+        [transId, contributionId]
+      );
+
+      const groupRes = await query('SELECT * FROM groups WHERE id = $1', [groupId]);
+      const group = groupRes.rows[0];
+      const cycleNumber = contrib.cycle_number;
+      const late = contrib.is_late;
+      const penaltyAmount = Number(contrib.penalty_amount || 0);
+      const totalDue = Number(contrib.amount);
+
+      // Notify admin
+      const adminRes = await query(`SELECT user_id FROM members WHERE group_id = $1 AND role = 'admin'`, [groupId]);
+      if (adminRes.rows[0]) {
+        await sendNotificationToUser({
+          userId: adminRes.rows[0].user_id,
+          title: late ? '⚠️ Late Contribution Received' : 'New Contribution',
+          message: late
+            ? `${req.user.name} paid ${totalDue.toLocaleString()} XAF (includes ${penaltyAmount.toLocaleString()} XAF late penalty)`
+            : `${req.user.name} has contributed ${group?.contribution_amount} XAF`,
+          type: 'contribution',
+          groupId,
+        });
+      }
+
+      if (late) {
+        await sendNotificationToUser({
+          userId: req.user.id,
+          title: '⚠️ Late Contribution Penalty Applied',
+          message: `Your contribution included a ${penaltyAmount.toLocaleString()} XAF late penalty distributed to other members.`,
+          type: 'contribution',
+          groupId,
+        });
+        await distributePenaltyPool(groupId, cycleNumber, penaltyAmount, req.user.id);
+      }
+
+      await checkAndAutoDisburse(groupId, cycleNumber);
+      recalculateTrustScore(req.user.id).catch(() => {});
+
+      return res.json({
+        success: true,
+        message: 'Contribution confirmed',
+        data: { contributionId, status: 'completed' },
+      });
+    }
+
+    if (status === 'FAILED' || status === 'EXPIRED') {
+      await query(`UPDATE contributions SET status = 'failed' WHERE id = $1`, [contributionId]);
+      return res.status(400).json({
+        success: false,
+        message: status === 'FAILED' ? 'Payment was declined' : 'Payment request expired',
+      });
+    }
+
+    // Still pending
+    return res.json({ success: true, data: { status, contributionId } });
+  } catch (error) { next(error); }
+}

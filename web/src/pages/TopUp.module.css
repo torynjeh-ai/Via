@@ -154,3 +154,30 @@
 
 .submitBtn:hover:not(:disabled) { opacity: 0.9; }
 .submitBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.pendingBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #eff6ff;
+  border: 1.5px solid #3b82f6;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.pendingBanner strong { display: block; margin-bottom: 4px; color: #1d4ed8; }
+.pendingBanner p { font-size: 13px; color: #1e40af; margin: 0; }
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #bfdbfe;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

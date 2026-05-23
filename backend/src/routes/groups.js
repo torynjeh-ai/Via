@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const { authenticate, requireGroupAdmin, requireProfileComplete } = require('../middleware/auth');
 const { createGroup, getGroups, getGroup, joinGroup, approveMember, rejectMember, startGroup, updateGroup, getPayouts, processPayout, getInviteLink, joinByInvite, reconfirmMembership, forfeitMembership, startNextCircle } = require('../controllers/groupController');
-const { contribute, getContributions, getContributionInfo } = require('../controllers/contributionController');
+const { contribute, getContributions, getContributionInfo, confirmContribution } = require('../controllers/contributionController');
 const { getGroupPool, payInstallment, requestEarlyPayout, toggleAutopay } = require('../controllers/installmentController');
 const { submitAdminRequest, voteOnAdminRequest, getAdminRequests, getMyAdminRequest } = require('../controllers/adminRequestController');
 const {
@@ -36,6 +36,7 @@ router.post('/:id/start-next-circle', requireProfileComplete, requireGroupAdmin,
 router.post('/:id/reconfirm', requireProfileComplete, reconfirmMembership);
 router.post('/:id/forfeit', requireProfileComplete, forfeitMembership);
 router.post('/:id/contribute', requireProfileComplete, contribute);
+router.post('/:id/contribute/confirm', requireProfileComplete, confirmContribution);
 router.post('/:id/installment', requireProfileComplete, payInstallment);
 router.post('/:id/early-payout', requireProfileComplete, requestEarlyPayout);
 router.post('/:id/autopay', requireProfileComplete, toggleAutopay);

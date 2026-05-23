@@ -1,6 +1,5 @@
 const crypto = require('crypto');
 const { pool } = require('../config/database');
-const { processPayment } = require('./paymentService');
 const { sendNotificationToUser } = require('./notificationService');
 const exchangeRateService = require('./exchangeRateService');
 
@@ -327,92 +326,27 @@ const withdraw = async ({ userId, tcAmount, destination }) => {
       [tcAmount, userId]
     );
 
-    // Insert pending transaction
-    const txResult = await client.query(
+    // Insert pending withdrawal — no disbursement yet (manual processing)
+    await client.query(
       `INSERT INTO wallet_transactions 
        (user_id, type, tc_amount, xaf_amount, payment_method, status)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id`,
+       VALUES ($1, $2, $3, $4, $5, $6)`,
       [userId, 'withdrawal', tcAmount, xafAmount, destination.method, 'pending']
     );
-    const txId = txResult.rows[0].id;
 
-    // Attempt disbursement
-    try {
-      const disbursement = await processPayment({
-        method: destination.method,
-        phone: destination.phone,
-        amount: xafAmount,
-        reference: `withdrawal-${txId}`,
-        description: 'Via wallet withdrawal',
-      });
+    await client.query('COMMIT');
 
-      if (disbursement.success) {
-        // Mark completed
-        await client.query(
-          'UPDATE wallet_transactions SET status = $1, external_tx_id = $2 WHERE id = $3',
-          ['completed', disbursement.transactionId, txId]
-        );
-        await client.query('COMMIT');
+    const newBalanceResult = await pool.query('SELECT tc_balance FROM users WHERE id = $1', [userId]);
 
-        return {
-          success: true,
-          message: 'Withdrawal successful',
-          data: {
-            tc_amount: tcAmount,
-            xaf_amount: xafAmount,
-            transaction_id: disbursement.transactionId,
-          },
-        };
-      } else {
-        // Disbursement failed — reverse
-        await client.query(
-          'UPDATE users SET tc_balance = tc_balance + $1 WHERE id = $2',
-          [tcAmount, userId]
-        );
-        await client.query(
-          'UPDATE wallet_transactions SET status = $1 WHERE id = $2',
-          ['reversed', txId]
-        );
-        // Insert compensating credit
-        await client.query(
-          `INSERT INTO wallet_transactions 
-           (user_id, type, tc_amount, xaf_amount, status)
-           VALUES ($1, $2, $3, $4, $5)`,
-          [userId, 'top_up', tcAmount, xafAmount, 'completed']
-        );
-        await client.query('COMMIT');
-
-        return {
-          success: false,
-          message: disbursement.message || 'Disbursement failed',
-          code: 'DISBURSEMENT_FAILED',
-        };
-      }
-    } catch (disbursementError) {
-      // Reverse on exception
-      await client.query(
-        'UPDATE users SET tc_balance = tc_balance + $1 WHERE id = $2',
-        [tcAmount, userId]
-      );
-      await client.query(
-        'UPDATE wallet_transactions SET status = $1 WHERE id = $2',
-        ['reversed', txId]
-      );
-      await client.query(
-        `INSERT INTO wallet_transactions 
-         (user_id, type, tc_amount, xaf_amount, status)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [userId, 'top_up', tcAmount, xafAmount, 'completed']
-      );
-      await client.query('COMMIT');
-
-      return {
-        success: false,
-        message: 'Disbursement failed',
-        code: 'DISBURSEMENT_FAILED',
-      };
-    }
+    return {
+      success: true,
+      message: 'Withdrawal request submitted. It will be processed within 24 hours.',
+      data: {
+        tc_amount:   tcAmount,
+        xaf_amount:  xafAmount,
+        new_balance: parseFloat(newBalanceResult.rows[0].tc_balance),
+      },
+    };
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;

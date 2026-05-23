@@ -7,6 +7,7 @@ const {
   transfer,
   getTransferPreview,
   getTransactions,
+  getPaymentStatus,
 } = require('../controllers/walletController');
 
 const router = Router();
@@ -17,6 +18,7 @@ router.use(authenticate);
 // Read routes — accessible to all authenticated users (including unverified)
 router.get('/', getWallet);
 router.get('/transactions', getTransactions);
+router.get('/payment-status/:transId', getPaymentStatus);
 
 // Top-up — accessible to unverified users (Requirement 11.9)
 router.post('/topup', topUp);

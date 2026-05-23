@@ -13,6 +13,7 @@ export const rejectMember  = (gId, uId) => api.patch(`/groups/${gId}/members/${u
 export const getPayouts = (id) => api.get(`/groups/${id}/payouts`);
 export const processPayout = (groupId, payoutId) => api.post(`/groups/${groupId}/payouts/${payoutId}/process`);
 export const contribute = (id, data) => api.post(`/groups/${id}/contribute`, data);
+export const confirmContribution = (id, data) => api.post(`/groups/${id}/contribute/confirm`, data);
 export const getContributions = (id) => api.get(`/groups/${id}/contributions`);
 export const getInviteLink = (id) => api.get(`/groups/${id}/invite`);
 export const getContributionInfo = (id) => api.get(`/groups/${id}/contribution-info`);
