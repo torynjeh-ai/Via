@@ -16,6 +16,7 @@ const logger = require('./utils/logger');
 const app = express();
 
 app.use(helmet());
+app.set('trust proxy', 1); // Trust Railway's proxy
 
 const allowedOrigins = [
   'http://localhost:5173',
