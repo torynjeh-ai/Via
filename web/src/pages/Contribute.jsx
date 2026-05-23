@@ -105,9 +105,12 @@ export default function Contribute() {
       const res = await contribute(id, { payment_method: method });
 
       if (res.data?.pending && res.data?.transId) {
-        // Fapshi — wait for phone approval
+        // Fapshi — open payment link in new tab, then poll
+        if (res.data.link) {
+          window.open(res.data.link, '_blank', 'noopener,noreferrer');
+        }
         setPendingData({ contributionId: res.data.contributionId, transId: res.data.transId });
-        setPollStatus('Sending payment request…');
+        setPollStatus('Waiting for payment…');
       } else {
         // TC wallet — immediate
         const receiptRes = await getContributionReceipt(res.data.contributionId);
@@ -160,7 +163,7 @@ export default function Contribute() {
           <div style={{ width:20, height:20, border:'3px solid #bfdbfe', borderTopColor:'#3b82f6', borderRadius:'50%', animation:'spin 0.8s linear infinite', flexShrink:0, marginTop:2 }} />
           <div>
             <strong style={{ color:'#1d4ed8', display:'block', marginBottom:4 }}>{pollStatus || 'Waiting for payment…'}</strong>
-            <p style={{ fontSize:13, color:'#1e40af', margin:0 }}>Check your phone and approve the payment prompt.</p>
+            <p style={{ fontSize:13, color:'#1e40af', margin:0 }}>Complete the payment on the Fapshi page that opened. This page updates automatically.</p>
           </div>
         </div>
       )}

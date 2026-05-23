@@ -1,7 +1,7 @@
 const { body } = require('express-validator');
 const { query, pool } = require('../config/database');
 const { validate } = require('../middleware/validate');
-const { initiateDirectPay, getPaymentStatus: fapshiGetStatus } = require('../services/paymentService');
+const { initiatePayLink, getPaymentStatus: fapshiGetStatus } = require('../services/paymentService');
 const { sendNotificationToUser } = require('../services/notificationService');
 const { processPayout, checkAndAutoCompleteCircle } = require('../services/payoutQueueService');
 const { isLateContribution, calculatePenalty, distributePenaltyPool } = require('../services/contributionReminderService');
@@ -175,25 +175,25 @@ const contribute = [
         });
       }
 
-      // ── Mobile money branch — initiate Fapshi Direct Pay ─────────────────
-      const { transId } = await initiateDirectPay({
-        amount:     totalDue,
-        phone:      req.user.phone,
-        externalId: contribId.replace(/-/g, '').substring(0, 100),
-        message:    late
+      // ── Mobile money branch — initiate Fapshi Pay Link ───────────────────
+      const { transId, link } = await initiatePayLink({
+        amount:      totalDue,
+        externalId:  contribId.replace(/-/g, '').substring(0, 100),
+        message:     late
           ? `Via contribution + late penalty - ${group.name}`
           : `Via contribution - ${group.name}`,
-        userId: req.user.id,
-        name:   req.user.name,
+        userId:      req.user.id,
+        redirectUrl: `${process.env.FRONTEND_URL || 'https://via-savings.up.railway.app'}/groups/${groupId}`,
       });
 
-      // Return transId so frontend can poll for confirmation
+      // Return link + transId so frontend can open payment page and poll
       return res.json({
         success: true,
-        message: 'Payment request sent to your phone. Please approve it.',
+        message: 'Complete payment to confirm your contribution.',
         data: {
           contributionId: contribId,
           transId,
+          link,
           payment_method,
           is_late:        late,
           penalty_amount: penaltyAmount,

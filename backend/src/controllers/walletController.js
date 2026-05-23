@@ -1,7 +1,7 @@
 const { body, query: queryValidator, validationResult } = require('express-validator');
 const { validate } = require('../middleware/validate');
 const walletService = require('../services/walletService');
-const { initiateDirectPay, getPaymentStatus: fapshiGetStatus } = require('../services/paymentService');
+const { initiatePayLink, getPaymentStatus: fapshiGetStatus } = require('../services/paymentService');
 const { recalculateTrustScore } = require('../services/trustScoreService');
 const { pool } = require('../config/database');
 const logger = require('../utils/logger');
@@ -35,29 +35,18 @@ const topUp = [
   body('payment_method')
     .isIn(VALID_PAYMENT_METHODS)
     .withMessage(`payment_method must be one of: ${VALID_PAYMENT_METHODS.join(', ')}`),
-  body('phone')
-    .optional()
-    .trim()
-    .notEmpty()
-    .withMessage('phone is required for mobile money methods'),
   validate,
   async (req, res, next) => {
     try {
-      const { xaf_amount, payment_method, phone } = req.body;
-      const userPhone = phone || req.user.phone;
+      const { xaf_amount, payment_method } = req.body;
 
-      if (!userPhone) {
-        return res.status(400).json({ success: false, message: 'Phone number is required' });
-      }
-
-      // Initiate Fapshi payment — returns transId immediately
-      const { transId } = await initiateDirectPay({
-        amount:     xaf_amount,
-        phone:      userPhone,
-        externalId: `topup-${req.user.id}-${Date.now()}`,
-        message:    'Via wallet top-up',
-        userId:     req.user.id,
-        name:       req.user.name,
+      // Initiate Fapshi payment link — returns link + transId immediately
+      const { transId, link } = await initiatePayLink({
+        amount:      xaf_amount,
+        externalId:  `topup-${req.user.id}-${Date.now()}`,
+        message:     'Via wallet top-up',
+        userId:      req.user.id,
+        redirectUrl: `${process.env.FRONTEND_URL || 'https://via-savings.up.railway.app'}/wallet`,
       });
 
       // Store pending top-up so we can credit wallet when confirmed
@@ -70,8 +59,8 @@ const topUp = [
 
       res.json({
         success: true,
-        message: 'Payment request sent to your phone. Please approve it.',
-        data: { transId, xaf_amount, tc_amount: xaf_amount / TC_TO_XAF },
+        message: 'Payment link generated. Complete payment to top up your wallet.',
+        data: { transId, link, xaf_amount, tc_amount: xaf_amount / TC_TO_XAF },
       });
     } catch (error) {
       logger.error(`[TopUp] Error: ${error.message}`);

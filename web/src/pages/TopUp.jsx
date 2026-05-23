@@ -9,24 +9,21 @@ const PAYMENT_METHODS = [
 ];
 
 export default function TopUp() {
-  const [xafAmount, setXafAmount]       = useState('');
+  const [xafAmount, setXafAmount]         = useState('');
   const [paymentMethod, setPaymentMethod] = useState('mtn_momo');
-  const [phone, setPhone]               = useState('');
-  const [loading, setLoading]           = useState(false);
-  const [success, setSuccess]           = useState(null);
-  const [error, setError]               = useState('');
-
-  // Fapshi polling state
+  const [loading, setLoading]             = useState(false);
+  const [success, setSuccess]             = useState(null);
+  const [error, setError]                 = useState('');
   const [pendingTransId, setPendingTransId] = useState(null);
   const [pollStatus, setPollStatus]         = useState('');
   const pollRef = useRef(null);
 
-  // Poll for payment confirmation
+  // Poll for payment confirmation after link is opened
   useEffect(() => {
     if (!pendingTransId) return;
 
     let attempts = 0;
-    const MAX = 24; // 24 × 5s = 2 minutes
+    const MAX = 36; // 36 × 5s = 3 minutes
 
     pollRef.current = setInterval(async () => {
       attempts++;
@@ -40,26 +37,23 @@ export default function TopUp() {
           setPollStatus('');
           setSuccess({ tc_amount, xaf_amount, new_balance });
           setXafAmount('');
-          setPhone('');
           setLoading(false);
         } else if (status === 'FAILED' || status === 'EXPIRED') {
           clearInterval(pollRef.current);
           setPendingTransId(null);
           setPollStatus('');
-          setError(status === 'FAILED' ? 'Payment was declined. Please try again.' : 'Payment request expired. Please try again.');
+          setError(status === 'FAILED' ? 'Payment was declined. Please try again.' : 'Payment link expired. Please try again.');
           setLoading(false);
         } else {
-          setPollStatus(status === 'PENDING' ? 'Waiting for your approval…' : 'Sending payment request…');
+          setPollStatus(status === 'PENDING' ? 'Payment in progress…' : 'Waiting for payment…');
         }
-      } catch {
-        // ignore poll errors, keep trying
-      }
+      } catch { /* ignore poll errors */ }
 
       if (attempts >= MAX) {
         clearInterval(pollRef.current);
         setPendingTransId(null);
         setPollStatus('');
-        setError('Payment timed out. Please check your phone and try again.');
+        setError('Payment timed out. If you completed payment, your wallet will be credited shortly.');
         setLoading(false);
       }
     }, 5000);
@@ -78,17 +72,21 @@ export default function TopUp() {
 
     const amount = Number(xafAmount);
     if (!amount || amount < 100) { setError('Minimum deposit amount is 100 XAF'); return; }
-    if (!phone) { setError('Phone number is required'); return; }
 
     setLoading(true);
-    setPollStatus('Sending payment request…');
     try {
-      const res = await topUp({ xaf_amount: amount, payment_method: paymentMethod, phone });
-      setPendingTransId(res.data.transId);
+      const res = await topUp({ xaf_amount: amount, payment_method: paymentMethod });
+      const { transId, link } = res.data;
+
+      // Open Fapshi payment page in new tab
+      window.open(link, '_blank', 'noopener,noreferrer');
+
+      // Start polling
+      setPendingTransId(transId);
+      setPollStatus('Waiting for payment…');
     } catch (err) {
-      setError(err.message || 'Deposit failed. Please try again.');
+      setError(err.message || 'Failed to generate payment link. Please try again.');
       setLoading(false);
-      setPollStatus('');
     }
   };
 
@@ -97,7 +95,7 @@ export default function TopUp() {
       <div className={styles.header}>
         <Link to="/wallet" className={styles.back}>← Back to Wallet</Link>
         <h1 className={styles.title}>Top Up Wallet</h1>
-        <p className={styles.subtitle}>Add funds via MTN MoMo or Orange Money</p>
+        <p className={styles.subtitle}>Pay via MTN MoMo or Orange Money on Fapshi's secure page</p>
       </div>
 
       {success && (
@@ -121,13 +119,13 @@ export default function TopUp() {
         </div>
       )}
 
-      {/* Waiting for phone approval */}
+      {/* Polling state — payment link opened */}
       {pendingTransId && (
         <div className={styles.pendingBanner}>
           <div className={styles.spinner} />
           <div>
             <strong>{pollStatus || 'Waiting for payment…'}</strong>
-            <p>Check your phone and approve the payment prompt. This page will update automatically.</p>
+            <p>Complete the payment on the Fapshi page that opened. This page updates automatically once confirmed.</p>
           </div>
         </div>
       )}
@@ -138,8 +136,7 @@ export default function TopUp() {
           <input
             id="xafAmount" type="number" className={styles.input}
             value={xafAmount} onChange={e => setXafAmount(e.target.value)}
-            placeholder="e.g. 10000" min="100" step="100" required
-            disabled={loading}
+            placeholder="e.g. 10000" min="100" step="100" required disabled={loading}
           />
           {tcPreview && <p className={styles.preview}>≈ {tcPreview} TC will be credited</p>}
           <p className={styles.hint}>Minimum: 100 XAF · 1 TC = 10,000 XAF</p>
@@ -158,19 +155,21 @@ export default function TopUp() {
           </div>
         </div>
 
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="phone">Phone Number</label>
-          <input
-            id="phone" type="tel" className={styles.input}
-            value={phone} onChange={e => setPhone(e.target.value)}
-            placeholder="+237 6XX XXX XXX" required disabled={loading}
-          />
-          <p className={styles.hint}>The payment prompt will be sent to this number</p>
-        </div>
-
         <button type="submit" className={styles.submitBtn} disabled={loading}>
-          {loading ? (pollStatus || 'Processing…') : `Top Up ${xafAmount ? `${Number(xafAmount).toLocaleString()} XAF` : ''}`}
+          {loading
+            ? (pollStatus || 'Opening payment page…')
+            : `Top Up ${xafAmount ? `${Number(xafAmount).toLocaleString()} XAF` : ''}`}
         </button>
+
+        {pendingTransId && (
+          <p style={{ fontSize: 13, color: 'var(--subtext)', textAlign: 'center', marginTop: 8 }}>
+            Payment page didn't open?{' '}
+            <button type="button" style={{ color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, padding: 0 }}
+              onClick={() => window.open(`https://live.fapshi.com`, '_blank')}>
+              Go to Fapshi
+            </button>
+          </p>
+        )}
       </form>
     </div>
   );
