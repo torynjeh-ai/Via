@@ -49,11 +49,12 @@ const topUp = [
         redirectUrl: `${process.env.FRONTEND_URL || 'https://via-savings.up.railway.app'}/wallet`,
       });
 
-      // Store pending top-up so we can credit wallet when confirmed
+      // Store pending top-up — use ON CONFLICT to avoid duplicates if user retries
       await pool.query(
         `INSERT INTO wallet_transactions
          (user_id, type, tc_amount, xaf_amount, payment_method, external_tx_id, status)
-         VALUES ($1, 'top_up', $2, $3, $4, $5, 'pending')`,
+         VALUES ($1, 'top_up', $2, $3, $4, $5, 'pending')
+         ON CONFLICT (external_tx_id) DO NOTHING`,
         [req.user.id, xaf_amount / TC_TO_XAF, xaf_amount, payment_method, transId]
       );
 

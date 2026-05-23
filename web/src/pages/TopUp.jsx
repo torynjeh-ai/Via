@@ -15,6 +15,7 @@ export default function TopUp() {
   const [success, setSuccess]             = useState(null);
   const [error, setError]                 = useState('');
   const [paymentLink, setPaymentLink]     = useState(null); // Fapshi link
+  const [storedLink, setStoredLink]       = useState(null); // keep link for reopen
   const [pendingTransId, setPendingTransId] = useState(null);
   const [pollStatus, setPollStatus]         = useState('');
   const pollRef = useRef(null);
@@ -82,6 +83,7 @@ export default function TopUp() {
       const res = await topUp({ xaf_amount: amount, payment_method: paymentMethod });
       const { transId, link } = res.data;
       setPaymentLink(link);
+      setStoredLink(link);
       setPendingTransId(transId);
       setPollStatus('Waiting for payment…');
     } catch (err) {
@@ -124,7 +126,7 @@ export default function TopUp() {
             <p>This page updates automatically once payment is confirmed.</p>
             {pendingTransId && (
               <button type="button" className={styles.reopenBtn}
-                onClick={() => setPaymentLink(paymentLink)}>
+                onClick={() => setPaymentLink(storedLink)}>
                 Reopen payment page
               </button>
             )}
@@ -155,7 +157,7 @@ export default function TopUp() {
           </div>
         </div>
 
-        <button type="submit" className={styles.submitBtn} disabled={loading}>
+        <button type="submit" className={styles.submitBtn} disabled={loading || !!pendingTransId}>
           {loading ? (pollStatus || 'Opening payment…') : `Top Up ${xafAmount ? `${Number(xafAmount).toLocaleString()} XAF` : ''}`}
         </button>
       </form>
