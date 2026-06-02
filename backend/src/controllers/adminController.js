@@ -87,4 +87,26 @@ const getUserLocations = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { getUsers, getStats, updateUser, getUserLocations };
+// GET /admin/groups — all groups with member counts and status
+const getGroups = async (req, res, next) => {
+  try {
+    const result = await query(
+      `SELECT
+         g.id, g.name, g.description, g.status, g.group_type,
+         g.contribution_amount, g.cycle, g.max_members,
+         g.circle_number, g.visibility, g.created_at,
+         u.name as creator_name, u.phone as creator_phone,
+         COUNT(DISTINCT m.id) FILTER (WHERE m.status = 'approved') as member_count,
+         SUM(c.amount) FILTER (WHERE c.status = 'completed') as total_contributed
+       FROM groups g
+       LEFT JOIN users u ON g.created_by = u.id
+       LEFT JOIN members m ON m.group_id = g.id
+       LEFT JOIN contributions c ON c.group_id = g.id
+       GROUP BY g.id, u.name, u.phone
+       ORDER BY g.created_at DESC`
+    );
+    res.json({ success: true, data: result.rows });
+  } catch (error) { next(error); }
+};
+
+module.exports = { getUsers, getStats, updateUser, getUserLocations, getGroups };

@@ -300,7 +300,34 @@ const withdraw = async ({ userId, tcAmount, destination }) => {
 
   const xafAmount = tcAmount * TC_TO_XAF;
 
-  const client = await pool.connect();
+  // #69: Check for pending contributions in active groups
+  // If user has received a payout, they must not empty their wallet
+  const pendingContribRes = await pool.query(
+    `SELECT g.name, g.contribution_amount, p.status as payout_status
+     FROM members m
+     JOIN groups g ON m.group_id = g.id
+     LEFT JOIN payouts p ON p.group_id = g.id AND p.user_id = m.user_id AND p.status = 'completed'
+     WHERE m.user_id = $1
+       AND m.status = 'approved'
+       AND g.status = 'active'
+       AND p.id IS NOT NULL`,
+    [userId]
+  );
+
+  if (pendingContribRes.rows.length > 0) {
+    // User has received a payout — ensure they keep enough for their contribution
+    const totalReserved = pendingContribRes.rows.reduce((sum, r) => sum + Number(r.contribution_amount), 0);
+    const reservedTC    = totalReserved / TC_TO_XAF;
+    const userBalance   = await pool.query('SELECT tc_balance FROM users WHERE id = $1', [userId]);
+    const currentBal    = parseFloat(userBalance.rows[0].tc_balance);
+    if (currentBal - tcAmount < reservedTC) {
+      return {
+        success: false,
+        message: `You must keep at least ${reservedTC.toFixed(4)} TC reserved for pending group contributions after receiving a payout.`,
+        code: 'RESERVED_BALANCE',
+      };
+    }
+  }
   try {
     await client.query('BEGIN');
 
@@ -697,27 +724,47 @@ const getTransactions = async ({ userId, type, limit = 50, offset = 0 }) => {
 
 /**
  * Resolve recipient by phone or wallet_code
- * @param {string} identifier - phone number or wallet code
- * @returns {object|null} - { id, name } or null
+ * Normalizes phone numbers to handle +237XXXXXXX, 237XXXXXXX, and XXXXXXXXX formats
  */
 const resolveRecipient = async (identifier) => {
-  // Try wallet code first
-  let result = await pool.query(
-    'SELECT id, name FROM users WHERE wallet_code = $1 AND is_active = true',
-    [identifier]
-  );
+  const trimmed = (identifier || '').trim();
 
-  if (result.rows[0]) {
-    return result.rows[0];
+  // Try wallet code first (format: VIA-XXXXX)
+  if (trimmed.toUpperCase().startsWith('VIA-')) {
+    const result = await pool.query(
+      'SELECT id, name FROM users WHERE wallet_code = $1 AND is_active = true',
+      [trimmed.toUpperCase()]
+    );
+    if (result.rows[0]) return result.rows[0];
   }
 
-  // Try phone
-  result = await pool.query(
+  // Try exact phone match
+  let result = await pool.query(
     'SELECT id, name FROM users WHERE phone = $1 AND is_active = true',
-    [identifier]
+    [trimmed]
   );
+  if (result.rows[0]) return result.rows[0];
 
-  return result.rows[0] || null;
+  // Normalize and try variants
+  const digits = trimmed.replace(/\D/g, '');
+  const variants = new Set([
+    trimmed,
+    `+${digits}`,
+    digits,
+    digits.startsWith('237') ? `+${digits}` : `+237${digits}`,
+    digits.startsWith('237') ? digits.slice(3) : digits,
+  ]);
+
+  for (const v of variants) {
+    if (v === trimmed) continue; // already tried
+    result = await pool.query(
+      'SELECT id, name FROM users WHERE phone = $1 AND is_active = true',
+      [v]
+    );
+    if (result.rows[0]) return result.rows[0];
+  }
+
+  return null;
 };
 
 /**

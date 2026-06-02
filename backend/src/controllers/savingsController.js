@@ -1,7 +1,7 @@
 const { body } = require('express-validator');
 const { query } = require('../config/database');
 const { validate } = require('../middleware/validate');
-const { processPayment } = require('../services/paymentService');
+const { initiatePayLink } = require('../services/paymentService');
 const walletService = require('../services/walletService');
 const { sendNotificationToUser } = require('../services/notificationService');
 const logger = require('../utils/logger');
@@ -157,19 +157,22 @@ const deposit = [
         });
         if (!walletResult.success) return res.status(400).json({ success: false, message: walletResult.message });
       } else {
-        // External payment (MTN, Orange, PayPal, etc.) → money comes from outside
-        // Process the external payment
-        const payment = await processPayment({
-          method: payment_method,
-          phone: req.user.phone,
-          amount: amount_xaf,
-          reference: req.params.id,
-          description: `Savings deposit — ${goal.name}`,
+        // External payment via Fapshi — initiate payment link
+        const { transId, link } = await initiatePayLink({
+          amount:     amount_xaf,
+          externalId: `savings-${goal.id}-${Date.now()}`,
+          message:    `Savings deposit — ${goal.name}`,
+          userId:     req.user.id,
+          redirectUrl: `${process.env.FRONTEND_URL || 'https://via-savings.up.railway.app'}/savings`,
         });
-        if (!payment.success) return res.status(400).json({ success: false, message: payment.message });
-        transactionId = payment.transactionId;
-        // NOTE: Money stays in sub-wallet (savings_goals.saved_amount)
-        // It does NOT go to TC wallet until the user withdraws or completes the goal
+        transactionId = transId;
+        // Return payment link for frontend to open
+        return res.json({
+          success: true,
+          pending: true,
+          message: 'Complete payment to save to your goal.',
+          data: { transId, link, goal_id: goal.id, amount_xaf },
+        });
       }
 
       // Record deposit in sub-wallet only
@@ -268,16 +271,8 @@ const withdraw = async (req, res, next) => {
 
     // Process external disbursement — savings are real money, not TC
     if (withdrawal_method !== 'tc_wallet') {
-      const payment = await processPayment({
-        method: withdrawal_method,
-        phone: req.user.phone,
-        amount: netXaf,
-        reference: goal.id,
-        description: `Savings withdrawal — ${goal.name}`,
-      });
-      if (!payment.success) {
-        return res.status(400).json({ success: false, message: payment.message || 'Withdrawal failed' });
-      }
+      // Queue as pending withdrawal — will be processed manually until Fapshi disbursement is ready
+      // No external call needed here; admin processes it
     }
     // tc_wallet: in dev/mock mode processPayment is mocked — just record the withdrawal
 

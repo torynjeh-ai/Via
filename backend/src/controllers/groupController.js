@@ -102,8 +102,8 @@ const getGroup = async (req, res, next) => {
     ]);
     if (!groupRes.rows[0]) return res.status(404).json({ success: false, message: 'Group not found' });
 
-    // Check if requesting user is a member
-    const isMember = membersRes.rows.some(m => m.user_id === req.user.id);
+    // Check if requesting user is an APPROVED member (pending cannot see info)
+    const isMember = membersRes.rows.some(m => m.user_id === req.user.id && m.status === 'approved');
 
     // Mask personal info for non-members
     const members = membersRes.rows.map(m => {
@@ -119,6 +119,7 @@ const getGroup = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
+// #103: Notify admins when someone requests to join
 const joinGroup = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -127,10 +128,21 @@ const joinGroup = async (req, res, next) => {
     const status = group.rows[0].status;
     if (status === 'active') return res.status(400).json({ success: false, message: 'This group is active and not accepting new members. Wait for the next re-forming phase.' });
     if (status !== 'forming' && status !== 're-forming') return res.status(400).json({ success: false, message: 'Group is no longer accepting members' });
-    const existing = await query('SELECT id FROM members WHERE group_id = $1 AND user_id = $2', [id, req.user.id]);
-    if (existing.rows[0]) return res.status(409).json({ success: false, message: 'Already a member' });
+    const existing = await query('SELECT id, status FROM members WHERE group_id = $1 AND user_id = $2', [id, req.user.id]);
+    if (existing.rows[0]) return res.status(409).json({ success: false, message: 'Already a member or request pending' });
     await query(`INSERT INTO members (group_id, user_id, invited_by) VALUES ($1, $2, $3)`, [id, req.user.id, req.body.invited_by || null]);
-    res.json({ success: true, message: 'Join request sent' });
+
+    // Notify all admins
+    const admins = await query(`SELECT user_id FROM members WHERE group_id = $1 AND role = 'admin' AND status = 'approved'`, [id]);
+    await Promise.all(admins.rows.map(a => sendNotificationToUser({
+      userId: a.user_id,
+      title: '👋 New Join Request',
+      message: `${req.user.name} (${req.user.phone}) has requested to join "${group.rows[0].name}". Review and approve or decline in the group settings.`,
+      type: 'group_update',
+      groupId: id,
+    })));
+
+    res.json({ success: true, message: 'Join request sent. Waiting for admin approval.' });
   } catch (error) { next(error); }
 };
 

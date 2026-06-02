@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { getAdminStats, getAdminUsers, getAdminLocations, updateAdminUser } from '../api/admin';
+import { getAdminStats, getAdminUsers, getAdminLocations, updateAdminUser, getAdminGroups } from '../api/admin';
 import { formatDate, formatDateTime } from '../utils/dateFormat';
 import styles from './Admin.module.css';
 
-const TABS = ['Overview', 'Users', 'Locations'];
+const TABS = ['Overview', 'Users', 'Groups', 'Locations'];
 
 export default function Admin() {
   const [tab, setTab]           = useState('Overview');
   const [stats, setStats]       = useState(null);
   const [users, setUsers]       = useState([]);
+  const [groups, setGroups]     = useState([]);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
@@ -21,14 +22,16 @@ export default function Admin() {
   const loadAll = async () => {
     setLoading(true);
     try {
-      const [statsRes, usersRes, locRes] = await Promise.all([
+      const [statsRes, usersRes, locRes, groupsRes] = await Promise.all([
         getAdminStats(),
         getAdminUsers(),
         getAdminLocations(),
+        getAdminGroups(),
       ]);
       setStats(statsRes.data);
       setUsers(usersRes.data);
       setLocations(locRes.data);
+      setGroups(groupsRes.data);
     } catch (err) {
       setMsg(err.message || 'Failed to load admin data');
     } finally {
@@ -82,8 +85,9 @@ export default function Admin() {
             className={`${styles.tab} ${tab === t ? styles.tabActive : ''}`}
             onClick={() => setTab(t)}
           >
-            {t === 'Overview' && '📊 '}
-            {t === 'Users' && '👥 '}
+            {t === 'Overview'  && '📊 '}
+            {t === 'Users'     && '👥 '}
+            {t === 'Groups'    && '🏘️ '}
             {t === 'Locations' && '📍 '}
             {t}
           </button>
@@ -215,6 +219,69 @@ export default function Admin() {
                 {filtered.length === 0 && (
                   <div className={styles.empty}>No users found</div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* ── GROUPS ── */}
+          {tab === 'Groups' && (
+            <div>
+              <p style={{ fontSize: 14, color: 'var(--text-sub)', marginBottom: 16 }}>
+                {groups.length} group{groups.length !== 1 ? 's' : ''} on the platform
+              </p>
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Group</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th>Members</th>
+                      <th>Contribution</th>
+                      <th>Circle</th>
+                      <th>Total Contributed</th>
+                      <th>Creator</th>
+                      <th>Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groups.map(g => (
+                      <tr key={g.id}>
+                        <td>
+                          <div style={{ fontWeight: 600 }}>{g.name}</div>
+                          {g.description && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{g.description.slice(0, 50)}{g.description.length > 50 ? '…' : ''}</div>}
+                        </td>
+                        <td>
+                          <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 20, background: g.group_type === 'flexible' ? 'rgba(22,163,74,0.1)' : 'var(--bg-hover)', color: g.group_type === 'flexible' ? 'var(--success)' : 'var(--primary)', fontWeight: 600 }}>
+                            {g.group_type === 'flexible' ? '🎯 Fundraiser' : '🔄 Circle'}
+                          </span>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 20, fontWeight: 600,
+                            background: g.status === 'active' ? 'rgba(22,163,74,0.1)' : g.status === 'forming' ? 'rgba(234,179,8,0.1)' : 'var(--bg-hover)',
+                            color: g.status === 'active' ? 'var(--success)' : g.status === 'forming' ? '#ca8a04' : 'var(--text-muted)' }}>
+                            {g.status}
+                          </span>
+                        </td>
+                        <td className={styles.center}>{g.member_count}/{g.max_members || '∞'}</td>
+                        <td className={styles.mono}>
+                          {g.contribution_amount ? `${Number(g.contribution_amount).toLocaleString()} XAF` : '—'}
+                          {g.cycle && <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 4 }}>{g.cycle}</span>}
+                        </td>
+                        <td className={styles.center}>{g.circle_number || 1}</td>
+                        <td className={styles.mono}>
+                          {g.total_contributed ? `${Number(g.total_contributed).toLocaleString()} XAF` : '—'}
+                        </td>
+                        <td>
+                          <div style={{ fontSize: 13 }}>{g.creator_name}</div>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{g.creator_phone}</div>
+                        </td>
+                        <td className={styles.date}>{formatDate(g.created_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {groups.length === 0 && <div className={styles.empty}>No groups found</div>}
               </div>
             </div>
           )}
