@@ -82,7 +82,7 @@ function EditGroupModal({ group, onClose, onSaved }) {
               <div className={styles.modalField}>
                 <label>Contribution Amount (XAF)</label>
                 <input type="number" min={1} value={form.contribution_amount} onChange={set('contribution_amount')} />
-                {isReforming && <small>Applies to all members for the next circle</small>}
+                {isReforming && <small>⚠️ Applies to all members for the next circle</small>}
               </div>
               <div className={styles.modalField}>
                 <label>Cycle</label>
@@ -96,7 +96,7 @@ function EditGroupModal({ group, onClose, onSaved }) {
           )}
           {!isForming && !isReforming && (
             <div className={styles.modalNote}>
-              <strong>Locked:</strong> Contribution amount and cycle can only be changed while the group is forming or re-forming.
+              <strong>🔒 Locked:</strong> Contribution amount, cycle and penalty settings are locked while the group is active. End the current circle to modify them.
             </div>
           )}
 

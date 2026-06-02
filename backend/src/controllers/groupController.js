@@ -6,6 +6,7 @@ const { generatePayoutQueue } = payoutQueueService;
 const { sendNotificationToUser } = require('../services/notificationService');
 const { recalculateTrustScore } = require('../services/trustScoreService');
 const { triggerAutopayForGroup } = require('./installmentController');
+const logger = require('../utils/logger');
 const crypto = require('crypto');
 
 const generateInviteToken = () => crypto.randomBytes(16).toString('hex');
@@ -232,6 +233,27 @@ const updateGroup = [
 
       const isForming   = status === 'forming';
       const isReforming = status === 're-forming';
+      const isActive    = status === 'active';
+      const isCompleted = status === 'completed' || status === 'cancelled';
+
+      // Completely locked once completed or cancelled
+      if (isCompleted) {
+        return res.status(400).json({ success: false, message: 'Cannot edit a completed or cancelled group' });
+      }
+
+      // ── Financial settings: locked once active ─────────────────────────────
+      // contribution_amount, cycle, late_penalty_type, late_penalty_value
+      // can ONLY be changed during forming or re-forming (before next circle starts)
+      if (isActive) {
+        const financialFields = ['contribution_amount', 'cycle', 'late_penalty_type', 'late_penalty_value', 'deadline_days_before'];
+        const attemptedFinancial = financialFields.filter(f => req.body[f] !== undefined);
+        if (attemptedFinancial.length > 0) {
+          return res.status(400).json({
+            success: false,
+            message: `Cannot change financial settings (${attemptedFinancial.join(', ')}) while the group is active. End the circle first to re-form.`,
+          });
+        }
+      }
 
       // contribution_amount and cycle only editable during forming or re-forming
       if ((contribution_amount !== undefined || cycle !== undefined) && !isForming && !isReforming) {
@@ -247,6 +269,19 @@ const updateGroup = [
       }
       if (start_date !== undefined && !isForming && !isReforming) {
         return res.status(400).json({ success: false, message: 'Start date can only be changed while the group is forming or re-forming' });
+      }
+
+      // During re-forming, warn if members have already re-confirmed
+      if (isReforming && (contribution_amount !== undefined || cycle !== undefined)) {
+        const confirmedRes = await query(
+          `SELECT COUNT(*) as count FROM members WHERE group_id = $1 AND status = 'approved'`,
+          [id]
+        );
+        const confirmedCount = Number(confirmedRes.rows[0].count);
+        if (confirmedCount > 0) {
+          // Allow change but notify (members who re-confirmed accepted old terms)
+          logger.warn(`[GroupUpdate] Admin changed financial terms for group ${id} with ${confirmedCount} already re-confirmed members`);
+        }
       }
 
       const result = await query(
