@@ -4,6 +4,7 @@ import {
   getGroup, joinGroup, leaveGroup, startGroup, approveMember, rejectMember, getInviteLink,
   updateGroup, startNextCircle, reconfirmMembership, forfeitMembership,
   getGroupPool, submitAdminRequest, getMyAdminRequest, getAdminRequests, voteOnAdminRequest,
+  getCircleSummary,
 } from '../api/groups';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -156,6 +157,14 @@ export default function GroupDetail() {
 
   const load = () => getGroup(id).then(r => setGroup(r.data)).catch(() => {}).finally(() => setLoading(false));
   useEffect(() => { load(); }, [id]);
+
+  // Fetch circle summary when group is re-forming
+  const [circleSummary, setCircleSummary] = useState(null);
+  useEffect(() => {
+    if (group?.status === 're-forming') {
+      getCircleSummary(id).then(r => setCircleSummary(r.data)).catch(() => {});
+    }
+  }, [group?.status, id]);
 
   // Fetch pool data (for contribution status) when group is active
   useEffect(() => {
@@ -405,7 +414,7 @@ export default function GroupDetail() {
         </div>
       </div>
 
-      {/* Re-forming banner for members */}
+      {/* Re-forming banner + circle summary */}
       {isReforming && isMember && (
         <div className={styles.reformingBanner}>
           <div className={styles.reformingInfo}>
@@ -424,6 +433,40 @@ export default function GroupDetail() {
             </div>
           )}
           {myStatus === 'approved' && <span className={styles.confirmedBadge}>✅ You re-confirmed</span>}
+        </div>
+      )}
+
+      {/* Circle summary card */}
+      {isReforming && circleSummary && (
+        <div className={styles.section} style={{ background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)', border: '1.5px solid #bae6fd' }}>
+          <h2 style={{ color: '#0369a1' }}>📊 Circle {circleSummary.circle_number} Summary</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}>
+            {[
+              { label: 'Total Contributed', value: `${Number(circleSummary.total_contributions).toLocaleString()} XAF`, icon: '💳' },
+              { label: 'Contributions Made', value: circleSummary.contribution_count, icon: '✅' },
+              { label: 'Late Payments', value: circleSummary.late_payments, icon: '⚠️' },
+              { label: 'Penalties Collected', value: `${Number(circleSummary.total_penalties).toLocaleString()} XAF`, icon: '💸' },
+            ].map(({ label, value, icon }) => (
+              <div key={label} style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 10, padding: '10px 14px', textAlign: 'center' }}>
+                <div style={{ fontSize: 22 }}>{icon}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#0369a1', margin: '4px 0' }}>{value}</div>
+                <div style={{ fontSize: 11, color: '#64748b' }}>{label}</div>
+              </div>
+            ))}
+          </div>
+          {circleSummary.payouts_completed?.length > 0 && (
+            <div style={{ marginTop: 14 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#0369a1', marginBottom: 8 }}>Payouts Received</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {circleSummary.payouts_completed.map(p => (
+                  <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '6px 10px', background: 'rgba(255,255,255,0.7)', borderRadius: 8 }}>
+                    <span>#{p.position} {p.name}</span>
+                    <span style={{ fontWeight: 600, color: '#16a34a' }}>{Number(p.amount).toLocaleString()} XAF</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -389,7 +389,48 @@ const processPayout = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-// GET /groups/:id/invite — get or generate invite token (any approved member)
+// GET /groups/:id/circle-summary — summary of the just-completed circle
+const getCircleSummary = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const groupRes = await query('SELECT * FROM groups WHERE id = $1', [id]);
+    const group = groupRes.rows[0];
+    if (!group) return res.status(404).json({ success: false, message: 'Group not found' });
+
+    const completedCircle = (group.circle_number || 1) - 1;
+    if (completedCircle < 1) return res.json({ success: true, data: null });
+
+    const [contribRes, payoutRes, lateRes] = await Promise.all([
+      query(
+        `SELECT COUNT(*) as count, SUM(amount) as total, SUM(penalty_amount) as penalties
+         FROM contributions WHERE group_id = $1 AND status = 'completed'`,
+        [id]
+      ),
+      query(
+        `SELECT p.*, u.name FROM payouts p JOIN users u ON p.user_id = u.id
+         WHERE p.group_id = $1 AND p.status = 'completed' ORDER BY p.position`,
+        [id]
+      ),
+      query(
+        `SELECT COUNT(*) as count FROM contributions
+         WHERE group_id = $1 AND is_late = TRUE AND status = 'completed'`,
+        [id]
+      ),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        circle_number:      completedCircle,
+        total_contributions: Number(contribRes.rows[0].total || 0),
+        contribution_count:  Number(contribRes.rows[0].count),
+        total_penalties:     Number(contribRes.rows[0].penalties || 0),
+        late_payments:       Number(lateRes.rows[0].count),
+        payouts_completed:   payoutRes.rows,
+      },
+    });
+  } catch (error) { next(error); }
+};
 const getInviteLink = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -412,7 +453,24 @@ const getInviteLink = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-// POST /groups/join-by-invite/:token — join via invite link
+// GET /groups/invite-info/:token — public endpoint to preview group before joining
+const getGroupByInviteToken = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const result = await query(
+      `SELECT g.id, g.name, g.description, g.contribution_amount, g.cycle,
+              g.max_members, g.status, g.visibility,
+              COUNT(m.id) FILTER (WHERE m.status = 'approved') as member_count
+       FROM groups g
+       LEFT JOIN members m ON m.group_id = g.id
+       WHERE g.invite_token = $1
+       GROUP BY g.id`,
+      [token]
+    );
+    if (!result.rows[0]) return res.status(404).json({ success: false, message: 'Invalid invite link' });
+    res.json({ success: true, data: result.rows[0] });
+  } catch (error) { next(error); }
+};
 const joinByInvite = async (req, res, next) => {
   try {
     const { token } = req.params;
@@ -627,4 +685,4 @@ const startNextCircle = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { createGroup, getGroups, getGroup, joinGroup, leaveGroup, approveMember, rejectMember, startGroup, updateGroup, getPayouts, processPayout, getInviteLink, joinByInvite, endCircle, reconfirmMembership, forfeitMembership, startNextCircle };
+module.exports = { createGroup, getGroups, getGroup, joinGroup, leaveGroup, approveMember, rejectMember, startGroup, updateGroup, getPayouts, processPayout, getInviteLink, joinByInvite, getGroupByInviteToken, getCircleSummary, endCircle, reconfirmMembership, forfeitMembership, startNextCircle };

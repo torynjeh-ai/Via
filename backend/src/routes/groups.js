@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { authenticate, requireGroupAdmin, requireProfileComplete } = require('../middleware/auth');
-const { createGroup, getGroups, getGroup, joinGroup, leaveGroup, approveMember, rejectMember, startGroup, updateGroup, getPayouts, processPayout, getInviteLink, joinByInvite, reconfirmMembership, forfeitMembership, startNextCircle } = require('../controllers/groupController');
+const { createGroup, getGroups, getGroup, joinGroup, leaveGroup, approveMember, rejectMember, startGroup, updateGroup, getPayouts, processPayout, getInviteLink, joinByInvite, getGroupByInviteToken, getCircleSummary, reconfirmMembership, forfeitMembership, startNextCircle } = require('../controllers/groupController');
 const { contribute, getContributions, getContributionInfo, confirmContribution } = require('../controllers/contributionController');
 const { getGroupPool, payInstallment, requestEarlyPayout, toggleAutopay } = require('../controllers/installmentController');
 const { submitAdminRequest, voteOnAdminRequest, getAdminRequests, getMyAdminRequest } = require('../controllers/adminRequestController');
@@ -22,7 +22,11 @@ router.get('/:id/payouts', getPayouts);
 router.get('/:id/contributions', getContributions);
 router.get('/:id/contribution-info', getContributionInfo);
 router.get('/:id/pool', getGroupPool);
+router.get('/:id/circle-summary', getCircleSummary);
 router.get('/:id/invite', getInviteLink);
+
+// Public: preview group info before joining via invite link (no auth needed)
+router.get('/invite-info/:token', getGroupByInviteToken);
 
 // Join via invite link
 router.post('/join-by-invite/:token', requireProfileComplete, joinByInvite);

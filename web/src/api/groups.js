@@ -23,6 +23,8 @@ export const payInstallment = (id, data) => api.post(`/groups/${id}/installment`
 export const requestEarlyPayout = (id, data) => api.post(`/groups/${id}/early-payout`, data);
 export const toggleAutopay = (id, data) => api.post(`/groups/${id}/autopay`, data);
 export const joinByInvite = (token) => api.post(`/groups/join-by-invite/${token}`);
+export const getInviteGroupInfo = (token) => api.get(`/groups/invite-info/${token}`);
+export const getCircleSummary = (id) => api.get(`/groups/${id}/circle-summary`);
 export const submitAdminRequest = (groupId) =>
   api.post(`/groups/${groupId}/admin-requests`);
 
