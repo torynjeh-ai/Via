@@ -461,9 +461,32 @@ const creditPayout = async ({ userId, groupId, payoutId, xafAmount }) => {
 };
 
 /**
- * Transfer preview (fee calculation + fiat equivalents)
- * @param {object} params - { senderId, recipientIdentifier, tcAmount }
+ * Check if two users qualify for the free-transfer fee waiver.
+ * Requirements:
+ *  - Share at least one active group
+ *  - That group has been active for at least 30 days (prevents abuse)
+ *  - The group has at least 3 approved members (prevents fake 2-person groups)
  */
+const checkFeeWaiver = async (senderId, recipientId) => {
+  const result = await pool.query(
+    `SELECT COUNT(*) as count
+     FROM members m1
+     JOIN members m2 ON m1.group_id = m2.group_id
+     JOIN groups g ON m1.group_id = g.id
+     WHERE m1.user_id = $1
+       AND m2.user_id = $2
+       AND m1.status = 'approved'
+       AND m2.status = 'approved'
+       AND g.status = 'active'
+       AND g.updated_at <= NOW() - INTERVAL '30 days'
+       AND (
+         SELECT COUNT(*) FROM members
+         WHERE group_id = g.id AND status = 'approved'
+       ) >= 3`,
+    [senderId, recipientId]
+  );
+  return parseInt(result.rows[0].count) > 0;
+};
 const getTransferPreview = async ({ senderId, recipientIdentifier, tcAmount }) => {
   // Resolve recipient
   const recipient = await resolveRecipient(recipientIdentifier);
@@ -475,20 +498,12 @@ const getTransferPreview = async ({ senderId, recipientIdentifier, tcAmount }) =
     };
   }
 
-  // Check if sender and recipient share a common active group
-  const sharedGroupResult = await pool.query(
-    `SELECT COUNT(*) as count FROM members m1
-     JOIN members m2 ON m1.group_id = m2.group_id
-     JOIN groups g ON m1.group_id = g.id
-     WHERE m1.user_id = $1 AND m2.user_id = $2
-       AND m1.status = 'approved' AND m2.status = 'approved'
-       AND g.status = 'active'`,
-    [senderId, recipient.id]
-  );
-  const hasSharedGroup = parseInt(sharedGroupResult.rows[0].count) > 0;
+  // Check if sender and recipient qualify for fee waiver
+  // (shared active group, 30+ days old, 3+ members)
+  const hasQualifiedGroup = await checkFeeWaiver(senderId, recipient.id);
 
   // Calculate fee
-  const fee = hasSharedGroup ? 0 : Math.ceil(tcAmount * 0.005 * 100) / 100;
+  const fee = hasQualifiedGroup ? 0 : Math.ceil(tcAmount * 0.005 * 100) / 100;
   const totalDeducted = tcAmount + fee;
 
   // Get fiat equivalents
@@ -499,15 +514,18 @@ const getTransferPreview = async ({ senderId, recipientIdentifier, tcAmount }) =
   return {
     success: true,
     data: {
-      recipient_name: recipient.name,
-      recipient_id: recipient.id,
-      tc_amount: tcAmount,
-      fee_tc: fee,
-      total_tc: totalDeducted,
-      amount_fiat: amountFiat,
-      fee_fiat: feeFiat,
-      total_fiat: totalFiat,
-      has_shared_group: hasSharedGroup,
+      recipient_name:   recipient.name,
+      recipient_id:     recipient.id,
+      tc_amount:        tcAmount,
+      fee_tc:           fee,
+      total_tc:         totalDeducted,
+      amount_fiat:      amountFiat,
+      fee_fiat:         feeFiat,
+      total_fiat:       totalFiat,
+      has_shared_group: hasQualifiedGroup,
+      fee_note: hasQualifiedGroup
+        ? 'Free transfer — qualified group members (30+ days, 3+ members)'
+        : '0.5% transfer fee applies',
     },
   };
 };
@@ -546,19 +564,10 @@ const transfer = async ({ senderId, recipientIdentifier, tcAmount }) => {
     };
   }
 
-  // Check shared group for fee
-  const sharedGroupResult = await pool.query(
-    `SELECT COUNT(*) as count FROM members m1
-     JOIN members m2 ON m1.group_id = m2.group_id
-     JOIN groups g ON m1.group_id = g.id
-     WHERE m1.user_id = $1 AND m2.user_id = $2
-       AND m1.status = 'approved' AND m2.status = 'approved'
-       AND g.status = 'active'`,
-    [senderId, recipient.id]
-  );
-  const hasSharedGroup = parseInt(sharedGroupResult.rows[0].count) > 0;
+  // Check if sender and recipient qualify for fee waiver
+  const hasQualifiedGroup = await checkFeeWaiver(senderId, recipient.id);
 
-  const fee = hasSharedGroup ? 0 : Math.ceil(tcAmount * 0.005 * 100) / 100;
+  const fee = hasQualifiedGroup ? 0 : Math.ceil(tcAmount * 0.005 * 100) / 100;
   const totalDeducted = tcAmount + fee;
 
   const client = await pool.connect();
