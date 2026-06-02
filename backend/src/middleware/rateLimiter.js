@@ -1,26 +1,30 @@
 const rateLimit = require('express-rate-limit');
 
+// Auth endpoints: login, register — strict in production
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 50,  // increased for development
-  message: { success: false, message: 'Too many requests, please try again later' },
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === 'production' ? 20 : 100,
+  message: { success: false, message: 'Too many attempts. Please try again in 15 minutes.' },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: () => process.env.NODE_ENV === 'development',
 });
 
+// OTP endpoints — very strict, brute force prevention
 const otpLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 10,  // increased for development
-  message: { success: false, message: 'Too many OTP requests, please wait' },
-  skip: () => process.env.NODE_ENV === 'development',
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === 'production' ? 5 : 50,
+  message: { success: false, message: 'Too many OTP attempts. Please wait 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
+// General API — moderate
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 500, // increased for development
-  message: { success: false, message: 'Too many requests' },
-  skip: () => process.env.NODE_ENV === 'development',
+  max: process.env.NODE_ENV === 'production' ? 300 : 1000,
+  message: { success: false, message: 'Too many requests. Please slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 module.exports = { authLimiter, otpLimiter, apiLimiter };

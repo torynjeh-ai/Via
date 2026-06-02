@@ -52,10 +52,14 @@ const sendOTP = async (phone) => {
 
   logger.info(`[OTP] Fallback OTP for ${phone}: ${code}`);
 
+  const isDev = process.env.NODE_ENV !== 'production';
   return {
     success: true,
-    message: `SMS unavailable. Your verification code is: ${code}`,
-    fallback_code: code,
+    message: isDev
+      ? `Dev mode — your OTP is: ${code}`
+      : 'SMS unavailable. Please contact support.',
+    // Only expose fallback_code in non-production environments
+    ...(isDev && { fallback_code: code }),
   };
 };
 

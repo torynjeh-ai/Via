@@ -107,10 +107,26 @@ const getPaymentStatus = async (req, res, next) => {
     const { status } = fapshiStatus;
 
     if (status === 'SUCCESSFUL' && tx.status !== 'completed') {
-      // Credit wallet
+      // Credit wallet — use SELECT FOR UPDATE to prevent race condition double-credit
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
+
+        // Lock the transaction row to prevent concurrent credits
+        const lockRes = await client.query(
+          `SELECT id, status FROM wallet_transactions WHERE external_tx_id = $1 FOR UPDATE`,
+          [transId]
+        );
+        // Re-check status after acquiring lock
+        if (lockRes.rows[0]?.status === 'completed') {
+          await client.query('ROLLBACK');
+          const balanceResult = await pool.query('SELECT tc_balance FROM users WHERE id = $1', [req.user.id]);
+          return res.json({
+            success: true,
+            data: { status: 'SUCCESSFUL', tc_amount: parseFloat(tx.tc_amount), xaf_amount: parseFloat(tx.xaf_amount), new_balance: parseFloat(balanceResult.rows[0].tc_balance) },
+          });
+        }
+
         await client.query(
           'UPDATE users SET tc_balance = tc_balance + $1 WHERE id = $2',
           [tx.tc_amount, req.user.id]

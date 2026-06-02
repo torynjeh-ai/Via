@@ -98,12 +98,17 @@ const contribute = [
 
       const totalDue = Number(group.contribution_amount) + Number(penaltyAmount);
 
-      // ── Insert contribution record ─────────────────────────────────────────
+      // ── Insert contribution record — ON CONFLICT prevents double-submission ─
       const contribRes = await query(
         `INSERT INTO contributions (group_id, user_id, amount, cycle_number, payment_method, is_late, penalty_amount)
-         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         ON CONFLICT DO NOTHING
+         RETURNING id`,
         [groupId, req.user.id, totalDue, cycleNumber, payment_method, late, penaltyAmount]
       );
+      if (!contribRes.rows[0]) {
+        return res.status(409).json({ success: false, message: 'Already contributed this cycle' });
+      }
       const contribId = contribRes.rows[0].id;
 
       // ── TC wallet branch ───────────────────────────────────────────────────
