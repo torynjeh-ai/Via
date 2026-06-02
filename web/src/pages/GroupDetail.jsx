@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import {
-  getGroup, joinGroup, startGroup, approveMember, rejectMember, getInviteLink,
+  getGroup, joinGroup, leaveGroup, startGroup, approveMember, rejectMember, getInviteLink,
   updateGroup, startNextCircle, reconfirmMembership, forfeitMembership,
   getGroupPool, submitAdminRequest, getMyAdminRequest, getAdminRequests, voteOnAdminRequest,
 } from '../api/groups';
@@ -344,7 +344,26 @@ export default function GroupDetail() {
         <div className={styles.actions}>
           {/* Pending users see a waiting message instead of the join button */}
           {myMember?.status === 'pending' && (
-            <span className={styles.pendingBadge}>⏳ Join request pending approval</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
+              <span className={styles.pendingBadge}>⏳ Join request pending approval</span>
+              <button className={`${styles.btn} ${styles.danger}`} style={{ fontSize: 13, padding: '6px 14px' }}
+                onClick={async () => {
+                  if (!window.confirm('Withdraw your join request?')) return;
+                  try { await leaveGroup(id); setMsg('Join request withdrawn.'); load(); } catch (e) { setMsg(e.message); }
+                }}>
+                Withdraw Request
+              </button>
+            </div>
+          )}
+          {/* Approved members can leave during forming/re-forming */}
+          {isMember && (group.status === 'forming' || group.status === 're-forming') && (
+            <button className={`${styles.btn} ${styles.danger}`} style={{ fontSize: 13 }}
+              onClick={async () => {
+                if (!window.confirm('Leave this group? You will be removed.')) return;
+                try { await leaveGroup(id); navigate('/groups'); } catch (e) { setMsg(e.message); }
+              }}>
+              Leave Group
+            </button>
           )}
           {!myMember && (group.status === 'forming' || group.status === 're-forming') && <button className={styles.btn} onClick={handleJoin}>{t('joinGroup')}</button>}
           {isMember  && group.status === 'active'      && (

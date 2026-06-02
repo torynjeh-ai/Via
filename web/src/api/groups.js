@@ -4,6 +4,7 @@ export const getGroup = (id) => api.get(`/groups/${id}`);
 export const createGroup = (data) => api.post('/groups', data);
 export const updateGroup = (id, data) => api.patch(`/groups/${id}`, data);
 export const joinGroup = (id, data) => api.post(`/groups/${id}/join`, data);
+export const leaveGroup = (id) => api.delete(`/groups/${id}/leave`);
 export const startGroup = (id) => api.post(`/groups/${id}/start`);
 export const startNextCircle = (id, data) => api.post(`/groups/${id}/start-next-circle`, data);
 export const reconfirmMembership = (id) => api.post(`/groups/${id}/reconfirm`);

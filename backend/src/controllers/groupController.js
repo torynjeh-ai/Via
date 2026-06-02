@@ -146,7 +146,48 @@ const joinGroup = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-const approveMember = async (req, res, next) => {
+// #46: Withdraw pending join request / leave forming group
+const leaveGroup = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const groupRes = await query('SELECT status, name FROM groups WHERE id = $1', [id]);
+    const group = groupRes.rows[0];
+    if (!group) return res.status(404).json({ success: false, message: 'Group not found' });
+
+    const memberRes = await query(
+      `SELECT * FROM members WHERE group_id = $1 AND user_id = $2`,
+      [id, req.user.id]
+    );
+    const member = memberRes.rows[0];
+    if (!member) return res.status(404).json({ success: false, message: 'You are not a member of this group' });
+
+    // Can only leave/withdraw if group is forming or re-forming, and status is pending or approved
+    if (group.status === 'active') {
+      return res.status(400).json({ success: false, message: 'Cannot leave an active group. Wait for re-forming phase after the current circle completes.' });
+    }
+    if (member.status === 'forfeited') {
+      return res.status(400).json({ success: false, message: 'You have already forfeited your membership.' });
+    }
+    if (!['pending', 'approved'].includes(member.status)) {
+      return res.status(400).json({ success: false, message: 'Cannot withdraw at this time.' });
+    }
+
+    await query(`DELETE FROM members WHERE group_id = $1 AND user_id = $2`, [id, req.user.id]);
+
+    // Notify admins
+    const admins = await query(`SELECT user_id FROM members WHERE group_id = $1 AND role = 'admin' AND status = 'approved'`, [id]);
+    const action = member.status === 'pending' ? 'withdrew their join request from' : 'left';
+    await Promise.all(admins.rows.map(a => sendNotificationToUser({
+      userId: a.user_id,
+      title: 'Member Left',
+      message: `${req.user.name} has ${action} "${group.name}".`,
+      type: 'group_update',
+      groupId: id,
+    })));
+
+    res.json({ success: true, message: member.status === 'pending' ? 'Join request withdrawn.' : 'You have left the group.' });
+  } catch (error) { next(error); }
+};
   try {
     const { id, userId } = req.params;
     const groupRes = await query('SELECT name FROM groups WHERE id = $1', [id]);
@@ -378,7 +419,9 @@ const joinByInvite = async (req, res, next) => {
     const groupRes = await query('SELECT * FROM groups WHERE invite_token = $1', [token]);
     const group = groupRes.rows[0];
     if (!group) return res.status(404).json({ success: false, message: 'Invalid or expired invite link' });
-    if (group.status !== 'forming') return res.status(400).json({ success: false, message: 'This group is no longer accepting members' });
+    // #73: Allow joining during re-forming too
+    if (group.status === 'active') return res.status(400).json({ success: false, message: 'This group is active. New members can join during the next re-forming phase.' });
+    if (group.status !== 'forming' && group.status !== 're-forming') return res.status(400).json({ success: false, message: 'This group is no longer accepting members' });
 
     const existing = await query('SELECT id FROM members WHERE group_id = $1 AND user_id = $2', [group.id, req.user.id]);
     if (existing.rows[0]) return res.status(409).json({ success: false, message: 'You are already a member of this group' });
@@ -584,4 +627,4 @@ const startNextCircle = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { createGroup, getGroups, getGroup, joinGroup, approveMember, rejectMember, startGroup, updateGroup, getPayouts, processPayout, getInviteLink, joinByInvite, endCircle, reconfirmMembership, forfeitMembership, startNextCircle };
+module.exports = { createGroup, getGroups, getGroup, joinGroup, leaveGroup, approveMember, rejectMember, startGroup, updateGroup, getPayouts, processPayout, getInviteLink, joinByInvite, endCircle, reconfirmMembership, forfeitMembership, startNextCircle };

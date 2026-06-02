@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { authenticate, requireGroupAdmin, requireProfileComplete } = require('../middleware/auth');
-const { createGroup, getGroups, getGroup, joinGroup, approveMember, rejectMember, startGroup, updateGroup, getPayouts, processPayout, getInviteLink, joinByInvite, reconfirmMembership, forfeitMembership, startNextCircle } = require('../controllers/groupController');
+const { createGroup, getGroups, getGroup, joinGroup, leaveGroup, approveMember, rejectMember, startGroup, updateGroup, getPayouts, processPayout, getInviteLink, joinByInvite, reconfirmMembership, forfeitMembership, startNextCircle } = require('../controllers/groupController');
 const { contribute, getContributions, getContributionInfo, confirmContribution } = require('../controllers/contributionController');
 const { getGroupPool, payInstallment, requestEarlyPayout, toggleAutopay } = require('../controllers/installmentController');
 const { submitAdminRequest, voteOnAdminRequest, getAdminRequests, getMyAdminRequest } = require('../controllers/adminRequestController');
@@ -30,6 +30,7 @@ router.post('/join-by-invite/:token', requireProfileComplete, joinByInvite);
 // Write routes — profile must be complete
 router.post('/', requireProfileComplete, createGroup);
 router.post('/:id/join', requireProfileComplete, joinGroup);
+router.delete('/:id/leave', requireProfileComplete, leaveGroup);
 router.post('/:id/start', requireProfileComplete, requireGroupAdmin, startGroup);
 router.post('/:id/payouts/:payoutId/process', requireProfileComplete, requireGroupAdmin, processPayout);
 router.post('/:id/start-next-circle', requireProfileComplete, requireGroupAdmin, startNextCircle);
