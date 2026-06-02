@@ -38,33 +38,34 @@ const distributePenaltyPool = async (groupId, cycleNumber, totalPenaltyXaf, excl
 
   const sharePerMemberXaf = Math.floor(totalPenaltyXaf / members.length);
   const remainder         = totalPenaltyXaf - sharePerMemberXaf * members.length;
+  // remainder stays with platform (typically 0-2 XAF from rounding)
 
   const walletService = require('./walletService');
-  await Promise.all(members.map((m, idx) =>
+  await Promise.all(members.map(m =>
     walletService.creditPenaltyShare({
       userId:    m.user_id,
       groupId,
-      xafAmount: sharePerMemberXaf + (idx === 0 ? remainder : 0),
+      xafAmount: sharePerMemberXaf, // each member gets equal floor share
     }).catch(err => logger.error(`[Penalty] Failed to credit ${m.user_id}: ${err.message}`))
   ));
 
   await query(
     `INSERT INTO penalty_distributions (group_id, cycle_number, total_penalty, platform_fee, member_share)
-     VALUES ($1, $2, $3, 0, $4) ON CONFLICT DO NOTHING`,
-    [groupId, cycleNumber, totalPenaltyXaf, sharePerMemberXaf]
+     VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`,
+    [groupId, cycleNumber, totalPenaltyXaf, remainder, sharePerMemberXaf]
   );
 
-  await Promise.all(members.map((m, idx) =>
+  await Promise.all(members.map(m =>
     sendNotificationToUser({
       userId:  m.user_id,
       title:   '💸 Late Penalty Share Received',
-      message: `You received ${(sharePerMemberXaf + (idx === 0 ? remainder : 0)).toLocaleString()} XAF — your share of a late penalty in your group. 100% was split equally among all other members.`,
+      message: `You received ${sharePerMemberXaf.toLocaleString()} XAF — your equal share of a late contribution penalty in your group. 100% was split equally among all other members.`,
       type:    'group_update',
       groupId,
     }).catch(() => {})
   ));
 
-  logger.info(`[Penalty] ${totalPenaltyXaf} XAF split among ${members.length} members (${sharePerMemberXaf} XAF each, 0 to platform)`);
+  logger.info(`[Penalty] ${totalPenaltyXaf} XAF split among ${members.length} members (${sharePerMemberXaf} XAF each, ${remainder} XAF remainder to platform)`);
 };
 const getDeadlineForGroup = (payoutDate, deadlineDaysBefore) => {
   const deadline = new Date(payoutDate);
