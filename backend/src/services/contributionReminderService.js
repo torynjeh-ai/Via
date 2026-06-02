@@ -20,12 +20,52 @@ const { query } = require('../config/database');
 const { sendNotificationToUser } = require('./notificationService');
 const logger = require('../utils/logger');
 
-const PLATFORM_FEE_PERCENT = 4; // 4% of penalty goes to platform
+const PLATFORM_FEE_PERCENT = 0; // 0% — 100% of penalties go to members
 
 /**
- * Calculate the contribution deadline for a group's current payout.
- * Deadline = current payout date - deadline_days_before
+ * Distribute penalty pool equally to ALL approved members except the late payer.
+ * Platform takes nothing — every XAF goes to fellow members.
  */
+const distributePenaltyPool = async (groupId, cycleNumber, totalPenaltyXaf, excludeUserId) => {
+  if (totalPenaltyXaf <= 0) return;
+
+  const membersRes = await query(
+    `SELECT user_id FROM members WHERE group_id = $1 AND status = 'approved' AND user_id != $2`,
+    [groupId, excludeUserId]
+  );
+  const members = membersRes.rows;
+  if (members.length === 0) return;
+
+  const sharePerMemberXaf = Math.floor(totalPenaltyXaf / members.length);
+  const remainder         = totalPenaltyXaf - sharePerMemberXaf * members.length;
+
+  const walletService = require('./walletService');
+  await Promise.all(members.map((m, idx) =>
+    walletService.creditPenaltyShare({
+      userId:    m.user_id,
+      groupId,
+      xafAmount: sharePerMemberXaf + (idx === 0 ? remainder : 0),
+    }).catch(err => logger.error(`[Penalty] Failed to credit ${m.user_id}: ${err.message}`))
+  ));
+
+  await query(
+    `INSERT INTO penalty_distributions (group_id, cycle_number, total_penalty, platform_fee, member_share)
+     VALUES ($1, $2, $3, 0, $4) ON CONFLICT DO NOTHING`,
+    [groupId, cycleNumber, totalPenaltyXaf, sharePerMemberXaf]
+  );
+
+  await Promise.all(members.map((m, idx) =>
+    sendNotificationToUser({
+      userId:  m.user_id,
+      title:   '💸 Late Penalty Share Received',
+      message: `You received ${(sharePerMemberXaf + (idx === 0 ? remainder : 0)).toLocaleString()} XAF — your share of a late penalty in your group. 100% was split equally among all other members.`,
+      type:    'group_update',
+      groupId,
+    }).catch(() => {})
+  ));
+
+  logger.info(`[Penalty] ${totalPenaltyXaf} XAF split among ${members.length} members (${sharePerMemberXaf} XAF each, 0 to platform)`);
+};
 const getDeadlineForGroup = (payoutDate, deadlineDaysBefore) => {
   const deadline = new Date(payoutDate);
   deadline.setDate(deadline.getDate() - deadlineDaysBefore);

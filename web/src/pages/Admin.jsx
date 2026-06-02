@@ -5,6 +5,77 @@ import styles from './Admin.module.css';
 
 const TABS = ['Overview', 'Users', 'Groups', 'Locations'];
 
+function GroupAdminCard({ group: g }) {
+  const [expanded, setExpanded] = React.useState(false);
+  const statusColor = g.status === 'active' ? 'var(--success)' : g.status === 'forming' ? '#ca8a04' : 'var(--text-muted)';
+  const statusBg = g.status === 'active' ? 'rgba(22,163,74,0.1)' : g.status === 'forming' ? 'rgba(234,179,8,0.1)' : 'var(--bg-hover)';
+
+  return (
+    <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 18px', marginBottom: 10, border: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => setExpanded(e => !e)}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 600, fontSize: 15 }}>{g.name}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+            Created by {g.creator_name} ({g.creator_phone}) · {formatDate(g.created_at)}
+            {g.contribution_amount && ` · ${Number(g.contribution_amount).toLocaleString()} XAF ${g.cycle || ''}`}
+          </div>
+        </div>
+        <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 20, fontWeight: 600, background: statusBg, color: statusColor }}>{g.status}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{g.member_count}/{g.max_members || '∞'} members</span>
+        {g.total_contributed && <span style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 600 }}>{Number(g.total_contributed).toLocaleString()} XAF</span>}
+        <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>{expanded ? '▲' : '▼'}</span>
+      </div>
+
+      {expanded && g.members?.length > 0 && (
+        <div style={{ marginTop: 14, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Members & Invitation Chain</div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                  <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-sub)' }}>Name</th>
+                  <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-sub)' }}>Phone</th>
+                  <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-sub)' }}>Role</th>
+                  <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-sub)' }}>Status</th>
+                  <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-sub)' }}>Invited By</th>
+                  <th style={{ textAlign: 'left', padding: '6px 10px', color: 'var(--text-sub)' }}>Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                {g.members.map(m => (
+                  <tr key={m.user_id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '8px 10px', fontWeight: m.role === 'admin' ? 600 : 400 }}>{m.name}</td>
+                    <td style={{ padding: '8px 10px', fontFamily: 'monospace', fontSize: 12 }}>{m.phone}</td>
+                    <td style={{ padding: '8px 10px' }}>
+                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: m.role === 'admin' ? 'rgba(108,99,255,0.15)' : 'var(--bg-hover)', color: m.role === 'admin' ? 'var(--primary)' : 'var(--text-muted)', fontWeight: 600 }}>
+                        {m.role}
+                      </span>
+                    </td>
+                    <td style={{ padding: '8px 10px' }}>
+                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, fontWeight: 600,
+                        background: m.status === 'approved' ? 'rgba(22,163,74,0.1)' : m.status === 'forfeited' ? 'rgba(220,38,38,0.1)' : 'rgba(234,179,8,0.1)',
+                        color: m.status === 'approved' ? 'var(--success)' : m.status === 'forfeited' ? 'var(--danger)' : '#ca8a04' }}>
+                        {m.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: '8px 10px', fontSize: 12 }}>
+                      {m.invited_by_name
+                        ? <span>{m.invited_by_name} <span style={{ color: 'var(--text-muted)' }}>({m.invited_by_phone})</span></span>
+                        : <span style={{ color: 'var(--text-muted)' }}>Direct / Admin</span>
+                      }
+                    </td>
+                    <td style={{ padding: '8px 10px', fontSize: 12, color: 'var(--text-muted)' }}>{formatDateTime(m.joined_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Admin() {
   const [tab, setTab]           = useState('Overview');
   const [stats, setStats]       = useState(null);
@@ -229,60 +300,10 @@ export default function Admin() {
               <p style={{ fontSize: 14, color: 'var(--text-sub)', marginBottom: 16 }}>
                 {groups.length} group{groups.length !== 1 ? 's' : ''} on the platform
               </p>
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Group</th>
-                      <th>Type</th>
-                      <th>Status</th>
-                      <th>Members</th>
-                      <th>Contribution</th>
-                      <th>Circle</th>
-                      <th>Total Contributed</th>
-                      <th>Creator</th>
-                      <th>Created</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {groups.map(g => (
-                      <tr key={g.id}>
-                        <td>
-                          <div style={{ fontWeight: 600 }}>{g.name}</div>
-                          {g.description && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{g.description.slice(0, 50)}{g.description.length > 50 ? '…' : ''}</div>}
-                        </td>
-                        <td>
-                          <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 20, background: g.group_type === 'flexible' ? 'rgba(22,163,74,0.1)' : 'var(--bg-hover)', color: g.group_type === 'flexible' ? 'var(--success)' : 'var(--primary)', fontWeight: 600 }}>
-                            {g.group_type === 'flexible' ? '🎯 Fundraiser' : '🔄 Circle'}
-                          </span>
-                        </td>
-                        <td>
-                          <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 20, fontWeight: 600,
-                            background: g.status === 'active' ? 'rgba(22,163,74,0.1)' : g.status === 'forming' ? 'rgba(234,179,8,0.1)' : 'var(--bg-hover)',
-                            color: g.status === 'active' ? 'var(--success)' : g.status === 'forming' ? '#ca8a04' : 'var(--text-muted)' }}>
-                            {g.status}
-                          </span>
-                        </td>
-                        <td className={styles.center}>{g.member_count}/{g.max_members || '∞'}</td>
-                        <td className={styles.mono}>
-                          {g.contribution_amount ? `${Number(g.contribution_amount).toLocaleString()} XAF` : '—'}
-                          {g.cycle && <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 4 }}>{g.cycle}</span>}
-                        </td>
-                        <td className={styles.center}>{g.circle_number || 1}</td>
-                        <td className={styles.mono}>
-                          {g.total_contributed ? `${Number(g.total_contributed).toLocaleString()} XAF` : '—'}
-                        </td>
-                        <td>
-                          <div style={{ fontSize: 13 }}>{g.creator_name}</div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{g.creator_phone}</div>
-                        </td>
-                        <td className={styles.date}>{formatDate(g.created_at)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {groups.length === 0 && <div className={styles.empty}>No groups found</div>}
-              </div>
+              {groups.map(g => (
+                <GroupAdminCard key={g.id} group={g} />
+              ))}
+              {groups.length === 0 && <div className={styles.empty}>No groups found</div>}
             </div>
           )}
 

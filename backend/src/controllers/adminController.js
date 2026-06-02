@@ -87,7 +87,7 @@ const getUserLocations = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-// GET /admin/groups — all groups with member counts and status
+// GET /admin/groups — all groups with member counts, status, and invitation chain
 const getGroups = async (req, res, next) => {
   try {
     const result = await query(
@@ -105,7 +105,26 @@ const getGroups = async (req, res, next) => {
        GROUP BY g.id, u.name, u.phone
        ORDER BY g.created_at DESC`
     );
-    res.json({ success: true, data: result.rows });
+
+    // For each group, also fetch member list with invitation chain
+    const groups = result.rows;
+    for (const group of groups) {
+      const membersRes = await query(
+        `SELECT
+           m.user_id, m.role, m.status, m.joined_at,
+           u.name, u.phone,
+           inv.name as invited_by_name, inv.phone as invited_by_phone
+         FROM members m
+         JOIN users u ON m.user_id = u.id
+         LEFT JOIN users inv ON m.invited_by = inv.id
+         WHERE m.group_id = $1
+         ORDER BY m.joined_at ASC`,
+        [group.id]
+      );
+      group.members = membersRes.rows;
+    }
+
+    res.json({ success: true, data: groups });
   } catch (error) { next(error); }
 };
 
