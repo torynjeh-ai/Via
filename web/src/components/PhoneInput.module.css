@@ -86,3 +86,7 @@
   min-width: 0;
 }
 .numberInput::placeholder { color: var(--text-muted); }
+
+/* Validation states */
+.inputError { border-color: var(--danger) !important; }
+.errorMsg { font-size: 12px; color: var(--danger); margin-top: 4px; }

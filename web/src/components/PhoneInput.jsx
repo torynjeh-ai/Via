@@ -1,62 +1,94 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import styles from './PhoneInput.module.css';
 
 export const COUNTRIES = [
-  { code: 'CM', name: 'Cameroon',           dial: '+237', flag: '🇨🇲' },
-  { code: 'NG', name: 'Nigeria',             dial: '+234', flag: '🇳🇬' },
-  { code: 'GH', name: 'Ghana',               dial: '+233', flag: '🇬🇭' },
-  { code: 'SN', name: 'Senegal',             dial: '+221', flag: '🇸🇳' },
-  { code: 'CI', name: "Côte d'Ivoire",       dial: '+225', flag: '🇨🇮' },
-  { code: 'KE', name: 'Kenya',               dial: '+254', flag: '🇰🇪' },
-  { code: 'ZA', name: 'South Africa',        dial: '+27',  flag: '🇿🇦' },
-  { code: 'TZ', name: 'Tanzania',            dial: '+255', flag: '🇹🇿' },
-  { code: 'UG', name: 'Uganda',              dial: '+256', flag: '🇺🇬' },
-  { code: 'RW', name: 'Rwanda',              dial: '+250', flag: '🇷🇼' },
-  { code: 'ET', name: 'Ethiopia',            dial: '+251', flag: '🇪🇹' },
-  { code: 'EG', name: 'Egypt',               dial: '+20',  flag: '🇪🇬' },
-  { code: 'MA', name: 'Morocco',             dial: '+212', flag: '🇲🇦' },
-  { code: 'TN', name: 'Tunisia',             dial: '+216', flag: '🇹🇳' },
-  { code: 'DZ', name: 'Algeria',             dial: '+213', flag: '🇩🇿' },
-  { code: 'CD', name: 'DR Congo',            dial: '+243', flag: '🇨🇩' },
-  { code: 'AO', name: 'Angola',              dial: '+244', flag: '🇦🇴' },
-  { code: 'MZ', name: 'Mozambique',          dial: '+258', flag: '🇲🇿' },
-  { code: 'ZM', name: 'Zambia',              dial: '+260', flag: '🇿🇲' },
-  { code: 'ZW', name: 'Zimbabwe',            dial: '+263', flag: '🇿🇼' },
-  { code: 'BJ', name: 'Benin',               dial: '+229', flag: '🇧🇯' },
-  { code: 'BF', name: 'Burkina Faso',        dial: '+226', flag: '🇧🇫' },
-  { code: 'ML', name: 'Mali',                dial: '+223', flag: '🇲🇱' },
-  { code: 'NE', name: 'Niger',               dial: '+227', flag: '🇳🇪' },
-  { code: 'TD', name: 'Chad',                dial: '+235', flag: '🇹🇩' },
-  { code: 'GA', name: 'Gabon',               dial: '+241', flag: '🇬🇦' },
-  { code: 'CG', name: 'Congo',               dial: '+242', flag: '🇨🇬' },
-  { code: 'GN', name: 'Guinea',              dial: '+224', flag: '🇬🇳' },
-  { code: 'TG', name: 'Togo',                dial: '+228', flag: '🇹🇬' },
-  { code: 'MR', name: 'Mauritania',          dial: '+222', flag: '🇲🇷' },
-  { code: 'GB', name: 'United Kingdom',      dial: '+44',  flag: '🇬🇧' },
-  { code: 'FR', name: 'France',              dial: '+33',  flag: '🇫🇷' },
-  { code: 'DE', name: 'Germany',             dial: '+49',  flag: '🇩🇪' },
-  { code: 'US', name: 'United States',       dial: '+1',   flag: '🇺🇸' },
-  { code: 'CA', name: 'Canada',              dial: '+1',   flag: '🇨🇦' },
-  { code: 'CN', name: 'China',               dial: '+86',  flag: '🇨🇳' },
-  { code: 'IN', name: 'India',               dial: '+91',  flag: '🇮🇳' },
-  { code: 'BR', name: 'Brazil',              dial: '+55',  flag: '🇧🇷' },
-  { code: 'AU', name: 'Australia',           dial: '+61',  flag: '🇦🇺' },
-  { code: 'AE', name: 'UAE',                 dial: '+971', flag: '🇦🇪' },
+  { code: 'CM', name: 'Cameroon',      dial: '+237', flag: '🇨🇲', digits: 9  },
+  { code: 'NG', name: 'Nigeria',        dial: '+234', flag: '🇳🇬', digits: 10 },
+  { code: 'GH', name: 'Ghana',          dial: '+233', flag: '🇬🇭', digits: 9  },
+  { code: 'SN', name: 'Senegal',        dial: '+221', flag: '🇸🇳', digits: 9  },
+  { code: 'CI', name: "Côte d'Ivoire",  dial: '+225', flag: '🇨🇮', digits: 10 },
+  { code: 'KE', name: 'Kenya',          dial: '+254', flag: '🇰🇪', digits: 9  },
+  { code: 'ZA', name: 'South Africa',   dial: '+27',  flag: '🇿🇦', digits: 9  },
+  { code: 'TZ', name: 'Tanzania',       dial: '+255', flag: '🇹🇿', digits: 9  },
+  { code: 'UG', name: 'Uganda',         dial: '+256', flag: '🇺🇬', digits: 9  },
+  { code: 'RW', name: 'Rwanda',         dial: '+250', flag: '🇷🇼', digits: 9  },
+  { code: 'ET', name: 'Ethiopia',       dial: '+251', flag: '🇪🇹', digits: 9  },
+  { code: 'EG', name: 'Egypt',          dial: '+20',  flag: '🇪🇬', digits: 10 },
+  { code: 'MA', name: 'Morocco',        dial: '+212', flag: '🇲🇦', digits: 9  },
+  { code: 'TN', name: 'Tunisia',        dial: '+216', flag: '🇹🇳', digits: 8  },
+  { code: 'DZ', name: 'Algeria',        dial: '+213', flag: '🇩🇿', digits: 9  },
+  { code: 'CD', name: 'DR Congo',       dial: '+243', flag: '🇨🇩', digits: 9  },
+  { code: 'AO', name: 'Angola',         dial: '+244', flag: '🇦🇴', digits: 9  },
+  { code: 'MZ', name: 'Mozambique',     dial: '+258', flag: '🇲🇿', digits: 9  },
+  { code: 'ZM', name: 'Zambia',         dial: '+260', flag: '🇿🇲', digits: 9  },
+  { code: 'ZW', name: 'Zimbabwe',       dial: '+263', flag: '🇿🇼', digits: 9  },
+  { code: 'BJ', name: 'Benin',          dial: '+229', flag: '🇧🇯', digits: 8  },
+  { code: 'BF', name: 'Burkina Faso',   dial: '+226', flag: '🇧🇫', digits: 8  },
+  { code: 'ML', name: 'Mali',           dial: '+223', flag: '🇲🇱', digits: 8  },
+  { code: 'NE', name: 'Niger',          dial: '+227', flag: '🇳🇪', digits: 8  },
+  { code: 'TD', name: 'Chad',           dial: '+235', flag: '🇹🇩', digits: 8  },
+  { code: 'GA', name: 'Gabon',          dial: '+241', flag: '🇬🇦', digits: 8  },
+  { code: 'CG', name: 'Congo',          dial: '+242', flag: '🇨🇬', digits: 9  },
+  { code: 'GN', name: 'Guinea',         dial: '+224', flag: '🇬🇳', digits: 9  },
+  { code: 'TG', name: 'Togo',           dial: '+228', flag: '🇹🇬', digits: 8  },
+  { code: 'MR', name: 'Mauritania',     dial: '+222', flag: '🇲🇷', digits: 8  },
+  { code: 'GB', name: 'United Kingdom', dial: '+44',  flag: '🇬🇧', digits: 10 },
+  { code: 'FR', name: 'France',         dial: '+33',  flag: '🇫🇷', digits: 9  },
+  { code: 'DE', name: 'Germany',        dial: '+49',  flag: '🇩🇪', digits: 11 },
+  { code: 'US', name: 'United States',  dial: '+1',   flag: '🇺🇸', digits: 10 },
+  { code: 'CA', name: 'Canada',         dial: '+1-CA',flag: '🇨🇦', digits: 10 },
+  { code: 'CN', name: 'China',          dial: '+86',  flag: '🇨🇳', digits: 11 },
+  { code: 'IN', name: 'India',          dial: '+91',  flag: '🇮🇳', digits: 10 },
+  { code: 'BR', name: 'Brazil',         dial: '+55',  flag: '🇧🇷', digits: 11 },
+  { code: 'AU', name: 'Australia',      dial: '+61',  flag: '🇦🇺', digits: 9  },
+  { code: 'AE', name: 'UAE',            dial: '+971', flag: '🇦🇪', digits: 9  },
 ];
 
+// Canada uses +1 same as US — strip the -CA suffix when outputting
+const getDialCode = (country) => country.dial.replace('-CA', '');
+
+// Parse an E.164 number back into { country, localNumber }
+function parsePhoneValue(value) {
+  if (!value) return { country: COUNTRIES[0], localNumber: '' };
+  const normalized = value.startsWith('+') ? value : `+${value}`;
+  // Try longest match first to avoid +1 matching before +234 etc.
+  const sorted = [...COUNTRIES].sort((a, b) => getDialCode(b).length - getDialCode(a).length);
+  for (const c of sorted) {
+    const dial = getDialCode(c);
+    if (normalized.startsWith(dial)) {
+      return { country: c, localNumber: normalized.slice(dial.length) };
+    }
+  }
+  return { country: COUNTRIES[0], localNumber: value.replace(/^\+?\d{1,4}/, '') };
+}
+
 export default function PhoneInput({ label, value, onChange, required }) {
-  const [selected, setSelected] = useState(COUNTRIES[0]); // default Cameroon
-  const [number, setNumber] = useState('');
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const parsed = parsePhoneValue(value);
+  const [selected, setSelected] = useState(parsed.country);
+  const [number, setNumber]     = useState(parsed.localNumber);
+  const [open, setOpen]         = useState(false);
+  const [search, setSearch]     = useState('');
+  const [touched, setTouched]   = useState(false);
   const dropRef = useRef(null);
 
-  // Sync full phone value upward
+  // Sync value prop → internal state (controlled mode)
   useEffect(() => {
-    onChange(`${selected.dial}${number}`);
-  }, [selected, number]);
+    if (!value) return;
+    const { country, localNumber } = parsePhoneValue(value);
+    setSelected(country);
+    setNumber(localNumber);
+  }, [value]);
 
-  // Close dropdown on outside click
+  // Emit full E.164 number upward
+  const emit = useCallback((country, num) => {
+    onChange(`${getDialCode(country)}${num}`);
+  }, [onChange]);
+
+  useEffect(() => {
+    emit(selected, number);
+  }, [selected, number, emit]);
+
+  // Close on outside click
   useEffect(() => {
     const handler = (e) => {
       if (dropRef.current && !dropRef.current.contains(e.target)) {
@@ -79,24 +111,33 @@ export default function PhoneInput({ label, value, onChange, required }) {
     setSearch('');
   };
 
+  // Validation
+  const expectedDigits = selected.digits;
+  const isValid = number.length === 0 || number.length === expectedDigits;
+  const showError = touched && number.length > 0 && !isValid;
+
   return (
     <div className={styles.wrapper}>
       {label && <label className={styles.label}>{label}</label>}
-      <div className={styles.inputRow}>
-        {/* Country code picker */}
+      <div className={`${styles.inputRow} ${showError ? styles.inputError : ''}`}>
+
+        {/* Country picker */}
         <div className={styles.pickerWrap} ref={dropRef}>
           <button
             type="button"
             className={styles.pickerBtn}
             onClick={() => setOpen(o => !o)}
+            aria-label={`Selected country: ${selected.name} ${getDialCode(selected)}`}
+            aria-expanded={open}
+            aria-haspopup="listbox"
           >
             <span className={styles.flag}>{selected.flag}</span>
-            <span className={styles.dial}>{selected.dial}</span>
+            <span className={styles.dial}>{getDialCode(selected)}</span>
             <span className={styles.chevron}>{open ? '▲' : '▼'}</span>
           </button>
 
           {open && (
-            <div className={styles.dropdown}>
+            <div className={styles.dropdown} role="listbox" aria-label="Select country">
               <div className={styles.searchWrap}>
                 <input
                   className={styles.searchInput}
@@ -104,6 +145,7 @@ export default function PhoneInput({ label, value, onChange, required }) {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   autoFocus
+                  aria-label="Search countries"
                 />
               </div>
               <div className={styles.list}>
@@ -114,12 +156,14 @@ export default function PhoneInput({ label, value, onChange, required }) {
                   <button
                     key={c.code}
                     type="button"
+                    role="option"
+                    aria-selected={selected.code === c.code}
                     className={`${styles.option} ${selected.code === c.code ? styles.optionActive : ''}`}
                     onClick={() => handleSelect(c)}
                   >
                     <span className={styles.flag}>{c.flag}</span>
                     <span className={styles.optionName}>{c.name}</span>
-                    <span className={styles.optionDial}>{c.dial}</span>
+                    <span className={styles.optionDial}>{getDialCode(c)}</span>
                   </button>
                 ))}
               </div>
@@ -131,12 +175,24 @@ export default function PhoneInput({ label, value, onChange, required }) {
         <input
           className={styles.numberInput}
           type="tel"
-          placeholder=""
+          autoComplete="tel-national"
+          placeholder={`${'0'.repeat(expectedDigits || 9)}`}
           value={number}
           onChange={e => setNumber(e.target.value.replace(/[^\d]/g, ''))}
+          onBlur={() => setTouched(true)}
           required={required}
+          maxLength={expectedDigits ? expectedDigits + 2 : 15}
+          aria-label="Phone number"
+          aria-invalid={showError}
         />
       </div>
+
+      {showError && (
+        <p className={styles.errorMsg}>
+          {selected.name} numbers are {expectedDigits} digits
+          ({number.length} entered)
+        </p>
+      )}
     </div>
   );
 }
