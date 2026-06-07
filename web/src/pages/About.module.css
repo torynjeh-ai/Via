@@ -1,0 +1,29 @@
+.page { max-width: 780px; }
+
+.hero { text-align: center; padding: 32px 0 28px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.hero h1 { font-size: 30px; font-weight: 700; color: var(--text); }
+.tagline { font-size: 16px; color: var(--text-sub); max-width: 520px; line-height: 1.6; }
+
+.card { background: var(--bg-card); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.card h2 { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+.card p { font-size: 15px; color: var(--text-sub); line-height: 1.7; margin-bottom: 12px; }
+
+.valuesGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px; }
+.valueCard { background: var(--bg-card); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); }
+.valueIcon  { font-size: 28px; margin-bottom: 10px; }
+.valueTitle { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.valueDesc  { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
+
+.steps { display: flex; flex-direction: column; gap: 16px; }
+.step { display: flex; gap: 16px; align-items: flex-start; }
+.stepNum { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stepTitle { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.stepDesc  { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
+
+.contactBtn { padding: 10px 20px; background: var(--primary); color: #fff; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block; }
+.contactBtn:hover { background: var(--primary-dark); }
+
+@media (max-width: 640px) {
+  .valuesGrid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 24px; }
+}

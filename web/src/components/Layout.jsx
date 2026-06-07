@@ -45,6 +45,8 @@ export default function Layout({ children }) {
     { to: '/receipts', label: `🧾 Receipts` },
     { to: '/profile', label: `👤 ${t('profile')}` },
     { to: '/settings', label: `⚙️ ${t('settings')}` },
+    { to: '/help',     label: `❓ Help Center` },
+    { to: '/about',    label: `ℹ️ About Via` },
     ...(isAdmin ? [{ to: '/admin', label: '🛠 Admin Panel' }] : []),
   ];
 

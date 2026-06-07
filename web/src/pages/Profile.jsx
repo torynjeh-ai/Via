@@ -218,7 +218,10 @@ export default function Profile() {
         )}
       </div>
 
-      <button className={styles.signOut} onClick={handleSignOut}>{t('signOut')}</button>
+      {/* Link to settings for sign out */}
+      <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', marginTop: 8 }}>
+        To sign out, go to <a href="/settings" style={{ color: 'var(--primary)', fontWeight: 600 }}>Settings</a>
+      </p>
     </div>
   );
 }

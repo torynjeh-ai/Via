@@ -193,7 +193,7 @@ const leaveGroup = async (req, res, next) => {
     const groupRes = await query('SELECT name FROM groups WHERE id = $1', [id]);
     const groupName = groupRes.rows[0]?.name || 'the group';
     await query(`UPDATE members SET status = 'approved' WHERE group_id = $1 AND user_id = $2`, [id, userId]);
-    await sendNotificationToUser({ userId, title: 'Membership Approved', message: `Your request to join "${groupName}" has been approved.`, type: 'group_update', groupId: id });
+    await sendNotificationToUser({ userId, title: 'Membership Approved', message: `Your request to join "${groupName}" has been approved. Welcome to the group!`, type: 'group_update', groupId: id });
     res.json({ success: true, message: 'Member approved' });
   } catch (error) { next(error); }
 };

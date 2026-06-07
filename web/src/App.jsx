@@ -23,6 +23,8 @@ import TopUp from './pages/TopUp';
 import Withdraw from './pages/Withdraw';
 import Transfer from './pages/Transfer';
 import TransactionHistory from './pages/TransactionHistory';
+import HelpCenter from './pages/HelpCenter';
+import About from './pages/About';
 import Admin from './pages/Admin';
 import Savings from './pages/Savings';
 import CreateSavingsGoal from './pages/CreateSavingsGoal';
@@ -98,6 +100,8 @@ export default function App() {
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="/savings" element={<PrivateRoute><Savings /></PrivateRoute>} />
           <Route path="/savings/new" element={<PrivateRoute><CreateSavingsGoal /></PrivateRoute>} />
+          <Route path="/help" element={<PrivateRoute><HelpCenter /></PrivateRoute>} />
+          <Route path="/about" element={<PrivateRoute><About /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
         </SocketProvider>
