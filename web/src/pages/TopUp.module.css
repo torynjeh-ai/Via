@@ -274,3 +274,10 @@
   text-decoration: underline;
   margin-top: 4px;
 }
+
+.methodDisabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background: var(--bg-subtle) !important;
+  border-color: var(--border) !important;
+}

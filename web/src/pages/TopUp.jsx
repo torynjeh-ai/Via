@@ -4,8 +4,9 @@ import { topUp, getPaymentStatus } from '../api/wallet';
 import styles from './TopUp.module.css';
 
 const PAYMENT_METHODS = [
-  { value: 'mtn_momo',     label: '📱 MTN Mobile Money' },
-  { value: 'orange_money', label: '🟠 Orange Money' },
+  { value: 'mtn_momo',     label: '📱 MTN Mobile Money', available: true },
+  { value: 'orange_money', label: '🟠 Orange Money',      available: true },
+  { value: 'card',         label: '💳 Card (Stripe)',     available: false, hint: 'Coming soon — business registration in progress' },
 ];
 
 export default function TopUp() {
@@ -144,14 +145,21 @@ export default function TopUp() {
           <p className={styles.hint}>Minimum: 100 XAF · 1 TC = 10,000 XAF</p>
         </div>
 
-        <div className={styles.field}>
+          <div className={styles.field}>
           <label className={styles.label}>Payment Method</label>
           <div className={styles.methodGrid}>
             {PAYMENT_METHODS.map(m => (
               <button key={m.value} type="button"
-                className={`${styles.methodBtn} ${paymentMethod === m.value ? styles.methodActive : ''}`}
-                onClick={() => setPaymentMethod(m.value)} disabled={loading}>
+                className={`${styles.methodBtn} ${paymentMethod === m.value ? styles.methodActive : ''} ${!m.available ? styles.methodDisabled : ''}`}
+                onClick={() => {
+                  if (!m.available) return;
+                  setPaymentMethod(m.value);
+                }}
+                disabled={loading}
+                title={!m.available ? m.hint : undefined}
+              >
                 {m.label}
+                {!m.available && <span style={{ display: 'block', fontSize: 10, color: '#9ca3af', marginTop: 2 }}>Coming soon</span>}
               </button>
             ))}
           </div>

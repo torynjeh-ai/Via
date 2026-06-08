@@ -7,9 +7,10 @@ import ReceiptModal from '../components/ReceiptModal';
 import styles from './Contribute.module.css';
 
 const METHODS = [
-  { key: 'mtn_momo',     label: 'MTN Mobile Money', color: '#FFCC00', bg: '#FFFBEB' },
-  { key: 'orange_money', label: 'Orange Money',      color: '#FF6600', bg: '#FFF7ED' },
-  { key: 'tc_wallet',    label: 'TC Wallet',         color: '#6C63FF', bg: '#F0EEFF' },
+  { key: 'mtn_momo',     label: 'MTN Mobile Money', color: '#FFCC00', bg: '#FFFBEB', available: true },
+  { key: 'orange_money', label: 'Orange Money',      color: '#FF6600', bg: '#FFF7ED', available: true },
+  { key: 'tc_wallet',    label: 'TC Wallet',         color: '#6C63FF', bg: '#F0EEFF', available: true },
+  { key: 'card',         label: '💳 Card (Stripe)',  color: '#6b7280', bg: '#f9fafb', available: false },
 ];
 
 export default function Contribute() {
@@ -175,12 +176,26 @@ export default function Contribute() {
         <div className={styles.methods}>
           {METHODS.map(m => (
             <div key={m.key}
-              className={`${styles.method} ${method === m.key ? styles.selected : ''}`}
-              style={{ borderColor: method === m.key ? m.color : 'var(--border)', background: method === m.key ? m.bg : 'var(--bg-card)' }}
-              onClick={() => !loading && setMethod(m.key)}>
+              className={`${styles.method} ${method === m.key && m.available ? styles.selected : ''}`}
+              style={{
+                borderColor: method === m.key && m.available ? m.color : 'var(--border)',
+                background: method === m.key && m.available ? m.bg : 'var(--bg-card)',
+                opacity: m.available ? 1 : 0.5,
+                cursor: m.available ? 'pointer' : 'not-allowed',
+              }}
+              onClick={() => {
+                if (!m.available) {
+                  alert('Card payments are coming soon — we are completing our Stripe business registration.');
+                  return;
+                }
+                if (!loading) setMethod(m.key);
+              }}>
               <div className={styles.dot} style={{ background: m.color }} />
-              <span>{m.label}</span>
-              {method === m.key && <span className={styles.check}>✓</span>}
+              <div>
+                <span>{m.label}</span>
+                {!m.available && <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 1 }}>Coming soon</div>}
+              </div>
+              {method === m.key && m.available && <span className={styles.check}>✓</span>}
             </div>
           ))}
         </div>

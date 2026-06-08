@@ -4,9 +4,10 @@ import { withdraw } from '../api/wallet';
 import styles from './Withdraw.module.css';
 
 const METHODS = [
-  { value: 'mtn_momo',     label: '📱 MTN Mobile Money' },
-  { value: 'orange_money', label: '🟠 Orange Money' },
-  { value: 'bank_transfer',label: '🏦 Bank Transfer' },
+  { value: 'mtn_momo',     label: '📱 MTN Mobile Money', available: true },
+  { value: 'orange_money', label: '🟠 Orange Money',      available: true },
+  { value: 'bank_transfer',label: '🏦 Bank Transfer',     available: true },
+  { value: 'card',         label: '💳 Card (Stripe)',     available: false },
 ];
 
 export default function Withdraw() {
@@ -107,8 +108,13 @@ export default function Withdraw() {
             {METHODS.map(m => (
               <button key={m.value} type="button"
                 className={`${styles.methodBtn} ${method === m.value ? styles.methodActive : ''}`}
-                onClick={() => setMethod(m.value)}>
+                style={{ opacity: m.available ? 1 : 0.5, cursor: m.available ? 'pointer' : 'not-allowed' }}
+                onClick={() => {
+                  if (!m.available) { alert('Card payments are coming soon — we are completing our Stripe business registration.'); return; }
+                  setMethod(m.value);
+                }}>
                 {m.label}
+                {!m.available && <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 2 }}>Coming soon</div>}
               </button>
             ))}
           </div>
