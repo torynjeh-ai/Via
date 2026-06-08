@@ -94,58 +94,6 @@ const calculatePenalty = (contributionAmount, penaltyType, penaltyValue) => {
 };
 
 /**
- * Distribute penalty pool to all members equally (excluding the late payer),
- * minus platform fee. Platform takes 4%, rest split equally among other members.
- */
-const distributePenaltyPool = async (groupId, cycleNumber, totalPenaltyXaf, excludeUserId) => {
-  if (totalPenaltyXaf <= 0) return;
-
-  const platformFeeXaf = Math.round(totalPenaltyXaf * PLATFORM_FEE_PERCENT / 100);
-  const memberPoolXaf  = totalPenaltyXaf - platformFeeXaf;
-
-  // Exclude the late payer from receiving the distribution
-  const membersRes = await query(
-    `SELECT user_id FROM members WHERE group_id = $1 AND status = 'approved' AND user_id != $2`,
-    [groupId, excludeUserId]
-  );
-  const members = membersRes.rows;
-  if (members.length === 0) return;
-
-  const sharePerMemberXaf = Math.floor(memberPoolXaf / members.length);
-  const sharePerMemberTc  = sharePerMemberXaf / 10000;
-
-  // Credit each member's wallet
-  const walletService = require('./walletService');
-  await Promise.all(members.map(m =>
-    walletService.creditPenaltyShare({
-      userId:  m.user_id,
-      groupId,
-      xafAmount: sharePerMemberXaf,
-    }).catch(err => logger.error(`[Penalty] Failed to credit ${m.user_id}: ${err.message}`))
-  ));
-
-  // Record the distribution
-  await query(
-    `INSERT INTO penalty_distributions (group_id, cycle_number, total_penalty, platform_fee, member_share)
-     VALUES ($1, $2, $3, $4, $5)`,
-    [groupId, cycleNumber, totalPenaltyXaf, platformFeeXaf, sharePerMemberXaf]
-  );
-
-  // Notify members of their penalty share
-  await Promise.all(members.map(m =>
-    sendNotificationToUser({
-      userId:  m.user_id,
-      title:   'Penalty Share Received',
-      message: `You received ${sharePerMemberXaf.toLocaleString()} XAF (${sharePerMemberTc.toFixed(4)} TC) as your share of a late contribution penalty in your group.`,
-      type:    'group_update',
-      groupId,
-    }).catch(() => {})
-  ));
-
-  logger.info(`[Penalty] Distributed ${totalPenaltyXaf} XAF — platform: ${platformFeeXaf} XAF, each member: ${sharePerMemberXaf} XAF`);
-};
-
-/**
  * Send contribution reminders to all members who haven't paid yet.
  * Called by a scheduled job (see scheduleReminders).
  */

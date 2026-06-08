@@ -188,6 +188,8 @@ const leaveGroup = async (req, res, next) => {
     res.json({ success: true, message: member.status === 'pending' ? 'Join request withdrawn.' : 'You have left the group.' });
   } catch (error) { next(error); }
 };
+
+const approveMember = async (req, res, next) => {
   try {
     const { id, userId } = req.params;
     const groupRes = await query('SELECT name FROM groups WHERE id = $1', [id]);
