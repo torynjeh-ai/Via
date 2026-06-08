@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getAdminStats, getAdminUsers, getAdminLocations, updateAdminUser, getAdminGroups } from '../api/admin';
+import { getAdminStats, getAdminUsers, getAdminLocations, updateAdminUser, getAdminGroups, getAdminFinancials } from '../api/admin';
+import { useAuth } from '../context/AuthContext';
 import { formatDate, formatDateTime } from '../utils/dateFormat';
 import styles from './Admin.module.css';
 
@@ -77,10 +78,17 @@ function GroupAdminCard({ group: g }) {
 }
 
 export default function Admin() {
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = currentUser?.role === 'superadmin';
+  const TABS = isSuperAdmin
+    ? ['Overview', 'Users', 'Groups', 'Financials', 'Locations']
+    : ['Overview', 'Users', 'Locations'];
+
   const [tab, setTab]           = useState('Overview');
   const [stats, setStats]       = useState(null);
   const [users, setUsers]       = useState([]);
   const [groups, setGroups]     = useState([]);
+  const [financials, setFinancials] = useState(null);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
@@ -88,21 +96,21 @@ export default function Admin() {
 
   useEffect(() => {
     loadAll();
-  }, []);
+  }, [isSuperAdmin]);
 
   const loadAll = async () => {
     setLoading(true);
     try {
-      const [statsRes, usersRes, locRes, groupsRes] = await Promise.all([
-        getAdminStats(),
-        getAdminUsers(),
-        getAdminLocations(),
-        getAdminGroups(),
-      ]);
+      const baseRequests = [getAdminStats(), getAdminUsers(), getAdminLocations()];
+      const superRequests = isSuperAdmin ? [getAdminGroups(), getAdminFinancials()] : [];
+      const [statsRes, usersRes, locRes, ...superRes] = await Promise.all([...baseRequests, ...superRequests]);
       setStats(statsRes.data);
       setUsers(usersRes.data);
       setLocations(locRes.data);
-      setGroups(groupsRes.data);
+      if (isSuperAdmin) {
+        setGroups(superRes[0]?.data || []);
+        setFinancials(superRes[1]?.data || null);
+      }
     } catch (err) {
       setMsg(err.message || 'Failed to load admin data');
     } finally {
@@ -143,8 +151,17 @@ export default function Admin() {
     <div className={styles.page}>
       <div className={styles.pageHeader}>
         <h1>⚙️ Admin Panel</h1>
-        <p>Platform management and user oversight</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 12, padding: '4px 12px', borderRadius: 20, fontWeight: 600,
+            background: isSuperAdmin ? 'rgba(108,99,255,0.15)' : 'rgba(22,163,74,0.1)',
+            color: isSuperAdmin ? 'var(--primary)' : 'var(--success)' }}>
+            {isSuperAdmin ? '⭐ Super Admin' : '🛡 Admin'}
+          </span>
+        </div>
       </div>
+      <p style={{ color: 'var(--text-sub)', fontSize: 14, marginBottom: 20 }}>
+        {isSuperAdmin ? 'Full platform access — users, groups, financials, and role management' : 'Platform oversight — users and statistics (read-only)'}
+      </p>
 
       {msg && <div className={styles.msg}>{msg}</div>}
 
@@ -156,10 +173,11 @@ export default function Admin() {
             className={`${styles.tab} ${tab === t ? styles.tabActive : ''}`}
             onClick={() => setTab(t)}
           >
-            {t === 'Overview'  && '📊 '}
-            {t === 'Users'     && '👥 '}
-            {t === 'Groups'    && '🏘️ '}
-            {t === 'Locations' && '📍 '}
+            {t === 'Overview'   && '📊 '}
+            {t === 'Users'      && '👥 '}
+            {t === 'Groups'     && '🏘️ '}
+            {t === 'Financials' && '💰 '}
+            {t === 'Locations'  && '📍 '}
             {t}
           </button>
         ))}
@@ -232,7 +250,7 @@ export default function Admin() {
                       <th>Groups</th>
                       <th>TC Balance</th>
                       <th>Joined</th>
-                      <th>Actions</th>
+                      {isSuperAdmin && <th>Actions</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -246,15 +264,19 @@ export default function Admin() {
                         </td>
                         <td className={styles.mono}>{u.phone}</td>
                         <td>
-                          <select
-                            className={styles.roleSelect}
-                            value={u.role}
-                            onChange={e => handleRoleChange(u, e.target.value)}
-                          >
-                            <option value="user">user</option>
-                            <option value="admin">admin</option>
-                            <option value="superadmin">superadmin</option>
-                          </select>
+                          {isSuperAdmin ? (
+                            <select
+                              className={styles.roleSelect}
+                              value={u.role}
+                              onChange={e => handleRoleChange(u, e.target.value)}
+                            >
+                              <option value="user">user</option>
+                              <option value="admin">admin</option>
+                              <option value="superadmin">superadmin</option>
+                            </select>
+                          ) : (
+                            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 20, background: 'var(--bg-hover)', color: 'var(--text-sub)' }}>{u.role}</span>
+                          )}
                         </td>
                         <td>
                           <span className={u.is_verified ? styles.yes : styles.no}>
@@ -275,14 +297,16 @@ export default function Admin() {
                         <td className={styles.center}>{u.group_count}</td>
                         <td className={styles.mono}>{Number(u.tc_balance || 0).toFixed(2)} TC</td>
                         <td className={styles.date}>{formatDate(u.created_at)}</td>
-                        <td>
-                          <button
-                            className={`${styles.actionBtn} ${u.is_active ? styles.deactivate : styles.activate}`}
-                            onClick={() => handleToggleActive(u)}
-                          >
-                            {u.is_active ? 'Deactivate' : 'Activate'}
-                          </button>
-                        </td>
+                        {isSuperAdmin && (
+                          <td>
+                            <button
+                              className={`${styles.actionBtn} ${u.is_active ? styles.deactivate : styles.activate}`}
+                              onClick={() => handleToggleActive(u)}
+                            >
+                              {u.is_active ? 'Deactivate' : 'Activate'}
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
@@ -304,6 +328,28 @@ export default function Admin() {
                 <GroupAdminCard key={g.id} group={g} />
               ))}
               {groups.length === 0 && <div className={styles.empty}>No groups found</div>}
+            </div>
+          )}
+
+          {/* ── FINANCIALS (superadmin only) ── */}
+          {tab === 'Financials' && financials && (
+            <div>
+              <p style={{ fontSize: 14, color: 'var(--text-sub)', marginBottom: 20 }}>Platform financial overview — superadmin only</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+                {[
+                  { icon: '💰', label: 'Total TC in Wallets', value: `${Number(financials.wallet?.total_tc || 0).toFixed(4)} TC`, sub: `${financials.wallet?.users_with_balance || 0} users` },
+                  { icon: '💸', label: 'Penalty Fees to Platform', value: `${Number(financials.penalties?.total_platform_fees || 0).toLocaleString()} XAF`, sub: `${financials.penalties?.distributions || 0} distributions` },
+                  { icon: '⬇️', label: 'Pending Withdrawals', value: `${Number(financials.pending_withdrawals?.pending_xaf || 0).toLocaleString()} XAF`, sub: `${financials.pending_withdrawals?.pending_count || 0} requests` },
+                  { icon: '⬆️', label: 'Total Top-Ups', value: `${Number(financials.top_ups?.total_topup_xaf || 0).toLocaleString()} XAF`, sub: `${financials.top_ups?.total_topups || 0} transactions` },
+                ].map(c => (
+                  <div key={c.label} style={{ background: 'var(--bg-card)', borderRadius: 14, padding: 20, boxShadow: 'var(--shadow)' }}>
+                    <div style={{ fontSize: 28, marginBottom: 8 }}>{c.icon}</div>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--primary)', marginBottom: 4 }}>{c.value}</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 4 }}>{c.label}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{c.sub}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

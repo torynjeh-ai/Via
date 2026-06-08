@@ -44,6 +44,13 @@ const requireAdmin = async (req, res, next) => {
   next();
 };
 
+const requireSuperAdmin = async (req, res, next) => {
+  if (req.user.role !== 'superadmin') {
+    return res.status(403).json({ success: false, message: 'Super admin access required' });
+  }
+  next();
+};
+
 const requireGroupAdmin = async (req, res, next) => {
   try {
     const groupId = req.params.groupId || req.params.id || req.body.groupId;
@@ -60,4 +67,4 @@ const requireGroupAdmin = async (req, res, next) => {
   }
 };
 
-module.exports = { authenticate, requireAdmin, requireGroupAdmin, requireProfileComplete };
+module.exports = { authenticate, requireAdmin, requireSuperAdmin, requireGroupAdmin, requireProfileComplete };

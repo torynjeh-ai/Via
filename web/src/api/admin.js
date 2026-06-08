@@ -4,3 +4,4 @@ export const getAdminUsers    = ()       => api.get('/admin/users');
 export const getAdminLocations = ()      => api.get('/admin/locations');
 export const updateAdminUser  = (id, data) => api.patch(`/admin/users/${id}`, data);
 export const getAdminGroups   = ()       => api.get('/admin/groups');
+export const getAdminFinancials = () => api.get('/admin/financials');

@@ -128,4 +128,29 @@ const getGroups = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { getUsers, getStats, updateUser, getUserLocations, getGroups };
+// GET /admin/financials — superadmin only: platform financial summary
+const getFinancials = async (req, res, next) => {
+  try {
+    const [walletRes, penaltyRes, withdrawalRes, topupRes] = await Promise.all([
+      query(`SELECT SUM(tc_balance) as total_tc, COUNT(*) as users_with_balance
+             FROM users WHERE tc_balance > 0`),
+      query(`SELECT SUM(platform_fee) as total_platform_fees, COUNT(*) as distributions
+             FROM penalty_distributions`),
+      query(`SELECT COUNT(*) as pending_count, SUM(xaf_amount) as pending_xaf
+             FROM wallet_transactions WHERE type = 'withdrawal' AND status = 'pending'`),
+      query(`SELECT COUNT(*) as total_topups, SUM(xaf_amount) as total_topup_xaf
+             FROM wallet_transactions WHERE type = 'top_up' AND status = 'completed'`),
+    ]);
+    res.json({
+      success: true,
+      data: {
+        wallet: walletRes.rows[0],
+        penalties: penaltyRes.rows[0],
+        pending_withdrawals: withdrawalRes.rows[0],
+        top_ups: topupRes.rows[0],
+      },
+    });
+  } catch (error) { next(error); }
+};
+
+module.exports = { getUsers, getStats, updateUser, getUserLocations, getGroups, getFinancials };
