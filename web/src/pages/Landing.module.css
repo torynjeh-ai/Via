@@ -1,0 +1,114 @@
+/* ── Base ── */
+.page { min-height: 100vh; background: #0a0a1a; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+/* ── Nav ── */
+.nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,26,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+.navInner { max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+.navLogo { display: flex; align-items: center; gap: 10px; }
+.navBrand { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+.navLinks { display: flex; align-items: center; gap: 28px; }
+.navLink { color: rgba(255,255,255,0.7); font-size: 15px; text-decoration: none; transition: color 0.2s; }
+.navLink:hover { color: #fff; }
+.navLinkOutline { color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2); padding: 7px 16px; border-radius: 8px; font-size: 14px; text-decoration: none; transition: all 0.2s; }
+.navLinkOutline:hover { background: rgba(255,255,255,0.1); }
+.navLinkBtn { background: #6C63FF; color: #fff; padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.2s; }
+.navLinkBtn:hover { background: #5a52d5; }
+.navMobile { display: none; }
+
+/* ── Hero ── */
+.hero { max-width: 1200px; margin: 0 auto; padding: 80px 24px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.heroBadge { display: inline-block; background: rgba(108,99,255,0.15); color: #a5b4fc; border: 1px solid rgba(108,99,255,0.3); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
+.heroTitle { font-size: clamp(36px, 5vw, 60px); font-weight: 800; line-height: 1.1; letter-spacing: -1px; margin-bottom: 20px; }
+.heroAccent { background: linear-gradient(135deg, #6C63FF, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.heroSub { font-size: 18px; color: rgba(255,255,255,0.65); line-height: 1.7; margin-bottom: 32px; max-width: 480px; }
+.heroCtas { display: flex; gap: 14px; flex-wrap: wrap; }
+.ctaPrimary { background: #6C63FF; color: #fff; padding: 14px 28px; border-radius: 12px; font-size: 16px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+.ctaPrimary:hover { background: #5a52d5; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(108,99,255,0.35); }
+.ctaSecondary { color: rgba(255,255,255,0.7); padding: 14px 24px; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s; }
+.ctaSecondary:hover { background: rgba(255,255,255,0.07); color: #fff; }
+.ctaSecondaryWhite { color: #6C63FF; background: #fff; padding: 14px 24px; border-radius: 12px; font-size: 16px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+.ctaSecondaryWhite:hover { background: #f0f0ff; }
+
+/* ── Mock phone ── */
+.heroVisual { display: flex; justify-content: center; }
+.mockPhone { width: 280px; background: #1a1a2e; border-radius: 32px; padding: 24px 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+.mockScreen { display: flex; flex-direction: column; gap: 14px; }
+.mockHeader { display: flex; align-items: center; gap: 10px; }
+.mockAvatar { width: 36px; height: 36px; border-radius: 50%; background: #6C63FF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+.mockName { font-size: 14px; font-weight: 600; color: #fff; }
+.mockSub { font-size: 11px; color: rgba(255,255,255,0.4); }
+.mockBalance { font-size: 28px; font-weight: 800; color: #fff; text-align: center; }
+.mockXaf { font-size: 13px; color: rgba(255,255,255,0.4); text-align: center; margin-top: -8px; }
+.mockCards { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.mockCard { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 10px; font-size: 12px; color: rgba(255,255,255,0.85); }
+.mockGreen { color: #4ade80; font-weight: 600; }
+
+/* ── Stats bar ── */
+.statsBar { background: rgba(108,99,255,0.08); border-top: 1px solid rgba(108,99,255,0.15); border-bottom: 1px solid rgba(108,99,255,0.15); padding: 28px 24px; display: grid; grid-template-columns: repeat(4, 1fr); max-width: 1200px; margin: 0 auto; }
+.statItem { text-align: center; }
+.statValue { font-size: 22px; font-weight: 800; color: #6C63FF; margin-bottom: 4px; }
+.statLabel { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+/* ── Sections ── */
+.section { padding: 80px 24px; }
+.sectionAlt { background: rgba(255,255,255,0.02); }
+.sectionInner { max-width: 1100px; margin: 0 auto; }
+.sectionTag { display: inline-block; background: rgba(108,99,255,0.15); color: #a5b4fc; border: 1px solid rgba(108,99,255,0.25); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+.sectionTitle { font-size: clamp(28px, 4vw, 42px); font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: -0.5px; }
+.sectionSub { font-size: 17px; color: rgba(255,255,255,0.55); margin-bottom: 48px; max-width: 520px; }
+
+/* ── Steps ── */
+.stepsGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; position: relative; }
+.step { position: relative; }
+.stepNum { width: 44px; height: 44px; border-radius: 50%; background: #6C63FF; color: #fff; font-weight: 800; font-size: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; position: relative; z-index: 1; }
+.stepLine { position: absolute; top: 22px; left: 44px; right: -32px; height: 2px; background: linear-gradient(90deg, rgba(108,99,255,0.5), rgba(108,99,255,0.1)); }
+.stepTitle { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.stepDesc { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+/* ── Features grid ── */
+.featuresGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.featureCard { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; transition: all 0.2s; }
+.featureCard:hover { background: rgba(108,99,255,0.08); border-color: rgba(108,99,255,0.25); transform: translateY(-2px); }
+.featureIcon { font-size: 32px; margin-bottom: 14px; }
+.featureTitle { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.featureDesc { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+/* ── CTA Banner ── */
+.ctaBanner { background: linear-gradient(135deg, #6C63FF 0%, #7c3aed 100%); padding: 80px 24px; }
+.ctaBannerInner { max-width: 640px; margin: 0 auto; text-align: center; }
+.ctaBannerInner h2 { font-size: 36px; font-weight: 800; color: #fff; margin-bottom: 12px; }
+.ctaBannerInner p { font-size: 17px; color: rgba(255,255,255,0.8); margin-bottom: 32px; }
+
+/* ── Footer ── */
+.footer { background: #050510; padding: 40px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+.footerInner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+.footerBrand { display: flex; align-items: center; gap: 10px; }
+.footerBrandName { font-size: 18px; font-weight: 700; color: #fff; }
+.footerTagline { font-size: 13px; color: rgba(255,255,255,0.35); margin-left: 6px; }
+.footerLinks { display: flex; gap: 24px; }
+.footerLinks a { color: rgba(255,255,255,0.45); font-size: 14px; text-decoration: none; transition: color 0.2s; }
+.footerLinks a:hover { color: #fff; }
+.footerCopy { font-size: 13px; color: rgba(255,255,255,0.25); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; gap: 40px; padding: 60px 24px 40px; }
+  .heroVisual { order: -1; }
+  .mockPhone { width: 240px; }
+  .stepsGrid { grid-template-columns: repeat(2, 1fr); }
+  .stepLine { display: none; }
+  .featuresGrid { grid-template-columns: repeat(2, 1fr); }
+  .statsBar { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+}
+
+@media (max-width: 640px) {
+  .navLinks { display: none; }
+  .navMobile { display: block; }
+  .heroTitle { font-size: 32px; }
+  .heroSub { font-size: 16px; }
+  .stepsGrid { grid-template-columns: 1fr; }
+  .featuresGrid { grid-template-columns: 1fr; }
+  .statsBar { grid-template-columns: repeat(2, 1fr); padding: 20px; }
+  .footerInner { flex-direction: column; align-items: flex-start; }
+  .ctaBannerInner h2 { font-size: 26px; }
+}

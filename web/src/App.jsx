@@ -23,15 +23,20 @@ import TopUp from './pages/TopUp';
 import Withdraw from './pages/Withdraw';
 import Transfer from './pages/Transfer';
 import TransactionHistory from './pages/TransactionHistory';
+import Landing from './pages/Landing';
 import HelpCenter from './pages/HelpCenter';
 import About from './pages/About';
 import Admin from './pages/Admin';
 import Savings from './pages/Savings';
 import CreateSavingsGoal from './pages/CreateSavingsGoal';
-import FlexibleGroupDetail from './pages/FlexibleGroupDetail';
 import CreateFlexibleGroup from './pages/CreateFlexibleGroup';
 
-function PrivateRoute({ children }) {
+function RootRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: 18 }}>Loading...</div>;
+  if (!user) return <Landing />;
+  return <Layout><Dashboard /></Layout>;
+}
   const { user, loading } = useAuth();
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: 18 }}>Loading...</div>;
   if (!user) return <Navigate to="/login" />;
@@ -80,7 +85,7 @@ export default function App() {
           <Route path="/verify-otp" element={<PublicRoute><VerifyOtp /></PublicRoute>} />
           <Route path="/setup-profile" element={<SetupRoute><SetupProfile /></SetupRoute>} />
           <Route path="/join/:token" element={<JoinByInvite />} />
-          <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/" element={<RootRoute />} />
           <Route path="/groups" element={<PrivateRoute><Groups /></PrivateRoute>} />
           <Route path="/groups/create" element={<VerifiedRoute><CreateGroup /></VerifiedRoute>} />
           <Route path="/groups/create-flexible" element={<VerifiedRoute><CreateFlexibleGroup /></VerifiedRoute>} />
@@ -101,7 +106,7 @@ export default function App() {
           <Route path="/savings" element={<PrivateRoute><Savings /></PrivateRoute>} />
           <Route path="/savings/new" element={<PrivateRoute><CreateSavingsGoal /></PrivateRoute>} />
           <Route path="/help" element={<PrivateRoute><HelpCenter /></PrivateRoute>} />
-          <Route path="/about" element={<PrivateRoute><About /></PrivateRoute>} />
+          <Route path="/about" element={<About />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
         </SocketProvider>
