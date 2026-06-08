@@ -7,7 +7,7 @@ const METHODS = [
   { value: 'mtn_momo',     label: '📱 MTN Mobile Money', available: true },
   { value: 'orange_money', label: '🟠 Orange Money',      available: true },
   { value: 'bank_transfer',label: '🏦 Bank Transfer',     available: true },
-  { value: 'card',         label: '💳 Card (Stripe)',     available: false },
+  { value: 'card',         label: '💳 Card',         available: false },
 ];
 
 export default function Withdraw() {
@@ -110,11 +110,11 @@ export default function Withdraw() {
                 className={`${styles.methodBtn} ${method === m.value ? styles.methodActive : ''}`}
                 style={{ opacity: m.available ? 1 : 0.5, cursor: m.available ? 'pointer' : 'not-allowed' }}
                 onClick={() => {
-                  if (!m.available) { alert('Card payments are coming soon — we are completing our Stripe business registration.'); return; }
+                  if (!m.available) { alert('Card payments are not available at the moment.'); return; }
                   setMethod(m.value);
                 }}>
                 {m.label}
-                {!m.available && <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 2 }}>Coming soon</div>}
+                {!m.available && <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 2 }}>Not available</div>}
               </button>
             ))}
           </div>

@@ -176,7 +176,7 @@ export default function PhoneInput({ label, value, onChange, required }) {
           className={styles.numberInput}
           type="tel"
           autoComplete="tel-national"
-          placeholder={`${'0'.repeat(expectedDigits || 9)}`}
+          placeholder=""
           value={number}
           onChange={e => setNumber(e.target.value.replace(/[^\d]/g, ''))}
           onBlur={() => setTouched(true)}

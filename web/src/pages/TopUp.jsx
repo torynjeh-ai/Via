@@ -6,7 +6,7 @@ import styles from './TopUp.module.css';
 const PAYMENT_METHODS = [
   { value: 'mtn_momo',     label: '📱 MTN Mobile Money', available: true },
   { value: 'orange_money', label: '🟠 Orange Money',      available: true },
-  { value: 'card',         label: '💳 Card (Stripe)',     available: false, hint: 'Coming soon — business registration in progress' },
+  { value: 'card',         label: '💳 Card',            available: false },
 ];
 
 export default function TopUp() {
@@ -156,10 +156,10 @@ export default function TopUp() {
                   setPaymentMethod(m.value);
                 }}
                 disabled={loading}
-                title={!m.available ? m.hint : undefined}
+                title={!m.available ? 'Card payments are not available at the moment' : undefined}
               >
                 {m.label}
-                {!m.available && <span style={{ display: 'block', fontSize: 10, color: '#9ca3af', marginTop: 2 }}>Coming soon</span>}
+                {!m.available && <span style={{ display: 'block', fontSize: 10, color: '#9ca3af', marginTop: 2 }}>Not available</span>}
               </button>
             ))}
           </div>

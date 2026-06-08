@@ -10,7 +10,7 @@ const METHODS = [
   { key: 'mtn_momo',     label: 'MTN Mobile Money', color: '#FFCC00', bg: '#FFFBEB', available: true },
   { key: 'orange_money', label: 'Orange Money',      color: '#FF6600', bg: '#FFF7ED', available: true },
   { key: 'tc_wallet',    label: 'TC Wallet',         color: '#6C63FF', bg: '#F0EEFF', available: true },
-  { key: 'card',         label: '💳 Card (Stripe)',  color: '#6b7280', bg: '#f9fafb', available: false },
+  { key: 'card',         label: '💳 Card',  color: '#6b7280', bg: '#f9fafb', available: false },
 ];
 
 export default function Contribute() {
@@ -185,7 +185,7 @@ export default function Contribute() {
               }}
               onClick={() => {
                 if (!m.available) {
-                  alert('Card payments are coming soon — we are completing our Stripe business registration.');
+                  alert('Card payments are not available at the moment.');
                   return;
                 }
                 if (!loading) setMethod(m.key);
@@ -193,7 +193,7 @@ export default function Contribute() {
               <div className={styles.dot} style={{ background: m.color }} />
               <div>
                 <span>{m.label}</span>
-                {!m.available && <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 1 }}>Coming soon</div>}
+                {!m.available && <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 1 }}>Not available</div>}
               </div>
               {method === m.key && m.available && <span className={styles.check}>✓</span>}
             </div>
