@@ -30,6 +30,7 @@ import Admin from './pages/Admin';
 import Savings from './pages/Savings';
 import CreateSavingsGoal from './pages/CreateSavingsGoal';
 import CreateFlexibleGroup from './pages/CreateFlexibleGroup';
+import FlexibleGroupDetail from './pages/FlexibleGroupDetail';
 
 function RootRoute() {
   const { user, loading } = useAuth();
