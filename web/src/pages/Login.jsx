@@ -21,7 +21,7 @@ export default function Login() {
     e.preventDefault(); setError(''); setLoading(true);
     try {
       const res = await login({ phone, password });
-      if (res.data?.token) { signIn(res.data.token, res.data.user); navigate('/'); }
+      if (res.data?.token) { signIn(res.data.token, res.data.user); navigate('/');}
       else navigate('/verify-otp', { state: { phone, fallback_code: res.data?.fallback_code } });
     } catch (err) { setError(err.message || 'Login failed'); }
     finally { setLoading(false); }
@@ -41,13 +41,23 @@ export default function Login() {
           <PhoneInput label={t('phoneNumber')} value={phone} onChange={setPhone} required />
           <div className={styles.field}>
             <label>{t('password')}</label>
-            <input type="password" placeholder="••••••" value={password} onChange={e => setPassword(e.target.value)} />
+            <input type="password" autoComplete="current-password" placeholder="••••••" value={password} onChange={e => setPassword(e.target.value)} />
+            <small style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+              Leave blank to sign in with a verification code instead
+            </small>
           </div>
           <button className={styles.btn} disabled={loading}>
             {loading ? t('signingIn') : t('signIn')}
           </button>
         </form>
         <p className={styles.switch}>{t('noAccount')} <Link to="/register">{t('register')}</Link></p>
+        <p className={styles.switch} style={{ marginTop: 8, fontSize: 13 }}>
+          Forgot password?{' '}
+          <span style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}
+            onClick={() => alert('Leave the password field empty and click Sign In — we\'ll send a verification code to your phone number to log you in.')}>
+            Get help signing in
+          </span>
+        </p>
       </div>
     </div>
   );
