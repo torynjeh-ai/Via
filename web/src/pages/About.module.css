@@ -24,6 +24,14 @@
 .contactBtn:hover { background: var(--primary-dark); }
 
 @media (max-width: 640px) {
-  .valuesGrid { grid-template-columns: 1fr; }
+  .page { padding: 0 4px; }
+  .hero { padding: 20px 0 16px; }
   .hero h1 { font-size: 24px; }
+  .tagline { font-size: 14px; }
+  .valuesGrid { grid-template-columns: 1fr; }
+  .card { padding: 16px; }
+  .card h2 { font-size: 17px; }
+  .steps { gap: 12px; }
+  .step { gap: 10px; }
+  .contactBtn { width: 100%; text-align: center; display: block; }
 }
