@@ -99,13 +99,11 @@ export default function Layout({ children }) {
               <span>📍</span>
               <div className={styles.locationBannerText}>
                 {isAdmin
-                  ? <strong>Location access is required for group admins. Please enable location in your browser settings to continue managing groups.</strong>
+                  ? <span>Location access is off. Enable it in your browser settings for better group visibility and member verification.</span>
                   : <span>Location access is off. Group admins may not be able to add you to location-restricted groups. <strong>Enable location for better security.</strong></span>
                 }
               </div>
-              {!isAdmin && (
-                <button className={styles.locationBannerDismiss} onClick={() => setBannerDismissed(true)}>✕</button>
-              )}
+              <button className={styles.locationBannerDismiss} onClick={() => setBannerDismissed(true)}>✕</button>
             </div>
           )}
           {children}
