@@ -578,7 +578,7 @@ export default function GroupDetail() {
             <tr>
               <th>{t('name')}</th>
               <th>{t('phone')}</th>
-              <th>TC Balance</th>
+              <th>Trust Score</th>
               <th>{t('role')}</th>
               <th>{t('status')}</th>
               {/* Active: show contribution status for members; forming/re-forming: show action for admin */}
@@ -602,7 +602,14 @@ export default function GroupDetail() {
                 <tr key={m.id}>
                   <td>{m.name} {m.user_id === user?.id ? t('you') : ''}</td>
                   <td>{m.phone}</td>
-                  <td>{Number(m.tc_balance || 0).toFixed(2)} TC</td>
+                  <td>
+                    <span style={{
+                      fontWeight: 700,
+                      color: m.trust_score >= 80 ? 'var(--success)' : m.trust_score >= 50 ? 'var(--primary)' : 'var(--danger)'
+                    }}>
+                      {m.trust_score ?? 0}/100
+                    </span>
+                  </td>
                   <td><span className={styles.role}>{m.role}</span></td>
                   <td>
                     <span className={`${styles.badge} ${

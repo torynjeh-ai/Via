@@ -96,7 +96,27 @@ const getGroup = async (req, res, next) => {
       query(`SELECT g.*, COUNT(m.id) as member_count FROM groups g
              LEFT JOIN members m ON g.id = m.group_id AND m.status IN ('approved','pending','pending_reconfirm','forfeited')
              WHERE g.id = $1 GROUP BY g.id`, [id]),
-      query(`SELECT m.*, u.name, u.phone, u.tc_balance FROM members m
+      query(`SELECT m.*, u.name, u.phone,
+               -- Compute trust score inline (0-100)
+               LEAST(100,
+                 (CASE WHEN u.is_verified THEN 20 ELSE 0 END) +
+                 (CASE WHEN u.profile_complete THEN 20 ELSE 0 END) +
+                 (CASE WHEN u.location_enabled THEN 20 ELSE 0 END) +
+                 LEAST(20, COALESCE((
+                   SELECT (SUM(CASE WHEN c.is_late = FALSE THEN 2 ELSE 0 END) +
+                           SUM(CASE WHEN c.is_late = TRUE  THEN -3 ELSE 0 END))
+                   FROM contributions c WHERE c.user_id = u.id AND c.status = 'completed'
+                 ), 0)) +
+                 CASE
+                   WHEN u.tc_balance >= 10   THEN 20
+                   WHEN u.tc_balance >= 3    THEN 16
+                   WHEN u.tc_balance >= 1    THEN 12
+                   WHEN u.tc_balance >= 0.5  THEN 8
+                   WHEN u.tc_balance >= 0.1  THEN 4
+                   ELSE 0
+                 END
+               ) AS trust_score
+             FROM members m
              JOIN users u ON m.user_id = u.id
              WHERE m.group_id = $1 AND m.status != 'rejected'`, [id]),
     ]);

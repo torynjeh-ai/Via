@@ -3,17 +3,30 @@ const walletService = require('./walletService');
 
 const generatePayoutQueue = async (groupId) => {
   const membersResult = await query(
-    `SELECT m.id, m.user_id, m.invited_by, u.name, u.tc_balance
+    `SELECT m.id, m.user_id, m.invited_by, u.name,
+       u.tc_balance,
+       LEAST(100,
+         (CASE WHEN u.is_verified THEN 20 ELSE 0 END) +
+         (CASE WHEN u.profile_complete THEN 20 ELSE 0 END) +
+         (CASE WHEN u.location_enabled THEN 20 ELSE 0 END) +
+         LEAST(20, COALESCE((
+           SELECT SUM(CASE WHEN c.is_late = FALSE THEN 2 ELSE -3 END)
+           FROM contributions c WHERE c.user_id = u.id AND c.status = 'completed'
+         ), 0)) +
+         CASE WHEN u.tc_balance >= 10 THEN 20 WHEN u.tc_balance >= 3 THEN 16
+              WHEN u.tc_balance >= 1 THEN 12 WHEN u.tc_balance >= 0.5 THEN 8
+              WHEN u.tc_balance >= 0.1 THEN 4 ELSE 0 END
+       ) AS trust_score
      FROM members m JOIN users u ON m.user_id = u.id
      WHERE m.group_id = $1 AND m.status = 'approved'
-     ORDER BY u.tc_balance DESC`,
+     ORDER BY trust_score DESC`,
     [groupId]
   );
   const members = membersResult.rows;
   if (members.length === 0) return [];
 
-  // Weight by tc_balance + randomness so it's not fully deterministic
-  const weighted = members.map(m => ({ ...m, weight: (parseFloat(m.tc_balance) || 0) + Math.random() * 20 }));
+  // Weight by trust score + randomness so it's not fully deterministic
+  const weighted = members.map(m => ({ ...m, weight: (Number(m.trust_score) || 0) + Math.random() * 20 }));
   weighted.sort((a, b) => b.weight - a.weight);
   const queue = applyInviteSpacing(weighted);
 
