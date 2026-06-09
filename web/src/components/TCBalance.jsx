@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styles from './TCBalance.module.css';
 
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'NGN', 'GHS', 'KES'];
+const CURRENCIES = ['XAF', 'USD', 'EUR', 'GBP', 'NGN', 'GHS', 'KES'];
 
 const CURRENCY_SYMBOLS = {
   XAF: 'XAF', USD: '$', EUR: '€', GBP: '£', NGN: '₦', GHS: 'GH₵', KES: 'KSh',
@@ -10,35 +10,44 @@ const CURRENCY_SYMBOLS = {
 export default function TCBalance({ tcBalance = 0, rates = {} }) {
   const [currencyIdx, setCurrencyIdx] = useState(0);
 
-  const xafAmount = rates.XAF != null
-    ? (tcBalance * rates.XAF).toLocaleString(undefined, { maximumFractionDigits: 2 })
-    : (tcBalance * 10000).toLocaleString(undefined, { maximumFractionDigits: 2 });
-
   const currentCurrency = CURRENCIES[currencyIdx];
-  const currentRate = rates[currentCurrency];
-  const currentAmount = currentRate != null
-    ? (tcBalance * currentRate).toLocaleString(undefined, { maximumFractionDigits: 2 })
-    : '—';
+  const symbol = CURRENCY_SYMBOLS[currentCurrency] || currentCurrency;
 
-  const handleToggle = () => {
-    setCurrencyIdx((prev) => (prev + 1) % CURRENCIES.length);
-  };
+  // Calculate display amount in current currency
+  let displayAmount;
+  if (currentCurrency === 'XAF') {
+    const xafRate = rates.XAF ?? 10000;
+    displayAmount = (tcBalance * xafRate).toLocaleString(undefined, { maximumFractionDigits: 0 });
+  } else {
+    const rate = rates[currentCurrency];
+    displayAmount = rate != null
+      ? (tcBalance * rate).toLocaleString(undefined, { maximumFractionDigits: 2 })
+      : '—';
+  }
+
+  const handleToggle = () => setCurrencyIdx(i => (i + 1) % CURRENCIES.length);
 
   return (
     <div className={styles.container}>
       {rates.stale && (
         <div className={styles.staleWarning}>⚠️ Rates may be outdated</div>
       )}
+
+      {/* Primary: user's currency — large */}
+      <div className={styles.primaryAmount}>
+        <span className={styles.primarySymbol}>{symbol}</span>
+        <span className={styles.primaryValue}>{displayAmount}</span>
+      </div>
+
+      {/* Secondary: TC balance — smaller, below */}
       <div className={styles.tcAmount}>
-        <span className={styles.tcValue}>{Number(tcBalance).toFixed(2)}</span>
+        <span className={styles.tcValue}>{Number(tcBalance).toFixed(4)}</span>
         <span className={styles.tcLabel}>TC</span>
       </div>
-      <div className={styles.xafAmount}>
-        ≈ {xafAmount} XAF
-      </div>
+
+      {/* Currency toggle */}
       <button className={styles.currencyToggle} onClick={handleToggle} type="button">
-        <span className={styles.currencySymbol}>{CURRENCY_SYMBOLS[currentCurrency]}</span>
-        <span className={styles.currencyAmount}>{currentAmount}</span>
+        <span>Switch currency</span>
         <span className={styles.toggleHint}>↻</span>
       </button>
     </div>

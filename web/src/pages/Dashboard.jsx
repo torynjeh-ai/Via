@@ -66,14 +66,14 @@ export default function Dashboard() {
         <div className={styles.tcCardLeft}>
           <span className={styles.tcCardIcon}>💰</span>
           <div>
-            <div className={styles.tcCardLabel}>TC Balance</div>
+            <div className={styles.tcCardLabel}>Wallet Balance</div>
             <div className={styles.tcCardBalance}>
-              {wallet != null
-                ? Number(wallet.tc_balance).toFixed(2)
-                : Number(user?.tc_balance ?? 0).toFixed(2)}{' '}TC
+              {((wallet?.tc_balance ?? user?.tc_balance ?? 0) * 10000).toLocaleString(undefined, { maximumFractionDigits: 0 })} XAF
             </div>
             <div className={styles.tcCardXaf}>
-              ≈ {((wallet?.tc_balance ?? user?.tc_balance ?? 0) * 10000).toLocaleString(undefined, { maximumFractionDigits: 0 })} XAF
+              {wallet != null
+                ? Number(wallet.tc_balance).toFixed(4)
+                : Number(user?.tc_balance ?? 0).toFixed(4)} TC
             </div>
           </div>
         </div>
