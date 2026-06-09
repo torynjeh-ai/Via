@@ -12,8 +12,7 @@ const TEAM_VALUES = [
 
 export default function About() {
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', padding: '0 0 40px' }}>
-      <div className={styles.page}>
+    <div className={styles.page}>
       {/* Hero */}
       <div className={styles.hero}>
         <ViaLogo size={80} />
@@ -78,7 +77,6 @@ export default function About() {
           <Link to="/help" className={styles.contactBtn}>❓ Help Center</Link>
         </div>
       </div>
-    </div>
     </div>
   );
 }
