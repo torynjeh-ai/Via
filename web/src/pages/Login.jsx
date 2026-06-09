@@ -42,9 +42,6 @@ export default function Login() {
           <div className={styles.field}>
             <label>{t('password')}</label>
             <input type="password" autoComplete="current-password" placeholder="••••••" value={password} onChange={e => setPassword(e.target.value)} />
-            <small style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
-              Leave blank to sign in with a verification code instead
-            </small>
           </div>
           <button className={styles.btn} disabled={loading}>
             {loading ? t('signingIn') : t('signIn')}
