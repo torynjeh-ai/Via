@@ -25,7 +25,7 @@ const FAQS = [
     category: 'Wallet & Payments',
     icon: '💰',
     items: [
-      { q: 'How do I top up my wallet?', a: 'Go to Wallet → Top Up. Select MTN MoMo or Orange Money, enter the amount, and complete payment on the Fapshi checkout page.' },
+      { q: 'How do I deposit to my wallet?', a: 'Go to Wallet → Deposit. Select MTN MoMo or Orange Money, enter the amount, and complete payment on the secure checkout page.' },
       { q: 'How do I withdraw money?', a: 'Go to Wallet → Withdraw. Enter the amount and choose your preferred payout method. Withdrawals are processed within 24 hours.' },
       { q: 'Can I transfer TC to another user?', a: 'Yes. Go to Wallet → Transfer. Enter the recipient\'s phone number or wallet code (VIA-XXXXX). Transfers between group members in active groups are free.' },
       { q: 'Why can\'t I empty my wallet?', a: 'If you have received a payout in an active group, your wallet must keep enough balance to cover your remaining contributions.' },

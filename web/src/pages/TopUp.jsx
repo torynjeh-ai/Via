@@ -102,7 +102,7 @@ export default function TopUp() {
     <div className={styles.container}>
       <div className={styles.header}>
         <Link to="/wallet" className={styles.back}>← Back to Wallet</Link>
-        <h1 className={styles.title}>Top Up Wallet</h1>
+        <h1 className={styles.title}>Deposit to Wallet</h1>
         <p className={styles.subtitle}>Pay via MTN MoMo or Orange Money</p>
       </div>
 
@@ -110,7 +110,7 @@ export default function TopUp() {
         <div className={styles.successBanner}>
           <span>✅</span>
           <div>
-            <strong>Top-up successful!</strong>
+            <strong>Deposit successful!</strong>
             <p>Credited <strong>{Number(success.tc_amount).toFixed(4)} TC</strong>. New balance: <strong>{Number(success.new_balance).toFixed(4)} TC</strong></p>
           </div>
         </div>
@@ -142,7 +142,6 @@ export default function TopUp() {
             value={xafAmount} onChange={e => setXafAmount(e.target.value)}
             placeholder="e.g. 10000" min="100" step="100" required disabled={loading} />
           {tcPreview && <p className={styles.preview}>≈ {tcPreview} TC will be credited</p>}
-          <p className={styles.hint}>Minimum: 100 XAF · 1 TC = 10,000 XAF</p>
         </div>
 
           <div className={styles.field}>
@@ -166,7 +165,7 @@ export default function TopUp() {
         </div>
 
         <button type="submit" className={styles.submitBtn} disabled={loading || !!pendingTransId}>
-          {loading ? (pollStatus || 'Opening payment…') : `Top Up ${xafAmount ? `${Number(xafAmount).toLocaleString()} XAF` : ''}`}
+          {loading ? (pollStatus || 'Opening payment…') : `Deposit ${xafAmount ? `${Number(xafAmount).toLocaleString()} XAF` : ''}`}
         </button>
       </form>
 
