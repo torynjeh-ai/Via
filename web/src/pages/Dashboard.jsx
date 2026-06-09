@@ -6,6 +6,7 @@ import { getSavingsGoals } from '../api/savings';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import GroupPoolCard from '../components/GroupPoolCard';
+import { formatCurrency } from '../hooks/useCurrency';
 import { formatDate } from '../utils/dateFormat';
 import styles from './Dashboard.module.css';
 
@@ -68,7 +69,11 @@ export default function Dashboard() {
           <div>
             <div className={styles.tcCardLabel}>Wallet Balance</div>
             <div className={styles.tcCardBalance}>
-              {((wallet?.tc_balance ?? user?.tc_balance ?? 0) * 10000).toLocaleString(undefined, { maximumFractionDigits: 0 })} XAF
+              {formatCurrency(
+                (wallet?.tc_balance ?? user?.tc_balance ?? 0) * 10000,
+                wallet?.preferred_currency || 'XAF',
+                wallet?.rates || {}
+              )}
             </div>
             <div className={styles.tcCardXaf}>
               {wallet != null

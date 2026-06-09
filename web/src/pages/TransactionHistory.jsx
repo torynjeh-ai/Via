@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { getTransactions } from '../api/wallet';
+import { getWallet, getTransactions } from '../api/wallet';
 import { formatDateTime } from '../utils/dateFormat';
+import { formatCurrency } from '../hooks/useCurrency';
 import styles from './TransactionHistory.module.css';
 
 const PAGE_SIZE = 50;
@@ -45,11 +46,21 @@ const FILTER_OPTIONS = [
 
 export default function TransactionHistory() {
   const [transactions, setTransactions] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(0);
-  const [filter, setFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [total, setTotal]               = useState(0);
+  const [page, setPage]                 = useState(0);
+  const [filter, setFilter]             = useState('all');
+  const [loading, setLoading]           = useState(true);
+  const [error, setError]               = useState('');
+  const [rates, setRates]               = useState({});
+  const [currency, setCurrency]         = useState('XAF');
+
+  // Load wallet for rates + preferred currency
+  useEffect(() => {
+    getWallet().then(r => {
+      setRates(r.data?.rates || {});
+      setCurrency(r.data?.preferred_currency || 'XAF');
+    }).catch(() => {});
+  }, []);
 
   const fetchTransactions = useCallback(async (currentPage, currentFilter) => {
     setLoading(true);
@@ -135,10 +146,10 @@ export default function TransactionHistory() {
               </div>
               <div className={styles.itemRight}>
                 <div className={`${styles.itemAmount} ${CREDIT_TYPES.has(tx.type) ? styles.credit : styles.debit}`}>
-                  {CREDIT_TYPES.has(tx.type) ? '+' : '-'}{Number(tx.tc_amount).toFixed(4)} TC
+                  {CREDIT_TYPES.has(tx.type) ? '+' : '-'}{formatCurrency(tx.xaf_amount || tx.tc_amount * 10000, currency, rates)}
                 </div>
                 <div className={styles.itemXaf}>
-                  {Number(tx.xaf_amount || tx.tc_amount * 10000).toLocaleString(undefined, { maximumFractionDigits: 0 })} XAF
+                  {Number(tx.tc_amount).toFixed(4)} TC
                 </div>
                 <span
                   className={styles.statusBadge}

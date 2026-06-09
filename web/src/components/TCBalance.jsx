@@ -7,8 +7,10 @@ const CURRENCY_SYMBOLS = {
   XAF: 'XAF', USD: '$', EUR: '€', GBP: '£', NGN: '₦', GHS: 'GH₵', KES: 'KSh',
 };
 
-export default function TCBalance({ tcBalance = 0, rates = {} }) {
-  const [currencyIdx, setCurrencyIdx] = useState(0);
+export default function TCBalance({ tcBalance = 0, rates = {}, preferredCurrency = 'XAF' }) {
+  // Start on the user's preferred currency
+  const prefIdx = CURRENCIES.indexOf(preferredCurrency);
+  const [currencyIdx, setCurrencyIdx] = useState(prefIdx >= 0 ? prefIdx : 0);
 
   const currentCurrency = CURRENCIES[currencyIdx];
   const symbol = CURRENCY_SYMBOLS[currentCurrency] || currentCurrency;

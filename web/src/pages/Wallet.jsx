@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getWallet, getTransactions } from '../api/wallet';
 import { formatDate } from '../utils/dateFormat';
+import { formatCurrency } from '../hooks/useCurrency';
 import TCBalance from '../components/TCBalance';
 import WalletCode from '../components/WalletCode';
 import styles from './Wallet.module.css';
@@ -53,14 +54,15 @@ export default function Wallet() {
     return <div className={styles.error}>{error}</div>;
   }
 
-  const rates = wallet?.rates || {};
+  const rates    = wallet?.rates || {};
+  const currency = wallet?.preferred_currency || 'XAF';
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>💰 My Wallet</h1>
 
       <div className={styles.balanceSection}>
-        <TCBalance tcBalance={wallet?.tc_balance ?? 0} rates={rates} />
+        <TCBalance tcBalance={wallet?.tc_balance ?? 0} rates={rates} preferredCurrency={currency} />
         <WalletCode walletCode={wallet?.wallet_code} />
       </div>
 
@@ -107,10 +109,10 @@ export default function Wallet() {
                 </div>
                 <div className={styles.txRight}>
                   <div className={`${styles.txAmount} ${CREDIT_TYPES.has(tx.type) ? styles.credit : styles.debit}`}>
-                    {CREDIT_TYPES.has(tx.type) ? '+' : '-'}{Number(tx.tc_amount).toFixed(4)} TC
+                    {CREDIT_TYPES.has(tx.type) ? '+' : '-'}{formatCurrency(tx.xaf_amount || tx.tc_amount * 10000, currency, rates)}
                   </div>
                   <div className={styles.txXaf}>
-                    {Number(tx.xaf_amount || tx.tc_amount * 10000).toLocaleString(undefined, { maximumFractionDigits: 0 })} XAF
+                    {Number(tx.tc_amount).toFixed(4)} TC
                   </div>
                 </div>
               </div>

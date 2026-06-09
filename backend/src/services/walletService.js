@@ -40,15 +40,22 @@ const getWallet = async (userId) => {
 
   let { tc_balance, wallet_code, preferred_currency } = result.rows[0];
 
-  // Generate wallet code if not yet activated
   if (!wallet_code) {
     wallet_code = await activateWalletCode(userId);
   }
+
+  // Fetch live exchange rates to include in wallet response
+  let rates = {};
+  try {
+    const exchangeRateService = require('./exchangeRateService');
+    rates = await exchangeRateService.getRates();
+  } catch { /* rates stay empty, frontend falls back to XAF */ }
 
   return {
     tc_balance: parseFloat(tc_balance),
     wallet_code,
     preferred_currency: preferred_currency || 'XAF',
+    rates,
   };
 };
 
