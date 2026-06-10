@@ -102,8 +102,7 @@ function GoalDetailModal({ goalId, onClose, onDeposit, onWithdraw, onDelete }) {
             { label: 'Status',        value: statusLabel },
             detail.completed_at && { label: 'Completed On', value: formatDateTime(detail.completed_at) },
             detail.withdrawn_at && { label: 'Withdrawn On', value: formatDateTime(detail.withdrawn_at) },
-            detail.bonus_earned > 0 && { label: '🎁 Bonus Earned', value: `${Number(detail.bonus_earned).toLocaleString()} XAF` },
-            detail.auto_save_enabled && { label: 'Auto-Save',  value: `${Number(detail.auto_save_amount).toLocaleString()} XAF / ${detail.auto_save_frequency}` },
+            detail.auto_save_enabled && { label: 'Auto-Save', value: `${Number(detail.auto_save_amount).toLocaleString()} XAF / ${detail.auto_save_frequency}` },
           ].filter(Boolean).map(({ label, value }) => (
             <div key={label}>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2 }}>{label}</div>
@@ -216,10 +215,6 @@ function GoalCard({ goal, onDeposit, onWithdraw, onDelete, onViewDetail }) {
         </p>
       )}
 
-      {goal.bonus_earned > 0 && (
-        <p className={styles.bonus}>🎁 Bonus earned: {Number(goal.bonus_earned).toLocaleString()} XAF</p>
-      )}
-
       {/* Actions */}
       {!isComplete && !isWithdrawn && (
         <div className={styles.goalActions}>
@@ -301,9 +296,7 @@ export default function Savings() {
 
   const handleWithdraw = async (goal) => {
     if (!window.confirm(
-      `Withdraw ${Number(goal.saved_amount).toLocaleString()} XAF from "${goal.name}"?\n\n` +
-      `A 2% early withdrawal fee (${Math.round(goal.saved_amount * 0.02).toLocaleString()} XAF) will be deducted.\n` +
-      `Any completion bonus will be forfeited.`
+      `Withdraw ${Number(goal.saved_amount).toLocaleString()} XAF from "${goal.name}"?\n\nA 2% early withdrawal fee (${Math.round(goal.saved_amount * 0.02).toLocaleString()} XAF) will be deducted.`
     )) return;
     try {
       const res = await withdrawFromGoal(goal.id);
@@ -336,7 +329,7 @@ export default function Savings() {
       <div className={styles.pageHeader}>
         <div>
           <h1>💰 My Savings</h1>
-          <p>Set goals, save consistently, earn bonuses</p>
+          <p>Set goals and save consistently</p>
         </div>
         <Link to="/savings/new" className={styles.newBtn}>+ New Goal</Link>
       </div>

@@ -6,7 +6,7 @@ const FEATURES = [
   { icon: '🔄', title: 'Rotating Savings Circles', desc: 'Contribute together, take turns receiving the full pool. Automated, transparent, and fair.' },
   { icon: '🎯', title: 'Fundraiser Groups', desc: 'Pool money for any goal — emergencies, projects, or shared expenses. Admin controls disbursements.' },
   { icon: '💰', title: 'Trust Coin Wallet', desc: 'One wallet for all transactions. Top up, transfer, save, and contribute without leaving the app.' },
-  { icon: '🏦', title: 'Personal Savings Goals', desc: 'Set a target, save at your own pace, earn a bonus when you hit it on time.' },
+  { icon: '🏦', title: 'Personal Savings Goals', desc: 'Set a target, save consistently at your own pace, and withdraw when ready.' },
   { icon: '🛡️', title: 'Identity Verified Members', desc: 'Every member is verified with a government ID and face scan — so your group stays trustworthy.' },
   { icon: '⚡', title: 'Automatic Payouts', desc: 'When everyone contributes, your payout is sent instantly to your wallet. No waiting, no chasing.' },
 ];
@@ -20,9 +20,8 @@ const HOW_IT_WORKS = [
 
 const STATS = [
   { value: 'MTN & Orange', label: 'Mobile Money Supported' },
-  { value: '8', label: 'Languages' },
-  { value: '0%', label: 'Platform Fee on Payouts' },
-  { value: '24/7', label: 'Always Available' },
+  { value: '8',            label: 'Languages' },
+  { value: '24/7',         label: 'Always Available' },
 ];
 
 export default function Landing() {

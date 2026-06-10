@@ -72,7 +72,7 @@ export default function CreateSavingsGoal() {
     <div className={styles.page}>
       <button className={styles.back} onClick={() => navigate(-1)}>← Back</button>
       <h1>🎯 New Savings Goal</h1>
-      <p className={styles.subtitle}>Set a goal, save consistently, earn a 0.5% bonus when you complete it on time.</p>
+      <p className={styles.subtitle}>Set a goal and start saving today.</p>
 
       {error && <div className={styles.error}>{error}</div>}
 
