@@ -8,7 +8,6 @@ const logger = require('../utils/logger');
 
 const TC_TO_XAF = 10000;
 const EARLY_WITHDRAWAL_FEE = 0.02; // 2%
-const COMPLETION_BONUS_RATE = 0.005; // 0.5% bonus on completion
 
 const CATEGORIES = ['General', 'Education', 'Health', 'Travel', 'Business', 'Emergency', 'Housing', 'Technology', 'Other'];
 
@@ -188,25 +187,18 @@ const deposit = [
 
       let bonusEarned = 0;
       if (isComplete) {
-        const now      = new Date();
-        const deadline = new Date(goal.target_date);
-        const onTime   = now <= deadline;
-        if (onTime) bonusEarned = Math.round(Number(goal.target_amount) * COMPLETION_BONUS_RATE);
-
         await query(
           `UPDATE savings_goals SET
              saved_amount = $1, status = 'completed', completed_at = NOW(),
-             bonus_earned = $2, updated_at = NOW()
+             bonus_earned = 0, updated_at = NOW()
            WHERE id = $3`,
-          [newSaved, bonusEarned, goal.id]
+          [newSaved, goal.id]
         );
 
-        // Savings stay as real money — no TC wallet conversion.
-        // Notify the user their goal is complete.
         await sendNotificationToUser({
           userId: req.user.id,
           title: '🎉 Savings Goal Completed!',
-          message: `Congratulations! You've reached your "${goal.name}" goal of ${Number(goal.target_amount).toLocaleString()} XAF!${bonusEarned > 0 ? ` You earned a ${bonusEarned.toLocaleString()} XAF completion bonus — withdraw your savings to claim it.` : ' You can now withdraw your savings.'}`,
+          message: `Congratulations! You've reached your "${goal.name}" goal of ${Number(goal.target_amount).toLocaleString()} XAF! You can now withdraw your savings.`,
           type: 'group_update',
           groupId: null,
         });
@@ -295,7 +287,7 @@ const withdraw = async (req, res, next) => {
     await sendNotificationToUser({
       userId: req.user.id,
       title: 'Savings Withdrawal Processed',
-      message: `${netXaf.toLocaleString()} XAF from "${goal.name}" has been sent to your ${withdrawal_method.replace(/_/g, ' ')}. A 2% early withdrawal fee of ${fee.toLocaleString()} XAF was retained. Any bonus was forfeited.`,
+      message: `${netXaf.toLocaleString()} XAF from "${goal.name}" has been sent to your ${withdrawal_method.replace(/_/g, ' ')}. A 2% early withdrawal fee of ${fee.toLocaleString()} XAF was retained.`,
       type: 'group_update',
       groupId: null,
     });

@@ -16,7 +16,6 @@ const { sendNotificationToUser } = require('./notificationService');
 const logger = require('../utils/logger');
 
 const TC_TO_XAF = 10000;
-const COMPLETION_BONUS_RATE = 0.005;
 
 const runSavingsAutopay = async () => {
   try {
@@ -92,20 +91,16 @@ const runSavingsAutopay = async () => {
       const isComplete = newSaved >= Number(goal.target_amount);
 
       if (isComplete) {
-        const onTime     = now <= new Date(goal.target_date);
-        const bonusEarned = onTime ? Math.round(Number(goal.target_amount) * COMPLETION_BONUS_RATE) : 0;
-
         await query(
           `UPDATE savings_goals SET saved_amount = $1, status = 'completed',
-           completed_at = NOW(), bonus_earned = $2, updated_at = NOW() WHERE id = $3`,
-          [newSaved, bonusEarned, goal.id]
+           completed_at = NOW(), bonus_earned = 0, updated_at = NOW() WHERE id = $3`,
+          [newSaved, goal.id]
         );
 
-        // Savings stay as real money — no TC wallet conversion.
         await sendNotificationToUser({
           userId:  goal.user_id,
           title:   '🎉 Savings Goal Completed!',
-          message: `Your auto-save completed your "${goal.name}" goal of ${Number(goal.target_amount).toLocaleString()} XAF!${bonusEarned > 0 ? ` You earned a ${bonusEarned.toLocaleString()} XAF completion bonus — withdraw your savings to claim it.` : ' You can now withdraw your savings.'}`,
+          message: `Your auto-save completed your "${goal.name}" goal of ${Number(goal.target_amount).toLocaleString()} XAF! You can now withdraw your savings.`,
           type:    'group_update',
           groupId: null,
         }).catch(() => {});
